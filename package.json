@@ -1,0 +1,27 @@
+{
+  "name": "com.sgonzalezrozo.recyclable-scroller",
+  "version": "0.1.0",
+  "displayName": "Recyclable Scroller",
+  "description": "Virtualized scrolling for large uGUI lists and grids in Unity.",
+  "unity": "2022.3",
+  "license": "MIT",
+  "author": {
+    "name": "Santiago González Rozo",
+    "url": "https://github.com/sgonzalezrozo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgonzalezrozo/unity-recyclable-scroller.git"
+  },
+  "keywords": [
+    "ui",
+    "scroll",
+    "recycling",
+    "virtualization",
+    "ugui"
+  ],
+  "dependencies": {
+    "com.sgonzalezrozo.core": "0.1.0",
+    "com.unity.ugui": "1.0.0"
+  }
+}
