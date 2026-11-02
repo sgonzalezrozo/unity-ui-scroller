@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 
-namespace Tools.RecyclableScroller.Core.Scripts.DataSources
+namespace RecyclableScroller.Core.DataSources
 {
     public class PaginatedDataSource<T> : IRecyclableDataSource<T>, IRecyclableDataSource where T : class
     {

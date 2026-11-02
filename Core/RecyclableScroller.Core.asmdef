@@ -1,7 +1,11 @@
 {
-    "name": "tools-recyclablescroller.Abstractions",
+    "name": "RecyclableScroller.Core",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "RecyclableScroller.Abstractions",
+        "ToolsCore",
+        "UnityEngine.UI"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

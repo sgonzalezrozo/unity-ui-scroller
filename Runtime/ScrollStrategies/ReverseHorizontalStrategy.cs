@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts.ScrollStrategies
+namespace RecyclableScroller.Runtime.ScrollStrategies
 {
     public class ReverseHorizontalStrategy : IScrollStrategy
     {

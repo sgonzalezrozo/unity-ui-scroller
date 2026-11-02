@@ -1,8 +1,8 @@
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.GUI.Scripts.Adapters
+namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Binds uGUI ScrollRect components to the scroller.

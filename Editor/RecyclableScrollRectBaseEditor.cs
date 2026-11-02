@@ -1,8 +1,8 @@
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Runtime;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Editor
+namespace RecyclableScroller.Editor
 {
     [CustomEditor(typeof(RecyclableScrollRectBase), true)]
     public class RecyclableScrollRectBaseEditor : UnityEditor.Editor

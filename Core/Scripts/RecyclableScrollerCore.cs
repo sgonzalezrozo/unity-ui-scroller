@@ -1,12 +1,12 @@
 using System;
-using Tools.RecyclableScroller.Abstractions.Scripts;
-using Tools.RecyclableScroller.Core.Scripts.Algorithms;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
-using Tools.RecyclableScroller.Core.Scripts.Size;
+using RecyclableScroller.Abstractions;
+using RecyclableScroller.Core.Algorithms;
+using RecyclableScroller.Core.Interfaces;
+using RecyclableScroller.Core.Pooling;
+using RecyclableScroller.Core.Size;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts
+namespace RecyclableScroller.Core
 {
     /// <summary>
     /// Pure C# recyclable scroller engine. Framework-agnostic.

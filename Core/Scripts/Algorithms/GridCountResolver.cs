@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Algorithms
+namespace RecyclableScroller.Core.Algorithms
 {
     public class GridCountResolver
     {

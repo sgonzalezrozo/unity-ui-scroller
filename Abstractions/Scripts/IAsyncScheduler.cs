@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Abstracts async scheduling (coroutines for uGUI, callbacks for UIToolkit).

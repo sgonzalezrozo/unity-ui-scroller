@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Abstracts input and scroll events from framework.

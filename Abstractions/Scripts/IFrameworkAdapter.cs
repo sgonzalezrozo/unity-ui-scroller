@@ -1,4 +1,4 @@
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Container for all framework-specific implementations.

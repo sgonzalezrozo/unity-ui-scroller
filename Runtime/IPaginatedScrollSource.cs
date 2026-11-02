@@ -1,4 +1,4 @@
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public interface IPaginatedScrollSource<T> : IScrollSource<T> where T : class
     {

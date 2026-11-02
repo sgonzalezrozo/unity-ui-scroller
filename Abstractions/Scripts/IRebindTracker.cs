@@ -1,4 +1,4 @@
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Determines which cells need rebinding based on scroll/grid/data changes.

@@ -1,9 +1,9 @@
 using ToolsCore;
-using Tools.RecyclableScroller.Abstractions.Scripts;
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Abstractions;
+using RecyclableScroller.Runtime;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.GUI.Scripts.Adapters
+namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Adapts uGUI pooling to ICellContainer.

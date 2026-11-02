@@ -1,4 +1,4 @@
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Abstracts cell lifecycle management (creation, pooling, destruction).

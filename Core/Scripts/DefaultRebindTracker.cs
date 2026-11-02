@@ -1,6 +1,6 @@
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 
-namespace Tools.RecyclableScroller.Core.Scripts
+namespace RecyclableScroller.Core
 {
     /// <summary>
     /// Default implementation of rebind strategy tracker.

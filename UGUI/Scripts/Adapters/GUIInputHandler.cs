@@ -1,9 +1,9 @@
 using System;
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.GUI.Scripts.Adapters
+namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Adapts uGUI ScrollRect input events to IInputHandler interface.

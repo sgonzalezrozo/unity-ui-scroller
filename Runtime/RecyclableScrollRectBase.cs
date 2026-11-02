@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public abstract class RecyclableScrollRectBase : ScrollRect
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class DynamicCellSizeCoordinator<T> where T : class
     {

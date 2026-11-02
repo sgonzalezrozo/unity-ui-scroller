@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class FilteredDataSource<T> : IRecyclableDataSource<T>, IRecyclableDataSource where T : class
     {

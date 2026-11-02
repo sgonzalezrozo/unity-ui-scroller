@@ -1,10 +1,10 @@
 using System;
-using Tools.RecyclableScroller.Abstractions.Scripts;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Abstractions;
+using RecyclableScroller.Core.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.GUI.Scripts.Adapters
+namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Adapts uGUI ScrollRect to IViewportProvider interface.

@@ -1,9 +1,9 @@
 using System;
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Tools.RecyclableScroller.UIToolkit.Scripts.Adapters
+namespace RecyclableScroller.UIToolkit.Adapters
 {
     /// <summary>
     /// Adapts UIToolkit ScrollView to IViewportProvider.

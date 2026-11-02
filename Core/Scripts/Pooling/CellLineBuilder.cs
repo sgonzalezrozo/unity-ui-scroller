@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Pooling
+namespace RecyclableScroller.Core.Pooling
 {
     public class CellLineBuilder
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
+using RecyclableScroller.Core.Interfaces;
+using RecyclableScroller.Core.Pooling;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Algorithms
+namespace RecyclableScroller.Core.Algorithms
 {
     public class CellExpansionController
     {

@@ -1,6 +1,6 @@
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Directions
+namespace RecyclableScroller.Core.Directions
 {
     /// <summary>
     /// Factory for creating scroll direction implementations.

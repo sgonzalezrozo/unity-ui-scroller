@@ -1,8 +1,8 @@
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
+using RecyclableScroller.Core.Interfaces;
+using RecyclableScroller.Core.Pooling;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Directions
+namespace RecyclableScroller.Core.Directions
 {
     /// <summary>
     /// Base class for scroll direction strategies.

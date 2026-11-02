@@ -1,8 +1,8 @@
 using System.Collections;
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.GUI.Scripts.Adapters
+namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Adapts MonoBehaviour coroutines to IAsyncScheduler.

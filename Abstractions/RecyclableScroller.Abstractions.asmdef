@@ -1,11 +1,7 @@
 {
-    "name": "tools-recyclablescroller.UIToolkit",
+    "name": "RecyclableScroller.Abstractions",
     "rootNamespace": "",
-    "references": [
-        "tools-recyclablescroller",
-        "tools-recyclablescroller.Core",
-        "tools-recyclablescroller.Abstractions"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
