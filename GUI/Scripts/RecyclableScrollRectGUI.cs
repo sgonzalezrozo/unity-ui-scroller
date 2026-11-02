@@ -1,5 +1,5 @@
 using System;
-using Tools.Core;
+using ToolsCore;
 using Tools.RecyclableScroller.Core.Scripts;
 using Tools.RecyclableScroller.Core.Scripts.Directions;
 using Tools.RecyclableScroller.Core.Scripts.Interfaces;
