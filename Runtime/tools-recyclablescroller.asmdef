@@ -6,7 +6,7 @@
         "UnityEngine.UI",
         "tools-recyclablescroller.Core",
         "tools-recyclablescroller.Abstractions",
-        "tools.Core"
+        "ToolsCore"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
