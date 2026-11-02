@@ -29,7 +29,7 @@ namespace Tools.RecyclableScroller.Scripts
             cellPrefab = prefab;
             this.headerPrefab = headerPrefab;
             contentTransform = content;
-            this.instantiator = instantiator ?? new NullPrefabInstantiator();
+            this.instantiator = instantiator ?? ToolInjectionServices.PrefabInstantiator;
             availableCells = new();
             if (headerPrefab != null)
                 availableHeaders = new();

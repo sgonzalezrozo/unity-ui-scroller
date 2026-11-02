@@ -30,7 +30,7 @@ namespace Tools.RecyclableScroller.Core.Scripts.Pooling
             cellPrefab = prefab;
             this.headerPrefab = headerPrefab;
             contentTransform = content;
-            this.instantiator = instantiator ?? new NullPrefabInstantiator();
+            this.instantiator = instantiator ?? ToolInjectionServices.PrefabInstantiator;
             availableCells = new();
             if (headerPrefab != null)
                 availableHeaders = new();

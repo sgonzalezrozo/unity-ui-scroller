@@ -123,7 +123,7 @@ namespace Tools.RecyclableScroller.GUI.Scripts
             int poolSize = Mathf.CeilToInt(10 * (overridePoolPercentage ? poolPercentage : 1.4f));
             cellContainer = new GUICellContainer(
                 cellPrefab, components.Content, poolSize,
-                injectedInstantiator ?? new NullPrefabInstantiator(),
+                injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator,
                 headerPrefab);
             asyncScheduler = new GUIAsyncScheduler(this);
 

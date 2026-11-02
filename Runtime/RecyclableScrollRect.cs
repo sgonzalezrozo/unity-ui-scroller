@@ -374,7 +374,7 @@ namespace Tools.RecyclableScroller.Scripts
 
             cellPool?.DestroyAllCells();
 
-            IPrefabInstantiator resolvedInstantiator = injectedInstantiator ?? new NullPrefabInstantiator();
+            IPrefabInstantiator resolvedInstantiator = injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator;
             cellPool = new CellPool(cellPrefab, components.Content, totalCellsNeeded, resolvedInstantiator);
 
             cellLineRecycler = new CellLineRecycler(cellLines, cellPool);
