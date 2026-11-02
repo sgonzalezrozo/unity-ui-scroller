@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using ToolsCore;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class CellLinePool
     {

@@ -1,8 +1,8 @@
 using System;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class CellLineDisplayer
     {

@@ -1,12 +1,12 @@
 {
-    "name": "tools-recyclablescroller.GUI",
+    "name": "RecyclableScroller",
     "rootNamespace": "",
     "references": [
-        "tools-recyclablescroller",
-        "tools-recyclablescroller.Core",
-        "tools-recyclablescroller.Abstractions",
-        "ToolsCore",
-        "UnityEngine.UI"
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "RecyclableScroller.Core",
+        "RecyclableScroller.Abstractions",
+        "ToolsCore"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

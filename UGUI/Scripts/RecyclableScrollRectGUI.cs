@@ -1,15 +1,15 @@
 using System;
 using ToolsCore;
-using Tools.RecyclableScroller.Core.Scripts;
-using Tools.RecyclableScroller.Core.Scripts.Directions;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
-using Tools.RecyclableScroller.GUI.Scripts.Adapters;
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Core;
+using RecyclableScroller.Core.Directions;
+using RecyclableScroller.Core.Interfaces;
+using RecyclableScroller.UGUI.Adapters;
+using RecyclableScroller.Runtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using ScrollComponentBinder = Tools.RecyclableScroller.Scripts.ScrollComponentBinder;
+using ScrollComponentBinder = RecyclableScroller.Runtime.ScrollComponentBinder;
 
-namespace Tools.RecyclableScroller.GUI.Scripts
+namespace RecyclableScroller.UGUI
 {
     /// <summary>
     /// uGUI wrapper for RecyclableScrollerCore<T>.
@@ -65,7 +65,7 @@ namespace Tools.RecyclableScroller.GUI.Scripts
         private RecyclableScrollerCore<T> core;
 
         // State
-        protected Core.Scripts.Interfaces.IRecyclableDataSource<T> DataSource { get; set; }
+        protected Core.Interfaces.IRecyclableDataSource<T> DataSource { get; set; }
         private bool isInitialized;
 
         // Events
@@ -93,12 +93,12 @@ namespace Tools.RecyclableScroller.GUI.Scripts
         /// Initialize the scroller with a data source and optional size calculator.
         /// Creates adapters, instantiates core engine, and sets up all event handlers.
         /// </summary>
-        public void Initialize(Core.Scripts.Interfaces.IRecyclableDataSource<T> source)
+        public void Initialize(Core.Interfaces.IRecyclableDataSource<T> source)
             => Initialize(source, null);
 
-        public void Initialize(Core.Scripts.Interfaces.IRecyclableDataSource<T> source, Core.Scripts.Interfaces.ICellSizeCalculator<T> calculator)
+        public void Initialize(Core.Interfaces.IRecyclableDataSource<T> source, Core.Interfaces.ICellSizeCalculator<T> calculator)
         {
-            if (!Core.Scripts.DataSources.DataSourceGuard<T>.ValidateForInitialize(gameObject, source))
+            if (!Core.DataSources.DataSourceGuard<T>.ValidateForInitialize(gameObject, source))
                 return;
 
             DataSource = source;
@@ -156,7 +156,7 @@ namespace Tools.RecyclableScroller.GUI.Scripts
             isInitialized = true;
         }
 
-        public void SetDataSource(Core.Scripts.Interfaces.IRecyclableDataSource<T> newSource)
+        public void SetDataSource(Core.Interfaces.IRecyclableDataSource<T> newSource)
         {
             if (!isInitialized || newSource == null)
                 return;

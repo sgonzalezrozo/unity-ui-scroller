@@ -1,8 +1,8 @@
 {
-    "name": "tools-recyclablescroller.Editor",
+    "name": "RecyclableScroller.Editor",
     "rootNamespace": "",
     "references": [
-        "tools-recyclablescroller"
+        "RecyclableScroller"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,8 +1,8 @@
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.Core.Scripts.DataSources
+namespace RecyclableScroller.Core.DataSources
 {
     public static class DataSourceGuard<T> where T : class
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class PaginatedDataSource<T> : IRecyclableDataSource<T>, IRecyclableDataSource where T : class
     {

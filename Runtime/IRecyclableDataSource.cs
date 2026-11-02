@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public interface IRecyclableDataSource
     {

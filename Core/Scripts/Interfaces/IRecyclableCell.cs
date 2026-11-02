@@ -1,6 +1,6 @@
 using ToolsCore;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Interfaces
+namespace RecyclableScroller.Core.Interfaces
 {
     public interface IRecyclableCell
     {

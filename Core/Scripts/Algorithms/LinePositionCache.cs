@@ -1,6 +1,6 @@
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
+using RecyclableScroller.Core.Pooling;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Algorithms
+namespace RecyclableScroller.Core.Algorithms
 {
     public class LinePositionCache
     {

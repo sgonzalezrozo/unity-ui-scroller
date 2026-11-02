@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 using UnityEngine.UIElements;
 
-namespace Tools.RecyclableScroller.UIToolkit.Scripts.Adapters
+namespace RecyclableScroller.UIToolkit.Adapters
 {
     /// <summary>
     /// UIToolkit cell pooling using VisualElement.Instantiate().

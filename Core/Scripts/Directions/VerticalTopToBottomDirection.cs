@@ -1,7 +1,7 @@
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
+using RecyclableScroller.Core.Pooling;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Directions
+namespace RecyclableScroller.Core.Directions
 {
     public class VerticalTopToBottomDirection : ScrollDirectionBase
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     internal class VisibleCellCalculator
     {

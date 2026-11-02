@@ -1,8 +1,8 @@
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
+using RecyclableScroller.Core.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class ScrollNavigator
     {

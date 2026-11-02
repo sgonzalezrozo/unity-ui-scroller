@@ -1,7 +1,7 @@
-using Tools.RecyclableScroller.Scripts.ScrollStrategies;
+using RecyclableScroller.Runtime.ScrollStrategies;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class PositionCalculator
     {

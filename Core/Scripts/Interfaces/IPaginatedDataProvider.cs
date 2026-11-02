@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Interfaces
+namespace RecyclableScroller.Core.Interfaces
 {
     public interface IPaginatedDataProvider<T> where T : class
     {

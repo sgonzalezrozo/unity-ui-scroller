@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public interface ICellSizeCalculator<T> where T : class
     {

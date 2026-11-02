@@ -1,8 +1,8 @@
 using System;
-using Tools.RecyclableScroller.Core.Scripts.Interfaces;
-using Tools.RecyclableScroller.Core.Scripts.Pooling;
+using RecyclableScroller.Core.Interfaces;
+using RecyclableScroller.Core.Pooling;
 
-namespace Tools.RecyclableScroller.Core.Scripts.Size
+namespace RecyclableScroller.Core.Size
 {
     /// <summary>
     /// Stub for DynamicCellSizeCoordinator.

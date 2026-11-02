@@ -1,7 +1,7 @@
-using Tools.RecyclableScroller.Abstractions.Scripts;
+using RecyclableScroller.Abstractions;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Core.Scripts
+namespace RecyclableScroller.Core
 {
     /// <summary>
     /// Caches viewport metrics to reduce repeated framework queries.

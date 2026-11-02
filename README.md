@@ -92,7 +92,7 @@ Items must be classes. The cell receives its item through `Data`:
 
 ```csharp
 using TMPro;
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Runtime;
 using UnityEngine;
 
 public class InventoryItem
@@ -127,7 +127,7 @@ Save the cell as a prefab, with a `RectTransform` on its root.
 `RecyclableScrollRect<T>` is abstract, and Unity can't add an open generic component, so create a concrete class:
 
 ```csharp
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Runtime;
 
 public class InventoryScroller : RecyclableScrollRect<InventoryItem>
 {
@@ -148,7 +148,7 @@ public class InventoryScroller : RecyclableScrollRect<InventoryItem>
 
 ```csharp
 using System.Collections.Generic;
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Runtime;
 using UnityEngine;
 
 public class InventoryScreen : MonoBehaviour
@@ -182,7 +182,7 @@ scroller.Refresh();
 Implement `ICellSizeCalculator<T>` when cell sizes vary:
 
 ```csharp
-using Tools.RecyclableScroller.Scripts;
+using RecyclableScroller.Runtime;
 using UnityEngine;
 
 public class InventorySizeCalculator : ICellSizeCalculator<InventoryItem>

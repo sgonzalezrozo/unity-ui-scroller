@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Abstractions.Scripts
+namespace RecyclableScroller.Abstractions
 {
     /// <summary>
     /// Provides normalized viewport metrics (0-1 range).

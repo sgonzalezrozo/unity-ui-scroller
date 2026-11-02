@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace Tools.RecyclableScroller.Scripts
+namespace RecyclableScroller.Runtime
 {
     public class EmptyStateDisplay : MonoBehaviour
     {
