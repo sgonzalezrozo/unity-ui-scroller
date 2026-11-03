@@ -3,16 +3,18 @@
 **Virtualized scrolling for large uGUI lists and grids, built to keep UI responsive under load.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
+[![Version 0.2.0](https://img.shields.io/badge/version-0.2.0-blue.svg)](CHANGELOG.md)
 
 Recyclable Scroller reuses a pool of cells instead of creating one object per item. It extends Unity's `ScrollRect` and supports vertical and horizontal lists, grids, headers, dynamic sizing, expandable cells and pagination.
 
-> **TODO:** Add a GIF of a very large list, ideally with the Profiler visible.
+<!-- Demo GIF: Documentation~/images/demo.gif -->
 
 ## Why I built it
 
-Long lists are a common source of performance problems in mobile UI. Creating an object for every row costs memory and setup time, and on mobile games, smooth scrolling depends on keeping allocations under control.
+I wrote Recyclable Scroller after trying to fix other open-source scrollers I found on GitHub. I spent weeks on minor issues until I decided I could just make my own, calculating its boundaries my way. It seemed like a worthy challenge.
 
-> **TODO:** Replace this with your own story: which screen or project pushed you to build this, and what the existing options lacked.
+After three very long days of personal time, I had a first working version. It has since evolved into a robust recycling scroller.
 
 ## Is it right for your project?
 
@@ -43,11 +45,11 @@ Long lists are a common source of performance problems in mobile UI. Creating an
 
 | Requirement | Supported |
 |---|---|
-| Unity | 2022.3 or newer. **TODO:** add tested versions. |
-| Scripting backend | **TODO:** confirm Mono and IL2CPP |
-| Platforms | **TODO:** list tested platforms |
+| Unity | Tested on Unity 6 (`6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
+| Scripting backend | Not verified yet |
+| Platforms | Not verified yet |
 | UI frameworks | uGUI. UI Toolkit has adapters only. |
-| Enter Play Mode with domain reload disabled | **TODO:** confirm support |
+| Enter Play Mode with domain reload disabled | Not verified yet. The package has no static reset for this mode, so keep domain reload on until you've tested it. |
 | Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), uGUI, TextMeshPro |
 
 ## Installation
@@ -142,7 +144,7 @@ public class InventoryScroller : RecyclableScrollRect<InventoryItem>
 4. Assign your cell prefab to **Cell Prefab**.
 5. Remove any `LayoutGroup` or `ContentSizeFitter` from **Content**.
 
-> **TODO:** Add a screenshot, and confirm these scene steps in a clean project.
+<!-- Screenshot: Documentation~/images/hierarchy-and-inspector.png -->
 
 ### 4. Initialize it
 
@@ -206,19 +208,207 @@ Use a size calculator when an item's size is known from its data. Use expandable
 
 ## Expandable cells
 
-Implement `IExpandableRecyclableCell<T>` on the cell, then call:
+Implement `IExpandableRecyclableCell<T>` on the cell. The scroller sets `ScrollRect` and `CellDataIndex` each time it binds the cell:
 
 ```csharp
-scroller.ExpandCell(index);
+using RecyclableScroller.Runtime;
+using TMPro;
+using UnityEngine;
+
+public class ExpandableInventoryCell : MonoBehaviour, IExpandableRecyclableCell<InventoryItem>
+{
+    private const float ExpandedSize = 240f;
+
+    [SerializeField] private TMP_Text label;
+    [SerializeField] private GameObject details;
+
+    private InventoryItem data;
+    private bool isExpanded;
+
+    public float DefaultCellSize => 80f;
+    public IRecyclableScrollRect ScrollRect { get; set; }
+    public int CellDataIndex { get; set; }
+
+    public InventoryItem Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            label.text = value.Name;
+        }
+    }
+
+    public bool IsExpanded
+    {
+        get => isExpanded;
+        set
+        {
+            isExpanded = value;
+            details.SetActive(value);
+        }
+    }
+
+    // Hook this up to the cell's button.
+    public void Toggle()
+    {
+        if (IsExpanded)
+            CollapseCell();
+        else
+            ScrollRect.ExpandCell(CellDataIndex, ExpandedSize);
+    }
+
+    public void CollapseCell()
+    {
+        ScrollRect.CellWantToCollapse(CellDataIndex);
+    }
+}
 ```
 
-Pass a size to set it explicitly, such as `scroller.ExpandCell(index, 240f)`. Turn on **Allow Multiple Expanded Cells** to keep more than one open.
+- Without a size, `ExpandCell(index)` uses the size calculator's expanded size, or twice the estimated cell size.
+- To resize an open cell, call `UpdateExpandedCellSize(index, newSize)`.
+- Turn on **Allow Multiple Expanded Cells** to keep more than one open.
+- Expansion only works in single-column lists. It's ignored when **Grid Count** is above 1.
+
+## Grids
+
+Set **Grid Count** to the number of cells per line. To fit as many columns as the width allows, turn on **Use Dynamic Grid Count**, then set the cell size and the minimum and maximum counts. Set **Grid Cell Spacing** for the space between cells on a line.
+
+## Headers
+
+Assign a **Header Prefab**, then override `IsHeader` in your scroller class:
+
+```csharp
+using RecyclableScroller.Runtime;
+
+public class SectionedScroller : RecyclableScrollRect<InventoryItem>
+{
+    protected override bool IsHeader(int dataIndex)
+    {
+        return DataSource.GetItem(dataIndex) is InventorySectionItem;
+    }
+}
+```
+
+`InventorySectionItem` here is your own subclass of `InventoryItem`. Headers are items in your data source, so the header prefab receives its data through `IRecyclableCell<T>`, like any other cell.
+
+## Reversed lists
+
+Turn on **Reverse** to start from the opposite end, as in a chat list. It works with vertical and horizontal lists.
+
+## Filtered data
+
+Wrap a source in `FilteredDataSource<T>`:
+
+```csharp
+ListDataSource<InventoryItem> items = new(allItems);
+FilteredDataSource<InventoryItem> filtered = new(items, item => item.Name.Contains("Sword"));
+
+scroller.Initialize(filtered);
+```
+
+To change the filter, update the predicate, then refresh:
+
+```csharp
+filtered.SetPredicate(item => item.Name.StartsWith("A"));
+scroller.Refresh();
+
+filtered.ClearPredicate();
+scroller.Refresh();
+```
+
+Each `GetItem` call walks the source list, so filtering gets slower as the list grows. For very large lists, build a filtered list yourself and pass it to `SetItems`.
+
+## Pull to refresh
+
+Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 pixels past the start of the list:
+
+```csharp
+using System.Threading.Tasks;
+using RecyclableScroller.Runtime;
+
+public class RefreshingScroller : RecyclableScrollRect<InventoryItem>
+{
+    protected override async void OnPullToRefreshDetected()
+    {
+        await ReloadAsync();
+        Refresh();
+    }
+
+    private Task ReloadAsync()
+    {
+        // Update your data source here.
+        return Task.CompletedTask;
+    }
+}
+```
+
+The package also includes a `PullToRefreshUI` component for a status label and spinner, which you drive yourself.
 
 ## Pagination
 
-Implement `IPaginatedDataProvider<T>` and wrap it in `PaginatedDataSource<T>`. Subclasses can override `SupportsPagination()` and `OnPaginationThresholdReached()`.
+Implement `IPaginatedDataProvider<T>` and wrap it in `PaginatedDataSource<T>`. Pages start at `0`:
 
-> **TODO:** Add a tested pagination example.
+```csharp
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using RecyclableScroller.Runtime;
+
+public class InventoryPageProvider : IPaginatedDataProvider<InventoryItem>
+{
+    private const int PageSize = 50;
+    private const int PageCount = 10;
+
+    public Task<PaginationResult<InventoryItem>> LoadPageAsync(int page)
+    {
+        List<InventoryItem> items = new(PageSize);
+        for (int i = 0; i < PageSize; i++)
+            items.Add(new InventoryItem { Name = $"Item {page * PageSize + i}" });
+
+        return Task.FromResult(new PaginationResult<InventoryItem>
+        {
+            Success = true,
+            Items = items,
+            CurrentPage = page,
+            HasMore = page + 1 < PageCount
+        });
+    }
+}
+```
+
+Load the first page, then refresh the scroller whenever a page arrives:
+
+```csharp
+using System;
+using RecyclableScroller.Runtime;
+using UnityEngine;
+
+public class PaginatedInventoryScreen : MonoBehaviour
+{
+    [SerializeField] private InventoryScroller scroller;
+
+    private PaginatedDataSource<InventoryItem> source;
+
+    private async void Start()
+    {
+        try
+        {
+            source = new PaginatedDataSource<InventoryItem>(new InventoryPageProvider());
+
+            await source.LoadNextPageAsync();
+
+            scroller.Initialize(source);
+            source.OnDataChanged = scroller.Refresh;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+    }
+}
+```
+
+The next page starts loading automatically when a cell within 10 items of the end is bound. To load at a different point, call `LoadNextPageAsync()` yourself from an `OnPaginationThresholdReached()` override, which runs at 96% of the scroll range.
 
 ## API reference
 
@@ -233,6 +423,9 @@ Implement `IPaginatedDataProvider<T>` and wrap it in `PaginatedDataSource<T>`. S
 | `ScrollToStart()` | Jumps to the start |
 | `ScrollToEnd()` | Jumps to the end |
 | `ExpandCell(int index, float newSize = -1)` | Expands a cell |
+| `CellWantToCollapse(int index)` | Collapses a cell |
+| `UpdateExpandedCellSize(int index, float newSize = -1)` | Resizes an expanded cell |
+| `IsIndexExpanded(int index)` | Checks whether a cell is expanded |
 | `IsItemVisible(int index)` | Checks whether an item is visible |
 | `GetItemCount()` | Gets the item count |
 | `IsInitialized` | Checks whether initialization has finished |
@@ -248,6 +441,7 @@ Implement `IPaginatedDataProvider<T>` and wrap it in `PaginatedDataSource<T>`. S
 | Is Vertical, Reverse | Scroll direction and order |
 | Grid Count | Number of cells per line |
 | Use Dynamic Grid Count | Calculates grid columns from available space |
+| Allow Multiple Expanded Cells | Keeps more than one cell open |
 | Cells Per Frame | How many cells are created per frame |
 
 ## Dependency injection
@@ -263,7 +457,30 @@ The scroller works without a container, using standard `Instantiate`. With [Fast
 
 ## Performance
 
-> **TODO:** Add memory, frame time and initialization results at 1,000, 10,000 and 100,000 items. Include the device, Unity version, scripting backend, build type and a link to the benchmark project.
+Benchmarks aren't published yet. Measure memory, frame time and startup at your own list sizes on your target device.
+
+## ScrollRect or ListView?
+
+| | Recyclable Scroller | [UI Toolkit `ListView`](https://docs.unity3d.com/ScriptReference/UIElements.ListView.html) |
+|---|---|---|
+| UI framework | uGUI | UI Toolkit |
+| Recycles rows | Yes | Yes |
+| Item sizes | Fixed or calculated per item | Fixed or dynamic height |
+| Grids | Built in | Not built in |
+| Expandable cells | Built in | Build it yourself |
+| Pagination | Built in | Build it yourself |
+| Package to install | Yes | No, it's part of Unity |
+
+Use this package if your UI is in uGUI. If your UI is in UI Toolkit, start with `ListView`.
+
+## Code layout
+
+| Folder | Status |
+|---|---|
+| `Runtime` | The code the examples use, in the `RecyclableScroller.Runtime` namespace |
+| `Core`, `UGUI`, `UIToolkit`, `Abstractions` | A framework-independent layout in progress. `Core` and `UGUI` still overlap with `Runtime`. |
+
+Depend on `RecyclableScroller.Runtime` for now, because the other namespaces may change.
 
 ## Troubleshooting
 
@@ -273,10 +490,15 @@ The scroller works without a container, using standard `Instantiate`. With [Fast
 | `Refresh aborted - not initialized` | Call `Initialize` first |
 | A recycled cell shows old content | Reset every visual field when `Data` is set |
 | New items don't appear | Call `Refresh()` after changing the data source |
+| `Cannot initialize inactive GameObject` | Activate the scroller before calling `Initialize` |
+| `ExpandCell` does nothing | Set **Grid Count** to 1, because expansion doesn't work in grids |
+| New pages don't appear | Assign `OnDataChanged` so the scroller refreshes after each page |
 
 ## Limitations
 
 - Items must be reference types.
+- Expandable cells don't work in grids.
+- `FilteredDataSource<T>` walks the source list on each item lookup.
 - There's no finished UI Toolkit component yet.
 - `ScrollToItem` jumps to the item. It doesn't take alignment or animation options.
 
@@ -284,11 +506,13 @@ The scroller works without a container, using standard `Instantiate`. With [Fast
 
 This is a pre-release package at version `0.2.0`. Its API and behavior may change before `1.0.0`.
 
-> **TODO:** Add a roadmap link and breaking-change policy.
+Until `1.0.0`, minor versions (`0.x.0`) can include breaking changes, and patch versions (`0.x.y`) don't. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
+
+There's no public roadmap yet. Known gaps are listed under [Limitations](#limitations), and planned work is tracked in [issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues).
 
 ## Contributing
 
-Bug reports and pull requests are welcome. Please open an issue before starting a large change.
+Bug reports and pull requests are welcome. Please open an issue before starting a large change. See the [contributing guide](.github/CONTRIBUTING.md) and [security policy](.github/SECURITY.md).
 
 ## Related packages
 
