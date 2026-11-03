@@ -4,6 +4,10 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- `PaginatedDataSource.Reset()` no longer skips page 0 on the next load.
+
 ### Documentation
 
 - Added recipes for expandable cells, pagination, grids, headers, reversed lists, filtered data and pull to refresh.

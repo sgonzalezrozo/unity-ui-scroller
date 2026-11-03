@@ -3,7 +3,7 @@
 **Virtualized scrolling for large uGUI lists and grids, built to keep UI responsive under load.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Unity 2022.3+](https://img.shields.io/badge/Unity-2022.3%2B-black?logo=unity)](#compatibility)
+[![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
 [![Version 0.2.0](https://img.shields.io/badge/version-0.2.0-blue.svg)](CHANGELOG.md)
 
 Recyclable Scroller reuses a pool of cells instead of creating one object per item. It extends Unity's `ScrollRect` and supports vertical and horizontal lists, grids, headers, dynamic sizing, expandable cells and pagination.
@@ -45,7 +45,7 @@ After three very long days of personal time, I had a first working version. It h
 
 | Requirement | Supported |
 |---|---|
-| Unity | 2022.3 or newer. This is the declared minimum. Tested versions aren't published yet. |
+| Unity | Tested on Unity 6 (`6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
 | Scripting backend | Not verified yet |
 | Platforms | Not verified yet |
 | UI frameworks | uGUI. UI Toolkit has adapters only. |

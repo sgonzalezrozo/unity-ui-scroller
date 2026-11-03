@@ -110,7 +110,7 @@ namespace RecyclableScroller.Runtime
         public void Reset()
         {
             cachedItems.Clear();
-            currentPage = 0;
+            currentPage = -1;
             hasMorePages = true;
             isLoading = false;
             OnDataChanged?.Invoke();
