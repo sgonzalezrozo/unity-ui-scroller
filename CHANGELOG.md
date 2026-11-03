@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented in this file.
 
+## [Unreleased]
+
+### Documentation
+
+- Added recipes for expandable cells, pagination, grids, headers, reversed lists, filtered data and pull to refresh.
+- Added a `ListView` comparison and a description of the code layout.
+- Added contributing, security and issue template files, and a Quick Start sample.
+- Removed internal development notes from code comments, and added XML documentation to the main scroller APIs.
+
 ## [0.2.0] - Unreleased
 
 ### Changed

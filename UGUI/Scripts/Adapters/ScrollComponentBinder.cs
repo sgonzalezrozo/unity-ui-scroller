@@ -6,7 +6,7 @@ namespace RecyclableScroller.UGUI.Adapters
 {
     /// <summary>
     /// Binds uGUI ScrollRect components to the scroller.
-    /// Stub implementation - full version to be moved from Scripts folder.
+    /// Stub implementation.
     /// </summary>
     public class ScrollComponentBinder
     {
