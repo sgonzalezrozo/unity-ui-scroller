@@ -1,6 +1,6 @@
 {
   "name": "com.sgonzalezrozo.recyclable-scroller",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "Recyclable Scroller",
   "description": "Virtualized scrolling for large uGUI lists and grids in Unity.",
   "unity": "2022.3",
@@ -28,7 +28,7 @@
     }
   ],
   "dependencies": {
-    "com.sgonzalezrozo.core": "0.2.0",
+    "com.sgonzalezrozo.core": "0.3.0",
     "com.unity.ugui": "1.0.0"
   }
 }
