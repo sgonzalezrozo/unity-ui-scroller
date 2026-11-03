@@ -8,6 +8,7 @@ namespace RecyclableScroller.Runtime
 {
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(1)]
+    /// <summary>A ScrollRect that recycles cells. Create a concrete subclass to add it to a GameObject.</summary>
     public abstract class RecyclableScrollRect<T> : RecyclableScrollRectBase, IRecyclableScrollRect
         where T : class
     {
@@ -19,6 +20,7 @@ namespace RecyclableScroller.Runtime
         private const float PAGINATION_RESET_NORMALIZED = 0.95f;
         private const float EXPANDED_SIZE_FALLBACK_MULTIPLIER = 2f;
 
+        /// <summary>Runs when initialization finishes.</summary>
         public Action OnInitialized;
 
         [SerializeField] protected GameObject cellPrefab;
@@ -92,20 +94,29 @@ namespace RecyclableScroller.Runtime
         private Action<int> cachedOnCellCollapsed;
         private Action<int, float> cachedOnCellExpanded;
 
+        /// <summary>True once initialization has finished.</summary>
         public bool IsInitialized => isInitialized;
+        /// <summary>True while the list is moving.</summary>
         public bool IsScrolling => activityTracker?.IsScrolling ?? false;
+        /// <summary>True while the user is dragging.</summary>
         public bool IsDragging => activityTracker?.IsDragging ?? false;
+        /// <summary>The first visible line index, or -1 before initialization.</summary>
         public int VisibleStartIndex => scrollStateManager?.VisibleStartIndex ?? -1;
+        /// <summary>The last visible line index, or -1 before initialization.</summary>
         public int VisibleEndIndex => scrollStateManager?.VisibleEndIndex ?? -1;
+        /// <summary>True when the start of the list is visible.</summary>
         public bool IsFirstItemVisible => isInitialized && VisibleStartIndex == 0;
+        /// <summary>True when the end of the list is visible.</summary>
         public bool IsLastItemVisible => isInitialized && cellLines is { Length: > 0 } && VisibleEndIndex == cellLines.Length - 1;
 
+        /// <summary>The prefab used for cells.</summary>
         public GameObject CellPrefab
         {
             get => cellPrefab;
             set => cellPrefab = value;
         }
 
+        /// <summary>Gets the number of items in the data source.</summary>
         public int GetItemCount()
             => DataSource?.ItemCount ?? 0;
 
@@ -213,9 +224,11 @@ namespace RecyclableScroller.Runtime
             return cellComponent?.DefaultCellSize ?? 100f;
         }
 
+        /// <summary>Starts the scroller with a data source.</summary>
         public void Initialize(IRecyclableDataSource<T> source)
             => Initialize(source, null);
 
+        /// <summary>Starts the scroller with a data source and size calculator.</summary>
         public void Initialize(IRecyclableDataSource<T> source, ICellSizeCalculator<T> calculator)
         {
             if (!DataSourceGuard<T>.ValidateForInitialize(gameObject, source))
@@ -242,6 +255,7 @@ namespace RecyclableScroller.Runtime
             }
         }
 
+        /// <summary>Replaces the data source and refreshes.</summary>
         public void SetDataSource(IRecyclableDataSource<T> newSource)
         {
             if (!DataSourceGuard<T>.ValidateForSetDataSource(gameObject, newSource, isInitialized))
@@ -535,6 +549,7 @@ namespace RecyclableScroller.Runtime
             expandable.CellDataIndex = index;
         }
 
+        /// <summary>Rebuilds the list from the current data source.</summary>
         public void Refresh()
         {
             if (!isInitialized)
@@ -558,6 +573,7 @@ namespace RecyclableScroller.Runtime
             }
         }
 
+        /// <summary>Clears displayed cells and resets the scroll position.</summary>
         public void Clear()
         {
             if (!isInitialized)
@@ -572,6 +588,7 @@ namespace RecyclableScroller.Runtime
         private void CleanupActiveLines()
             => displayer?.CleanupActiveLines(cellLines);
 
+        /// <summary>Checks whether an item is visible.</summary>
         public bool IsItemVisible(int index)
         {
             if (!isInitialized || cellLines == null || cellItems == null || index < 0 || index >= cellItems.Length)
@@ -606,6 +623,7 @@ namespace RecyclableScroller.Runtime
             return false;
         }
 
+        /// <summary>Jumps to an item.</summary>
         public void ScrollToItem(int index)
         {
             if (!isInitialized || index < 0 || index >= cellItems.Length)
@@ -620,6 +638,7 @@ namespace RecyclableScroller.Runtime
             RebuildVisibleCells();
         }
 
+        /// <summary>Jumps to the start of the list.</summary>
         public void ScrollToStart()
         {
             if (!isInitialized)
@@ -629,6 +648,7 @@ namespace RecyclableScroller.Runtime
             RebuildVisibleCells();
         }
 
+        /// <summary>Jumps to the end of the list.</summary>
         public void ScrollToEnd()
         {
             if (!isInitialized)
@@ -638,6 +658,7 @@ namespace RecyclableScroller.Runtime
             RebuildVisibleCells();
         }
 
+        /// <summary>Stops any scroll movement.</summary>
         public void ForceStopScrolling()
         {
             if (!isInitialized)
@@ -647,9 +668,11 @@ namespace RecyclableScroller.Runtime
             activityTracker.ForceStopScrolling();
         }
 
+        /// <summary>Checks whether a cell is expanded.</summary>
         public bool IsIndexExpanded(int index)
             => expansion?.IsExpanded(index) ?? false;
 
+        /// <summary>Collapses an expanded cell.</summary>
         public void CellWantToCollapse(int index)
         {
             if (!isInitialized)
@@ -658,6 +681,7 @@ namespace RecyclableScroller.Runtime
             expansionHandler.CellWantToCollapse(index, cellLines, cellItems);
         }
 
+        /// <summary>Resizes an expanded cell. Not supported in grids.</summary>
         public void UpdateExpandedCellSize(int index, float newSize = -1)
         {
             if (!isInitialized)
@@ -666,6 +690,7 @@ namespace RecyclableScroller.Runtime
             expansionHandler.UpdateExpandedCellSize(index, newSize, cellLines, cellItems);
         }
 
+        /// <summary>Expands a cell. Ignored in grids.</summary>
         public void ExpandCell(int index, float newSize = -1)
         {
             if (!isInitialized)

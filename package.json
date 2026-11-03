@@ -20,6 +20,13 @@
     "virtualization",
     "ugui"
   ],
+  "samples": [
+    {
+      "displayName": "Quick Start",
+      "description": "Scripts for a simple list of 10,000 recycled items.",
+      "path": "Samples~/QuickStart"
+    }
+  ],
   "dependencies": {
     "com.sgonzalezrozo.core": "0.2.0",
     "com.unity.ugui": "1.0.0"

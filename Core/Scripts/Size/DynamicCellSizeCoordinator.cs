@@ -6,7 +6,6 @@ namespace RecyclableScroller.Core.Size
 {
     /// <summary>
     /// Stub for DynamicCellSizeCoordinator.
-    /// Full implementation to be moved from Scripts folder during Phase 2 continuation.
     /// </summary>
     public class DynamicCellSizeCoordinator<T> where T : class
     {
