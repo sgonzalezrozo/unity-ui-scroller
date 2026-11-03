@@ -79,7 +79,7 @@ https://github.com/sgonzalezrozo/unity-recyclable-scroller.git
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v0.1.0
+https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v0.2.0
 ```
 
 TextMeshPro is included with uGUI in Unity 6. On Unity 2022.3, install it from the Package Manager if your project doesn't have it.
@@ -282,7 +282,7 @@ The scroller works without a container, using standard `Instantiate`. With [Fast
 
 ## Project status
 
-This is a pre-release package at version `0.1.0`. Its API and behavior may change before `1.0.0`.
+This is a pre-release package at version `0.2.0`. Its API and behavior may change before `1.0.0`.
 
 > **TODO:** Add a roadmap link and breaking-change policy.
 
