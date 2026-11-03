@@ -448,6 +448,8 @@ The next page starts loading automatically when a cell within 10 items of the en
 
 The scroller works without a container, using standard `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. See [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) for details.
 
+The `RecyclableScroller` and `RecyclableScroller.UGUI` assemblies expose their internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign `injectedInstantiator` directly, without reflection. This also covers subclasses in your project, such as `MyScroller : RecyclableScrollRect<T>`.
+
 ## Recommended patterns
 
 - Keep cell sizes deterministic where possible.
