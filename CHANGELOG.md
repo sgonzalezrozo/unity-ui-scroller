@@ -2,11 +2,15 @@
 
 All notable changes to this package are documented in this file.
 
-## [Unreleased]
+## [0.3.0] - 2026-11-03
 
 ### Fixed
 
 - `PaginatedDataSource.Reset()` no longer skips page 0 on the next load.
+
+### Changed
+
+- Updated to Tools Core `0.3.0`, which removes `IMaskSource`.
 
 ### Documentation
 
