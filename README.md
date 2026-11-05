@@ -16,6 +16,8 @@ I wrote Recyclable Scroller after trying to fix other open-source scrollers I fo
 
 After three very long days of personal time, I had a first working version. It has since evolved into a robust recycling scroller.
 
+I built and refined it on my own time, reusing it across my projects. In November 2026 I extracted it into this standalone package and documented it. Earlier history lives in a private repository.
+
 ## Is it right for your project?
 
 **Use Recyclable Scroller if you:**
