@@ -6,6 +6,10 @@ All notable changes to this package are documented in this file.
 
 ### Documentation
 
+- An FAQ, rules for AI coding agents in `Documentation~/agent-rules.md`, `llms.txt` and more package keywords.
+
+### Documentation
+
 - Said that the package isn't used in production or in a shipped game yet, and described Tools Core as a required dependency.
 
 ### Changed

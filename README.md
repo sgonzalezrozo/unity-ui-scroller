@@ -6,6 +6,8 @@
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
 [![Version 0.3.0](https://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
 
+Recyclable Scroller is a free, open-source virtualized (recycling) ScrollRect for Unity 6 uGUI. It keeps 10,000-item lists and grids smooth by creating only the cells on screen and reusing them, with dynamic cell sizes, expandable cells, headers, filtering, pull to refresh and pagination.
+
 Recyclable Scroller reuses a pool of cells instead of creating one object per item. It extends Unity's `ScrollRect` and supports vertical and horizontal lists, grids, headers, dynamic sizing, expandable cells and pagination.
 
 <!-- Demo GIF: Documentation~/images/demo.gif -->
@@ -485,6 +487,53 @@ Use this package if your UI is in uGUI. If your UI is in UI Toolkit, start with 
 | `Core`, `UGUI`, `UIToolkit`, `Abstractions` | A framework-independent layout in progress. `Core` and `UGUI` still overlap with `Runtime`. |
 
 Depend on `RecyclableScroller.Runtime` for now, because the other namespaces may change.
+
+## Use it with AI coding agents
+
+Coding agents write C# files, and this package is newer than their training data. Give them its rules so they use the real API:
+
+1. Copy [`Documentation~/agent-rules.md`](Documentation~/agent-rules.md) into your project's agent rules, for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/recyclable-scroller.md`.
+2. For a whole Unity architecture with a verify loop, add [Unity Architecture Agents](https://github.com/sgonzalezrozo/unity-architecture-agents). It detects this package and adapts its code.
+
+There are no MCP tools for Recyclable Scroller yet. The rules file works with any agent that reads project files.
+
+## FAQ
+
+### How do I show a list of thousands of items in Unity UI?
+
+Use a virtualized scroll view. Subclass `RecyclableScrollRect<T>`, implement `IRecyclableCell<T>` on the cell prefab, then call `Initialize(new ListDataSource<T>(items))`. Only visible cells exist. See [Quick start](#quick-start).
+
+### ScrollRect or UI Toolkit ListView?
+
+UI Toolkit's `ListView` already virtualizes. Recyclable Scroller is for uGUI projects. See [ScrollRect or ListView?](#scrollrect-or-listview).
+
+### Does it support grids and variable cell sizes?
+
+Yes. Set **Grid Count** for grids, and use a size calculator for dynamic sizes. See [Grids](#grids) and [Dynamic sizing](#dynamic-sizing).
+
+### Does it support infinite scroll and pagination?
+
+Yes, through a paginated data provider. See [Pagination](#pagination).
+
+### Does it work with Unity 6?
+
+Yes. It's tested on Unity `6000.3`. The package declares `2022.3` as its minimum, but older versions aren't tested yet.
+
+### Does it work with IL2CPP and mobile?
+
+Not verified yet. See [Compatibility](#compatibility).
+
+### Why doesn't my cell update correctly when I scroll?
+
+Cells are reused. Reset every visual in the `Data` setter, not only the ones that change.
+
+### Does it work with AI coding agents?
+
+Yes, through a rules file you copy into your project. See [Use it with AI coding agents](#use-it-with-ai-coding-agents).
+
+### Is it free for commercial use?
+
+Yes. It's MIT licensed.
 
 ## Troubleshooting
 

@@ -18,7 +18,21 @@
     "scroll",
     "recycling",
     "virtualization",
-    "ugui"
+    "ugui",
+    "unity",
+    "unity3d",
+    "unity6",
+    "unity-package",
+    "upm",
+    "csharp",
+    "gamedev",
+    "scrollrect",
+    "recyclable-scroll-view",
+    "infinite-scroll",
+    "virtualized-list",
+    "list-view",
+    "grid",
+    "pagination"
   ],
   "samples": [
     {
