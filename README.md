@@ -6,9 +6,7 @@
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
 [![Version 0.3.0](https://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
 
-Recyclable Scroller is a free, open-source virtualized (recycling) ScrollRect for Unity 6 uGUI. It keeps 10,000-item lists and grids smooth by creating only the cells on screen and reusing them, with dynamic cell sizes, expandable cells, headers, filtering, pull to refresh and pagination.
-
-Recyclable Scroller reuses a pool of cells instead of creating one object per item. It extends Unity's `ScrollRect` and supports vertical and horizontal lists, grids, headers, dynamic sizing, expandable cells and pagination.
+Recyclable Scroller is a free, open-source recycling (virtualized) scroll view for Unity 6 uGUI, for long lists and grids. It extends Unity's `ScrollRect`, creates only the cells that fit on screen and reuses them as you scroll, instead of one GameObject per item. It supports vertical and horizontal lists, grids, headers, dynamic cell sizes, expandable cells, filtering, pull to refresh and infinite scroll with pagination.
 
 <!-- Demo GIF: Documentation~/images/demo.gif -->
 
@@ -529,7 +527,19 @@ Cells are reused. Reset every visual in the `Data` setter, not only the ones tha
 
 ### Does it work with AI coding agents?
 
-Yes, through a rules file you copy into your project. See [Use it with AI coding agents](#use-it-with-ai-coding-agents).
+It ships a rules file you copy into your project, so agents use its real API instead of guessing. It hasn't been tested with agents beyond the author's own projects. See [Use it with AI coding agents](#use-it-with-ai-coding-agents).
+
+### How do I optimize a ScrollRect with many items?
+
+Don't create one GameObject per item, and remove `LayoutGroup` and `ContentSizeFitter` from the content. A recycling scroll view keeps only the visible cells and reuses them. Benchmarks aren't published yet, so measure at your own list sizes. See [Performance](#performance).
+
+### How do I install it?
+
+In Unity, open **Window > Package Manager**, select **+ > Add package from git URL** and enter `https://github.com/sgonzalezrozo/unity-recyclable-scroller.git`. Install [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) first, because Unity doesn't install Git dependencies automatically. See [Installation](#installation).
+
+### Is it production-ready? Does anyone use it?
+
+Not yet. Recyclable Scroller is a pre-release package (`0.x`) by a single author. It isn't used in a shipped game, and it has no other users yet, so expect rough edges and API changes before `1.0.0`. Bug reports are very welcome. See [Project status](#project-status).
 
 ### Is it free for commercial use?
 

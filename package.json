@@ -2,7 +2,7 @@
   "name": "com.sgonzalezrozo.recyclable-scroller",
   "version": "0.3.0",
   "displayName": "Recyclable Scroller",
-  "description": "Virtualized scrolling for large uGUI lists and grids in Unity.",
+  "description": "Recycling (virtualized) ScrollRect for Unity uGUI: long lists and grids with reused cells, dynamic sizes, expandable cells, headers, pull to refresh and infinite scroll with pagination.",
   "unity": "2022.3",
   "license": "MIT",
   "author": {
