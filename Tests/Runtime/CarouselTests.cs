@@ -368,5 +368,52 @@ namespace SlotList.Tests.PlayMode
 
             Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
         }
+
+        /// <summary>
+        /// Like Unity's Input System UI module: one event object per pointer, reused for every mouse button. After the
+        /// left button's drag event it's processed again for the middle button, so by LateUpdate it says Middle.
+        /// </summary>
+        private IEnumerator InputSystemLikeDrag(float pixelsPerFrame, int frames, int framesAfter = 60)
+        {
+            PointerEventData shared = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 350f) };
+            rig.List.OnInitializePotentialDrag(shared);
+            rig.List.OnBeginDrag(shared);
+            shared.button = PointerEventData.InputButton.Middle;
+            for (int i = 0; i < frames; i++)
+            {
+                shared.button = PointerEventData.InputButton.Left;
+                shared.position += new Vector2(0f, pixelsPerFrame);
+                rig.List.OnDrag(shared);
+                shared.button = PointerEventData.InputButton.Middle;
+                yield return null;
+                RecordFrame();
+            }
+
+            shared.button = PointerEventData.InputButton.Left;
+            rig.List.OnEndDrag(shared);
+            for (int i = 0; i < framesAfter; i++)
+            {
+                yield return null;
+                RecordFrame();
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_InputSystemDrag_AcrossALoopJump_KeepsANormalSpeed_AndNeverJumps()
+        {
+            yield return StartTenThousandWithInertia();
+
+            yield return InputSystemLikeDrag(-40f, 20, framesAfter: 0);
+            float speedAtRelease = Mathf.Abs(rig.List.velocity.y);
+            rig.List.OnEndDrag(new PointerEventData(null) { button = PointerEventData.InputButton.Left });
+            for (int i = 0; i < 60; i++)
+            {
+                yield return null;
+                RecordFrame();
+            }
+
+            Assert.Less(speedAtRelease, 100_000f, "a 40 px-per-frame drag can't release at millions of px/s");
+            Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
+        }
     }
 }

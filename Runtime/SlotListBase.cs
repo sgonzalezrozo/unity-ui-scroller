@@ -62,7 +62,11 @@ namespace SlotList
 
         /// <summary>The engine's work counters, for tests. Null before initialization.</summary>
         internal WorkCounters Work => engine?.Work;
-        private PointerEventData lastDragEvent;
+        // Our own copy of the dragging pointer. The Input System UI module reuses one event object for every mouse
+        // button, so the object a drag event came with may say Middle by LateUpdate, and ScrollRect ignores a
+        // restart that isn't the left button: the drag would keep its old start, one loop copy away.
+        private PointerEventData dragRestart;
+        private bool isLeftDragging;
 #if SLOTLIST_LOCALIZATION
         private bool isListeningToLocale;
 #endif
@@ -176,8 +180,8 @@ namespace SlotList
         /// </summary>
         void ISlotListHooks.OnContentShifted()
         {
-            if (lastDragEvent != null && IsActive())
-                base.OnBeginDrag(lastDragEvent);
+            if (isLeftDragging && IsActive())
+                base.OnBeginDrag(dragRestart);
 
             UpdatePrevData();
         }
@@ -263,23 +267,34 @@ namespace SlotList
         public override void OnBeginDrag(PointerEventData eventData)
         {
             base.OnBeginDrag(eventData);
-            if (eventData.button == PointerEventData.InputButton.Left)
-                lastDragEvent = eventData;
+            RememberLeftDrag(eventData);
             engine?.OnDragBegin();
         }
 
         public override void OnDrag(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left)
-                lastDragEvent = eventData;
+            RememberLeftDrag(eventData);
             base.OnDrag(eventData);
         }
 
         public override void OnEndDrag(PointerEventData eventData)
         {
-            lastDragEvent = null;
+            if (eventData.button == PointerEventData.InputButton.Left)
+                isLeftDragging = false;
             base.OnEndDrag(eventData);
             engine?.OnDragEnd();
+        }
+
+        private void RememberLeftDrag(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left)
+                return;
+
+            dragRestart ??= new PointerEventData(EventSystem.current);
+            dragRestart.button = PointerEventData.InputButton.Left;
+            dragRestart.position = eventData.position;
+            dragRestart.pointerPressRaycast = eventData.pointerPressRaycast;
+            isLeftDragging = true;
         }
 
         /// <summary>Applies the sizes measured slots reported during this frame's layout pass, then moves scroll animations on.</summary>
