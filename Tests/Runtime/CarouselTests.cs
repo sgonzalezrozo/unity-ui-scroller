@@ -192,5 +192,97 @@ namespace SlotList.Tests.PlayMode
 
             Assert.IsTrue(rig.List.IsFirstItemVisible);
         }
+
+        // ---------- The owner's case: 20 items, 7 on screen, scrolled by dragging ----------
+
+        private const int TWENTY = 20;
+
+        private IEnumerator StartTwentyWithSevenVisible()
+        {
+            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f) });
+            rig.List.inertia = false;
+            rig.List.Settings.loop = true;
+            yield return rig.Initialize(TWENTY);
+            yield return null;
+        }
+
+        /// <summary>The items whose slot is inside the viewport, from top to bottom (0-based ids).</summary>
+        private List<int> OnScreenTopToBottom()
+        {
+            List<(float top, int id)> shown = new();
+            foreach (int id in rig.BoundIds())
+            {
+                float top = -rig.ItemFor(id).anchoredPosition.y - rig.ScrollDistance;
+                if (top > -ITEM + 0.5f && top < rig.Viewport.rect.height - 0.5f)
+                    shown.Add((top, id));
+            }
+
+            shown.Sort((a, b) => a.top.CompareTo(b.top));
+            List<int> ids = new();
+            foreach ((float _, int id) in shown)
+                ids.Add(id);
+            return ids;
+        }
+
+        /// <summary>Drags by <paramref name="pixels"/> in steps (positive scrolls forward, negative toward the start).</summary>
+        private IEnumerator Drag(float pixels)
+        {
+            const float step = 50f;
+            PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 350f) };
+            rig.List.OnBeginDrag(pointer);
+            int steps = Mathf.RoundToInt(Mathf.Abs(pixels) / step);
+            for (int i = 0; i < steps; i++)
+            {
+                // Moving the pointer up scrolls a top-to-bottom list forward.
+                pointer.position += new Vector2(0f, step * Mathf.Sign(pixels));
+                rig.List.OnDrag(pointer);
+                yield return null;
+            }
+
+            rig.List.OnEndDrag(pointer);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator TwentyItems_StartsWithTheFirstSeven()
+        {
+            yield return StartTwentyWithSevenVisible();
+
+            CollectionAssert.AreEqual(new[] { 0, 1, 2, 3, 4, 5, 6 }, OnScreenTopToBottom());
+        }
+
+        [UnityTest]
+        public IEnumerator TwentyItems_DraggingTowardTheStart_ShowsTheLastItems()
+        {
+            yield return StartTwentyWithSevenVisible();
+
+            yield return Drag(-300f);
+
+            CollectionAssert.AreEqual(new[] { 17, 18, 19, 0, 1, 2, 3 }, OnScreenTopToBottom());
+        }
+
+        [UnityTest]
+        public IEnumerator TwentyItems_DraggingTowardTheStart_GoesRoundAgainAndAgain()
+        {
+            yield return StartTwentyWithSevenVisible();
+
+            yield return Drag(-TWENTY * ITEM * 2f - 300f);
+
+            CollectionAssert.AreEqual(new[] { 17, 18, 19, 0, 1, 2, 3 }, OnScreenTopToBottom(), "two full rounds back, then three items more");
+            Assert.Greater(rig.ScrollDistance, 0f, "never reached an end");
+        }
+
+        [UnityTest]
+        public IEnumerator TwentyItems_DraggingForwardPastTheLast_ComesBackToTheFirst()
+        {
+            yield return StartTwentyWithSevenVisible();
+
+            yield return Drag(TWENTY * ITEM - 300f);
+            CollectionAssert.AreEqual(new[] { 17, 18, 19, 0, 1, 2, 3 }, OnScreenTopToBottom(), "item 20 is followed by item 1");
+
+            yield return Drag(TWENTY * ITEM * 2f);
+            CollectionAssert.AreEqual(new[] { 17, 18, 19, 0, 1, 2, 3 }, OnScreenTopToBottom(), "two more rounds forward");
+            Assert.Less(rig.ScrollDistance, rig.List.ContentSize - rig.List.ViewportSize, "never reached an end");
+        }
     }
 }
