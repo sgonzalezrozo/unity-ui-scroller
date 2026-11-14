@@ -6,6 +6,7 @@ namespace SlotList
         bool IsHeader(int index);
         void BindItem(SlotHandle slot, int index);
         bool SupportsPaging();
+        bool SupportsLooping();
         void OnPageRequested();
         void OnPageLoaded(int itemCount);
         void OnPageFailed(System.Exception exception);
@@ -20,6 +21,7 @@ namespace SlotList
         void OnItemCollapsed(int index);
         void OnRebuilt();
         void OnContentSizeChanged(float size);
+        void OnSnapped(int index);
     }
 
     /// <summary>What SlotRecycler needs from the engine to show items.</summary>

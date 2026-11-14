@@ -26,6 +26,8 @@ namespace SlotList
             }
 
             bool slotsPerLineChanged = ResolveSlotsPerLine();
+            RememberLoopAnchor();
+            UpdateLooping();
             forceRebindAll = true;
 
             if (ItemCount != layout.Placements.Length || slotsPerLineChanged)
@@ -34,6 +36,7 @@ namespace SlotList
                 RebuildForSameStructure(cleanDataIndices: true);
 
             forceRebindAll = false;
+            loopAnchorItem = -1;
         }
 
         private void RebuildLayout()
@@ -46,6 +49,9 @@ namespace SlotList
             {
                 lastCrossAxisSize = viewportMetrics.GetCrossAxisViewportSize();
                 bool slotsPerLineChanged = ResolveSlotsPerLine();
+                viewportSize = viewportMetrics.GetViewportSize();
+                RememberLoopAnchor();
+                UpdateLooping();
                 forceRebindAll = true;
 
                 if (ItemCount != layout.Placements.Length || slotsPerLineChanged)
@@ -54,6 +60,7 @@ namespace SlotList
                     RebuildForSameStructure(cleanDataIndices: false);
 
                 forceRebindAll = false;
+                loopAnchorItem = -1;
             }
             finally
             {
@@ -81,6 +88,7 @@ namespace SlotList
 
             RecalculateContentSize();
             layout.RecomputeOffsets();
+            RestoreLoopAnchor();
 
             visibleRange.ResetState();
             RebuildVisibleItems();
@@ -162,6 +170,8 @@ namespace SlotList
         {
             if (!isInitialized)
                 return;
+
+            KeepInsideLoop();
 
             // Measuring slots can change sizes; place again until nothing changes (each item settles after one measure).
             for (int pass = 0; pass < MAX_MEASURE_PASSES; pass++)

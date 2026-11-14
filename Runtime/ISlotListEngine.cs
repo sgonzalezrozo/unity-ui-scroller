@@ -17,10 +17,11 @@ namespace SlotList
         void Refresh();
         void Clear();
         bool IsItemVisible(int index);
-        void ScrollToItem(int index);
-        void ScrollToStart();
-        void ScrollToEnd();
+        void ScrollToItem(int index, ScrollAlign align, float duration, float offset);
+        void ScrollToStart(float duration);
+        void ScrollToEnd(float duration);
         void ForceStopScrolling();
+        void Tick(float deltaTime);
 
         bool IsExpanded(int index);
         void Expand(int index, float newSize);

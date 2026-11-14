@@ -8,6 +8,10 @@ All notable changes to this package are documented in this file.
 
 ### Changed
 
+- `ScrollToItem(index, align, duration, offset)` takes an alignment (`ScrollAlign`: `Start`, `Center`, `End`, `Nearest`), an optional animation and a gap from the aligned edge. `ScrollToStart`, `ScrollToEnd` and `ScrollToSection` take an optional duration. A drag or `ForceStopScrolling()` cancels the animation, and `IsScrolling` is true while it runs. Existing calls keep jumping to the start of the item.
+- Snapping: **Snap** (`None`, `Item`, `Page`) and **Snap Align** (`Start`, `Center`, `End`) settle the list on an item, or move it a page at a time, after a drag. New `SnappedTo(int index)` event.
+- Looping lists: **Loop** makes a list go round forever, like a carousel. The API keeps real indexes and `ScrollToItem` takes the shortest way round. Not for grids, sections, paged sources or expanding items (an error is logged and the list doesn't loop).
+
 - The Viewport is a nested `Canvas` with its own `GraphicRaycaster`, added when the component is added or when the list starts. Moving slots rebuilds only the list's batches, not the batches of everything else on the screen. The nested Canvas copies the outer Canvas's shader channels (TextMeshPro needs them).
 - **Breaking:** Slots waiting in the pool stay active, parked across the scroll axis where the Viewport's `RectMask2D` culls them, instead of being switched off. Reusing a slot no longer wakes its graphics and scripts, which cut the list's own cost by about three quarters on a low-end phone. A reused slot's `OnEnable` and `OnDisable` don't run: refresh slots from the `Data` setter.
 - After a big drop in item count (under half of what it holds), the layout gives its extra records back instead of keeping them at the largest count it ever had.

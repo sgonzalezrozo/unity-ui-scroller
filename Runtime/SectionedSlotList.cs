@@ -68,8 +68,11 @@ namespace SlotList
         public void SetSource(ISectionedSourceProvider<TItem, THeader> provider)
             => SetSource(provider?.GetSource());
 
-        /// <summary>Jumps to a section's header. A skipped (empty) section jumps to the next section shown.</summary>
-        public void ScrollToSection(int sectionIndex)
+        /// <summary>
+        /// Scrolls a section's header to the start, at once or animated over <paramref name="duration"/> seconds.
+        /// A skipped (empty) section goes to the next section shown.
+        /// </summary>
+        public void ScrollToSection(int sectionIndex, float duration = 0f)
         {
             if (source == null)
                 return;
@@ -80,7 +83,7 @@ namespace SlotList
                 if (entry < 0)
                     continue;
 
-                ScrollToItem(entry);
+                ScrollToItem(entry, ScrollAlign.Start, duration);
                 return;
             }
         }
@@ -128,6 +131,8 @@ namespace SlotList
 
         private protected override bool IsHeaderEntry(int index)
             => source != null && index >= 0 && index < source.Count && source.KindAt(index) == EntryKind.Header;
+
+        private protected override bool SupportsLooping() => false;
 
         private protected override void PrepareRefresh()
             => source?.Recount();

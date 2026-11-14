@@ -234,6 +234,15 @@ namespace SlotList.Tests.PlayMode
             yield return null;
         }
 
+        /// <summary>How far the list is scrolled from its start, in pixels, whatever the direction.</summary>
+        public float ScrollDistance => Options.Direction switch
+        {
+            RigDirection.BottomToTop => -Content.anchoredPosition.y,
+            RigDirection.LeftToRight => -Content.anchoredPosition.x,
+            RigDirection.RightToLeft => Content.anchoredPosition.x,
+            _ => Content.anchoredPosition.y
+        };
+
         public static IEnumerator Frames(int count)
         {
             for (int i = 0; i < count; i++)

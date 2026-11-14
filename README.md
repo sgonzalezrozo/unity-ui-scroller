@@ -72,7 +72,9 @@ I built and refined it on my own time in personal projects. It isn't used in pro
 - Expandable slots
 - Sections with headers (`SectionedSlotList`)
 - List, filtered and paginated data sources
-- Scroll-to-item, start and end
+- Scroll to an item, the start or the end, with alignment and an optional animation
+- Snapping to items or pages after a drag
+- Looping lists (carousels)
 - Item visibility checks
 
 ## Compatibility
@@ -414,6 +416,34 @@ scroller.Refresh();
 
 Each `GetItem` call walks the source list, so filtering gets slower as the list grows. For very large lists, build a filtered list yourself and pass it to `SetItems`.
 
+## Scrolling to items
+
+`ScrollToItem` takes an alignment, a duration and a gap:
+
+```csharp
+list.ScrollToItem(42);                                    // jump, item at the start
+list.ScrollToItem(42, ScrollAlign.Center, 0.4f);          // animate for 0.4 s, item in the middle
+list.ScrollToItem(42, ScrollAlign.Nearest);               // move as little as possible; not at all if it's visible
+list.ScrollToItem(42, ScrollAlign.Start, 0.3f, 16f);      // leave 16 px before it
+```
+
+The animation eases out, follows items that get measured on the way, and stops when the user starts dragging or you call `ForceStopScrolling()`. `IsScrolling` is true while it runs.
+
+### Snapping
+
+Set **Snap** to **Item** to settle on the nearest item once a drag ends and the list slows down, lined up with the viewport's start, centre or end (**Snap Align**). **Page** moves one viewport at a time, like a pager: a flick goes to the next or previous page, a slow release to the nearest one. `SnappedTo(index)` tells you where it landed.
+
+### Looping lists (carousels)
+
+Tick **Loop** and the list goes round forever. Indexes stay real (`0` to `count - 1`) everywhere in the API, and `ScrollToItem` takes the shortest way round. For a typical carousel, combine it with **Snap: Item** and **Snap Align: Center**.
+
+```csharp
+carousel.SnappedTo += index => Debug.Log($"Showing {index}");
+carousel.ScrollToItem(3, ScrollAlign.Center, 0.3f);
+```
+
+The list lays out a few copies of the items and, before the scroll reaches an end, jumps back by whole copies. The jump shows the same items in the same place, so you can't see it. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop).
+
 ## Pull to refresh
 
 Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 pixels past the start of the list:
@@ -492,9 +522,9 @@ Only one page loads at a time. Changing the source or destroying the list cancel
 | `SetSource(source)` | Replaces the data source and refreshes |
 | `Refresh()` | Rebuilds the list from the current data source |
 | `Clear()` | Clears displayed slots and resets the scroll position |
-| `ScrollToItem(int index)` | Jumps to an item |
-| `ScrollToStart()` | Jumps to the start |
-| `ScrollToEnd()` | Jumps to the end |
+| `ScrollToItem(int index, ScrollAlign align = Start, float duration = 0, float offset = 0)` | Scrolls to an item: at once, or animated over `duration` seconds. See [Scrolling to items](#scrolling-to-items) |
+| `ScrollToStart(float duration = 0)`, `ScrollToEnd(float duration = 0)` | Scroll to the start or the end, at once or animated |
+| `ForceStopScrolling()` | Stops any movement, including an animation or a snap |
 | `Expand(int index, float newSize = -1)` | Expands a slot (the size is used for fixed-size slots only) |
 | `Collapse(int index)` | Collapses a slot |
 | `SetExpandedSize(int index, float newSize = -1)` | Resizes an expanded slot |
@@ -518,6 +548,7 @@ Events, all read-only notifications:
 | `ItemCollapsed(int index)` | An item was collapsed, including one closed because another opened (raised before that one's `ItemExpanded`) |
 | `Rebuilt` | The list rebuilt its lines: `Refresh`, `SetSource`, or a change of slots per line |
 | `ContentSizeChanged(float size)` | The list changed Content's size along the scroll axis (items measured, opened or closed, pages, Refresh). Not raised by scrolling |
+| `SnappedTo(int index)` | The list settled on an item after a drag (Snap). With page snapping, the first item on the page |
 | `PageRequested`, `PageLoaded(int)`, `PageFailed(Exception)`, `ReachedEnd` | Paging (see Pagination) |
 | `OnInitialized` | Initialization finished. It fires inside `Initialize` (or the first `SetSource`), with the first screen already bound, so subscribe before calling it. |
 
@@ -527,7 +558,7 @@ Events, all read-only notifications:
 |---|---|
 | `SetSource(SectionedSource<TItem, THeader> source)` | Starts the list or replaces its sections |
 | `SetSource(ISectionedSourceProvider<TItem, THeader> provider)` | The same, with the provider's source |
-| `ScrollToSection(int section)` | Jumps to a section's header |
+| `ScrollToSection(int section, float duration = 0)` | Scrolls a section's header to the start, at once or animated |
 | `Source` | The sections shown |
 | `HeaderPrefab` | The header prefab (set it before the first `SetSource`) |
 
@@ -546,7 +577,9 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 | Columns / Rows, Target size, Min, Max | Grid settings, shown for the chosen layout |
 | Row / Column Spacing | Space between lines, and between slots on a line in a grid |
 | Padding (start and end) | Space before the first line and after the last |
-| Allow Multiple Expanded | Keeps more than one slot open |
+| Loop | Loops round forever, like a carousel (lists only) |
+| Snap, Snap Align | After a drag, settle on the nearest item (lined up with the start, centre or end), or move one page at a time |
+| Allow Multiple Expanded | Keeps more than one slot open (hidden when the list loops) |
 | Reset Scroll On Enable | Goes back to the start when the list is enabled again |
 | Override Pool Buffer, Pool Buffer | How many extra slots to keep ready beyond the visible ones |
 
@@ -681,7 +714,8 @@ Yes. It's MIT licensed.
 - Items must be reference types.
 - Expandable slots don't work in grids.
 - `FilteredSource<T>` walks the source list on each item lookup.
-- `ScrollToItem` jumps to the item. It doesn't take alignment or animation options.
+- A looping list can't be a grid, have sections, use a paged source or expand items.
+- Snapping runs after a drag, not after the mouse wheel.
 
 ## Project status
 

@@ -58,7 +58,7 @@ The developer replaces a Scroll View's `ScrollRect` with the concrete scroller, 
 
 - Change the data source, then call `scroller.Refresh()`. `ListSource<T>` has `AddItem`, `AddItems`, `InsertItem`, `RemoveItem`, `RemoveItemAt`, `SetItems`, `ReplaceItems` and `Clear`.
 - Switch sources with `SetSource(source)`.
-- Other members: `ScrollToItem(index)`, `ScrollToStart()`, `ScrollToEnd()`, `Expand(index)`, `Collapse(index)`, `InvalidateSize(index)`, `InvalidateAllSizes()`, `IsItemVisible(index)`, `GetItemCount()`, `IsInitialized`, `VisibleStartIndex`, `VisibleEndIndex`.
+- Other members: `ScrollToItem(index, align, duration, offset)`, `ScrollToStart(duration)`, `ScrollToEnd(duration)`, `ForceStopScrolling()`, `Expand(index)`, `Collapse(index)`, `InvalidateSize(index)`, `InvalidateAllSizes()`, `IsItemVisible(index)`, `GetItemCount()`, `IsInitialized`, `VisibleStartIndex`, `VisibleEndIndex`.
 
 ## Don't
 

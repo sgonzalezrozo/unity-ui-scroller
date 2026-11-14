@@ -57,6 +57,10 @@ namespace SlotList
             contentTransform.anchoredPosition = position;
         }
 
+        /// <summary>A ScrollRect velocity as pixels per second along the list (positive towards its end).</summary>
+        public float ToScrollSpeed(Vector2 velocity)
+            => (isVertical ? velocity.y : velocity.x) * scrollSign;
+
         public Vector2 GetContentAnchoredPosition()
             => contentTransform.anchoredPosition;
 

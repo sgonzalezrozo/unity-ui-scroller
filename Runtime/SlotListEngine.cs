@@ -72,16 +72,17 @@ namespace SlotList
         public IItemSource<T> Source { get; private set; }
         public bool HasReachedLastPage { get; set; }
         public bool IsInitialized => isInitialized;
-        public bool IsScrolling => dragState?.IsScrolling ?? false;
+        public bool IsScrolling => (dragState?.IsScrolling ?? false) || scrollAnimation.IsRunning;
         public bool IsDragging => dragState?.IsDragging ?? false;
-        public int VisibleStartIndex => FirstItemIn(FirstVisibleLine);
-        public int VisibleEndIndex => LastItemIn(LastVisibleLine);
-        public bool IsFirstItemVisible => isInitialized && FirstVisibleLine == 0;
-        public bool IsLastItemVisible => isInitialized && layout.Lines.Length > 0 && LastVisibleLine == layout.Lines.Length - 1;
+        public int VisibleStartIndex => ToReal(FirstItemIn(FirstVisibleLine));
+        public int VisibleEndIndex => ToReal(LastItemIn(LastVisibleLine));
+        public bool IsFirstItemVisible => isInitialized && !isLooping && FirstVisibleLine == 0;
+        public bool IsLastItemVisible => isInitialized && !isLooping && layout.Lines.Length > 0 && LastVisibleLine == layout.Lines.Length - 1;
 
         private int FirstVisibleLine => visibleRange?.VisibleStartIndex ?? -1;
         private int LastVisibleLine => visibleRange?.VisibleEndIndex ?? -1;
-        public int ItemCount => Source?.ItemCount ?? 0;
+        /// <summary>Entries laid out: the items, or every copy of them in a looping list.</summary>
+        public int ItemCount => RealCount * loopCopies;
         public WorkCounters Work { get; } = new();
 
         public SlotListEngine(MonoBehaviour host, ISlotList owner, ISlotListHooks hooks, SlotListSettings settings, GameObject slotPrefab, GameObject headerPrefab, IPrefabInstantiator instantiator)
@@ -128,6 +129,7 @@ namespace SlotList
             if (!BindScrollRect())
                 return;
 
+            UpdateLooping();
             layout.CreatePlacements(ItemCount);
             isInitialized = true;
 
@@ -163,7 +165,7 @@ namespace SlotList
             visibleRange = new VisibleRangeTracker();
             expansion = new ExpansionState(layout, this, isLayoutSized);
             pullGesture = new PullGesture(PULL_THRESHOLD, settings.IsVertical, settings.IsReversed);
-            mover = new ScrollMover(components.ScrollRect, components.Direction, settings.IsVertical, settings.IsReversed);
+            mover = new ScrollMover(components.ScrollRect, settings.IsVertical, settings.IsReversed);
             dragState = new DragState(MOVING_THRESHOLD);
             visibilityPass = new VisibilityPass(viewportMetrics, layout, new VisibleRangeFinder(settings.IsVertical, settings.IsReversed), visibleRange, Work);
         }
@@ -255,7 +257,7 @@ namespace SlotList
             => hooks.IsHeader(index);
 
         void ISlotCallbacks.BindItem(SlotHandle slot, int index)
-            => hooks.BindItem(slot, index);
+            => hooks.BindItem(slot, ToReal(index));
 
         void ISlotCallbacks.SetupExpandable(SlotHandle slot, int index)
         {
@@ -272,6 +274,7 @@ namespace SlotList
             if (slot == null)
                 return;
 
+            index = ToReal(index);
             T item = Source.GetItem(index);
             if (item == null)
             {

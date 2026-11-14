@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SlotList
 {
-    /// <summary>Scrolling, paging and pull detection, navigation, visibility queries, expansion and source changes.</summary>
+    /// <summary>Scrolling and drags, source changes, visibility queries and expansion.</summary>
     internal sealed partial class SlotListEngine<T>
     {
         // ---------- Scrolling and drags ----------
@@ -20,7 +20,12 @@ namespace SlotList
         }
 
         public void OnDragBegin()
-            => dragState?.HandleDragBegin();
+        {
+            dragState?.HandleDragBegin();
+            CancelScrollAnimation();
+            if (isInitialized)
+                dragStartDistance = viewportMetrics.GetScrollDistance();
+        }
 
         public void OnDragEnd()
         {
@@ -28,6 +33,8 @@ namespace SlotList
 
             if (!isInitialized)
                 return;
+
+            BeginSnapAfterDrag();
 
             if (pullGesture.WasPullDetected(viewportMetrics.GetContentAnchoredPosition(), viewportMetrics.GetContentSize()))
                 hooks.OnPullRefreshRequested();
@@ -50,17 +57,18 @@ namespace SlotList
             if (!isInitialized)
                 return;
 
+            CancelScrollAnimation();
             recycler.CleanupActiveLines();
             expansion.ClearAll();
             visibleRange.ResetState();
             components.Content.anchoredPosition = Vector2.zero;
         }
 
-        // ---------- Visibility and navigation ----------
+        // ---------- Visibility ----------
 
         public bool IsItemVisible(int index)
         {
-            if (!isInitialized || index < 0 || index >= layout.Placements.Length)
+            if (!isInitialized || !IsValidPublicIndex(index))
                 return false;
 
             int firstLine = FirstVisibleLine;
@@ -74,7 +82,7 @@ namespace SlotList
                 Placement[] placements = lines[lineIndex].Placements;
                 for (int i = 0; i < placements.Length; i++)
                 {
-                    if (placements[i] != null && placements[i].DataIndex == index)
+                    if (placements[i] != null && ToReal(placements[i].DataIndex) == index)
                         return true;
                 }
             }
@@ -82,52 +90,12 @@ namespace SlotList
             return false;
         }
 
-        public void ScrollToItem(int index)
-        {
-            if (!isInitialized || index < 0 || index >= layout.Placements.Length)
-                return;
-
-            int lineIndex = index / gridResolver.Current;
-            if (lineIndex >= layout.Lines.Length)
-                return;
-
-            mover.ScrollToLinePosition(layout.OffsetOf(lineIndex), viewportMetrics.GetContentSize(), viewportSize);
-            RebuildVisibleItems();
-        }
-
-        public void ScrollToStart()
-        {
-            if (!isInitialized)
-                return;
-
-            mover.ScrollToStart();
-            RebuildVisibleItems();
-        }
-
-        public void ScrollToEnd()
-        {
-            if (!isInitialized)
-                return;
-
-            mover.ScrollToEnd();
-            RebuildVisibleItems();
-        }
-
-        public void ForceStopScrolling()
-        {
-            if (!isInitialized)
-                return;
-
-            mover.ForceStop();
-            dragState.ForceStopScrolling();
-        }
-
         // ---------- Read-only queries ----------
 
         /// <summary>Where the item's line starts, from the start of Content (padding included). -1 if unknown.</summary>
         public float QueryItemOffset(int index)
         {
-            int line = LineIndexOf(index);
+            int line = IsValidPublicIndex(index) ? LineIndexOf(ToNearestCopy(index)) : -1;
             if (line < 0)
                 return -1f;
 
@@ -138,7 +106,7 @@ namespace SlotList
         /// <summary>The size of the item's line along the scroll axis (in a grid, its tallest slot). -1 if unknown.</summary>
         public float QueryItemSize(int index)
         {
-            int line = LineIndexOf(index);
+            int line = IsValidPublicIndex(index) ? LineIndexOf(ToNearestCopy(index)) : -1;
             return line < 0 ? -1f : layout.Lines[line].Size;
         }
 
@@ -164,7 +132,7 @@ namespace SlotList
 
         public void Expand(int index, float newSize)
         {
-            if (!isInitialized || !expansion.Expand(index, newSize, settings.allowMultipleExpanded, gridResolver.Current))
+            if (!isInitialized || RejectInLoop() || !expansion.Expand(index, newSize, settings.allowMultipleExpanded, gridResolver.Current))
                 return;
 
             ApplyExpansionChange();
@@ -173,7 +141,7 @@ namespace SlotList
 
         public void Collapse(int index)
         {
-            if (!isInitialized || !expansion.Collapse(index))
+            if (!isInitialized || isLooping || !expansion.Collapse(index))
                 return;
 
             ApplyExpansionChange();
@@ -204,7 +172,7 @@ namespace SlotList
 
         public void SetExpandedSize(int index, float newSize)
         {
-            if (isInitialized && expansion.SetExpandedSize(index, newSize, gridResolver.Current))
+            if (isInitialized && !isLooping && expansion.SetExpandedSize(index, newSize, gridResolver.Current))
                 ApplyExpansionChange();
         }
 

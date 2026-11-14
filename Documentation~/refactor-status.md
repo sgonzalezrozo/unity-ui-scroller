@@ -254,14 +254,19 @@ Branch `refactor/p10-performance`. Done, each with tests on counts or allocation
 Not done:
 - **Timings:** recorded in `benchmarks.md` for the Editor, a Galaxy A02s and a Pixel 5, with the Bootgame Shop list (fixed and expandable slots, 300 to 100,000 items, fling, 2-minute soak, late text). There's no timing baseline from before Phase 10; the bench came at the end.
 - **Added after the first device runs:** layout buffers shrink after a big drop in item count; pooled slots stay active, parked out of view (the default, about three quarters off the list's cost); fixed slots measured while expanded; opened slots measured in Unity's layout pass; `ContentSizeChanged` and `ExpandedCount`; Content can't have layout components (enforced).
-- **P19:** a README tip instead of an inspector helper (minimal inspector). **P21** (deferred binding during flings) waits for the owner. **P22** (float precision past ~10⁷ px) only if the bench shows jitter.
+- **P19:** a README tip instead of an inspector helper (minimal inspector). **P21** (deferred binding during flings) left out: the phones held 60 fps, and it can be added later without breaking anything. **P22** (float precision past ~10⁷ px) left out for plain lists (no jitter seen); looping lists avoid it by design (Phase 11.3).
 - Phase 10's tests for P2–P4 and P8–P11 were written with their fixes, not seen failing first (the placeholder test was checked by turning the fix off).
 
-### Phase 11: New features (not started)
-- `ScrollTo(index, align, duration, offset)` with `ScrollAlign` (Start, Center, End, Nearest) and an animation.
-- Snapping (`None`, `Item`, `Page`) with a `SnappedTo` event.
-- **The looping carousel** (wanted by the owner).
-- Nested scrollers: only a manual check with the MIT plugin.
+### Phase 11: New features (done, except the manual scenes)
+Branch `feat/p11-features`.
+- **11.1** `ScrollToItem(index, align, duration, offset)` with `ScrollAlign` (Start, Center, End, Nearest). The name stays `ScrollToItem` (existing calls keep working). `ScrollToStart`, `ScrollToEnd` and `ScrollToSection` take a duration. The animation eases out in `LateUpdate`, re-reads its target every frame (measured items move it), and a drag or `ForceStopScrolling` cancels it. Tests: `ScrollTargetTests`, `ScrollAnimationTests` (EditMode), `ScrollNavigationTests` (PlayMode, fixed 0.1 s frames through the internal `frameDeltaTime`).
+- **11.2** `settings.snap` (None, Item, Page) and `settings.snapAlign` (Start, Center, End), with `SnappedTo(int)`. Item snapping waits until a fling is under 600 px/s and back inside the content. Page snapping moves one viewport from where the drag started on a flick (over 400 px/s), otherwise to the nearest page. Not after the mouse wheel.
+- **11.3** `settings.loop`. Copies of the items are laid out (at least 4, enough for one viewport plus three copies), and the scroll jumps by whole copies when it gets within one copy of either end. Because there are only a few copies, a loop never scrolls far enough to lose float precision (P22). The public API takes and returns real indexes; `ScrollToItem` takes the shortest way round; `Refresh()` with a new count keeps the same item at the top. Grids, sections and paged sources log an error and don't loop; `Expand` logs a warning. Tests: `LoopIndexTests` (EditMode), `CarouselTests` (PlayMode).
+- The inspector shows Loop (plain lists only), Snap, and Snap Align (Item snapping only), and hides Allow Multiple Expanded on a looping list.
+
+Not done:
+- The manual scenes `SlotListTests/Carousel` and `SlotListTests/Nested` (11.4, nested scrollers with the MIT plugin) in MyTools.
+- A device check of snapping and the carousel by hand.
 
 ### Phase 12: Tests, samples, docs, release (not started)
 - Samples: Grid, Sections, Chat, Expandable, LayoutSizedText, Carousel, and an update of QuickStart. Today only QuickStart and Extras exist.

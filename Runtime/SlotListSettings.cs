@@ -12,6 +12,22 @@ namespace SlotList
         RightToLeft
     }
 
+    /// <summary>What a list settles on after a drag. Page moves one viewport at a time, like a pager.</summary>
+    public enum SnapMode
+    {
+        None,
+        Item,
+        Page
+    }
+
+    /// <summary>The part of the viewport snapped items line up with.</summary>
+    public enum SnapAlign
+    {
+        Start,
+        Center,
+        End
+    }
+
     /// <summary>Layout and behaviour settings for a whole slot list. Changes apply on the next Initialize.</summary>
     [Serializable]
     public class SlotListSettings
@@ -40,6 +56,15 @@ namespace SlotList
         public uint maxSlotsPerLine = 8;
 
         public bool allowMultipleExpanded;
+
+        [Tooltip("Loop round forever, like a carousel. Lists only: not grids, sections or paged sources. Items don't expand.")]
+        public bool loop;
+
+        [Tooltip("After a drag, settle on the nearest item, or move one page (viewport) at a time.")]
+        public SnapMode snap = SnapMode.None;
+
+        [Tooltip("The part of the viewport a snapped item lines up with. Pages always line up with the start.")]
+        public SnapAlign snapAlign = SnapAlign.Start;
 
         [Tooltip("Go back to the start every time the list is enabled.")]
         public bool resetScrollOnEnable;

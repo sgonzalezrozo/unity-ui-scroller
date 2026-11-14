@@ -63,6 +63,43 @@ namespace SlotList.Tests.Editor
         }
 
         [Test]
+        public void SnapAlign_IsDrawnOnlyForItemSnapping()
+        {
+            CollectionAssert.Contains(Drawn(), "settings.snap");
+            CollectionAssert.DoesNotContain(Drawn(), "settings.snapAlign");
+
+            list.Settings.snap = SnapMode.Item;
+            CollectionAssert.Contains(Drawn(), "settings.snapAlign");
+
+            list.Settings.snap = SnapMode.Page;
+            CollectionAssert.DoesNotContain(Drawn(), "settings.snapAlign");
+        }
+
+        [Test]
+        public void Loop_IsDrawnOnlyForAPlainList_AndHidesExpansion()
+        {
+            CollectionAssert.Contains(Drawn(), "settings.loop");
+
+            list.Settings.loop = true;
+            CollectionAssert.DoesNotContain(Drawn(), "settings.allowMultipleExpanded");
+
+            list.Settings.slotsPerLine = 3;
+            CollectionAssert.DoesNotContain(Drawn(), "settings.loop");
+            CollectionAssert.Contains(Drawn(), "settings.allowMultipleExpanded");
+
+            GameObject sectionedGo = new("SectionedLoopInspectorTest", typeof(RectTransform));
+            try
+            {
+                TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
+                CollectionAssert.DoesNotContain(SlotListEditor.DrawnEntries(new SerializedObject(sectioned)), "settings.loop");
+            }
+            finally
+            {
+                Object.DestroyImmediate(sectionedGo);
+            }
+        }
+
+        [Test]
         public void HeaderPrefab_IsDrawnOnlyForASectionedList()
         {
             CollectionAssert.DoesNotContain(Drawn(), "headerPrefab");

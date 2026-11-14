@@ -69,7 +69,18 @@ namespace SlotList.Editor
             entries.Add(S + "paddingEnd");
 
             entries.Add(HEADER + "Behaviour");
-            entries.Add(S + "allowMultipleExpanded");
+
+            // A looping list is a plain list: no grid, no sections.
+            bool canLoop = GetLayoutMode(serializedObject) == SlotListLayoutMode.List && serializedObject.FindProperty("headerPrefab") == null;
+            if (canLoop)
+                entries.Add(S + "loop");
+
+            entries.Add(S + "snap");
+            if (serializedObject.FindProperty(S + "snap").enumValueIndex == (int)SnapMode.Item)
+                entries.Add(S + "snapAlign");
+
+            if (!canLoop || !serializedObject.FindProperty(S + "loop").boolValue)
+                entries.Add(S + "allowMultipleExpanded");
             entries.Add(S + "resetScrollOnEnable");
             entries.Add(S + "overridePoolBuffer");
             if (serializedObject.FindProperty(S + "overridePoolBuffer").boolValue)

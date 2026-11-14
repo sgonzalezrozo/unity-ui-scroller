@@ -254,7 +254,7 @@ A guide to the refactor for the owner: for every feature of the original, what's
 | `OnInitialized` action | Same | Same |
 | — | `ScrollToSection` (sectioned lists) | New |
 
-**Coming later (Phase 11, deferred by you):** `ScrollTo` with alignment and animation, snapping, the looping carousel.
+**Added in Phase 11:** `ScrollToItem` with alignment (`ScrollAlign`) and animation, snapping (`Item`, `Page`) with `SnappedTo`, and looping lists (carousels).
 
 ---
 

@@ -47,10 +47,16 @@ namespace SlotList
         /// </summary>
         public event Action<float> ContentSizeChanged;
 
+        /// <summary>Raised when the list settles on an item after a drag (Settings.snap), with the item's index. With page snapping, the first item on the page.</summary>
+        public event Action<int> SnappedTo;
+
         [SerializeField] protected GameObject slotPrefab;
         [SerializeField] private SlotListSettings settings = new();
 
         internal IPrefabInstantiator injectedInstantiator;
+
+        /// <summary>Seconds per frame for scroll animations. Tests replace it; null uses unscaled time, like ScrollRect.</summary>
+        internal Func<float> frameDeltaTime;
 
         private protected ISlotListEngine engine;
 
@@ -120,6 +126,8 @@ namespace SlotList
 
         private protected virtual bool SupportsPagingEntries() => false;
 
+        private protected virtual bool SupportsLooping() => true;
+
         /// <summary>Called by Refresh before the engine rebuilds, so a source can recount.</summary>
         private protected virtual void PrepareRefresh()
         {
@@ -135,6 +143,7 @@ namespace SlotList
         bool ISlotListHooks.IsHeader(int index) => IsHeaderEntry(index);
         void ISlotListHooks.BindItem(SlotHandle slot, int index) => BindEntry(slot, index);
         bool ISlotListHooks.SupportsPaging() => SupportsPagingEntries();
+        bool ISlotListHooks.SupportsLooping() => SupportsLooping();
         void ISlotListHooks.OnPageRequested()
         {
             OnPaginationThresholdReached();
@@ -158,6 +167,7 @@ namespace SlotList
         void ISlotListHooks.OnItemCollapsed(int index) => ItemCollapsed?.Invoke(index);
         void ISlotListHooks.OnRebuilt() => Rebuilt?.Invoke();
         void ISlotListHooks.OnContentSizeChanged(float size) => ContentSizeChanged?.Invoke(size);
+        void ISlotListHooks.OnSnapped(int index) => SnappedTo?.Invoke(index);
 
         /// <summary>
         /// The engine moved the content to keep the shown items still. ScrollRect remembers where a drag started and
@@ -220,16 +230,20 @@ namespace SlotList
         /// <summary>Checks whether an item is visible.</summary>
         public bool IsItemVisible(int index) => engine?.IsItemVisible(index) ?? false;
 
-        /// <summary>Jumps to an item.</summary>
-        public void ScrollToItem(int index) => engine?.ScrollToItem(index);
+        /// <summary>
+        /// Scrolls to an item: at once, or animated over <paramref name="duration"/> seconds (a drag cancels it).
+        /// <paramref name="offset"/> leaves that many pixels between the item and the edge it's aligned to.
+        /// </summary>
+        public void ScrollToItem(int index, ScrollAlign align = ScrollAlign.Start, float duration = 0f, float offset = 0f)
+            => engine?.ScrollToItem(index, align, duration, offset);
 
-        /// <summary>Jumps to the start of the list.</summary>
-        public void ScrollToStart() => engine?.ScrollToStart();
+        /// <summary>Scrolls to the start of the list, at once or animated over <paramref name="duration"/> seconds.</summary>
+        public void ScrollToStart(float duration = 0f) => engine?.ScrollToStart(duration);
 
-        /// <summary>Jumps to the end of the list.</summary>
-        public void ScrollToEnd() => engine?.ScrollToEnd();
+        /// <summary>Scrolls to the end of the list, at once or animated over <paramref name="duration"/> seconds.</summary>
+        public void ScrollToEnd(float duration = 0f) => engine?.ScrollToEnd(duration);
 
-        /// <summary>Stops any scroll movement.</summary>
+        /// <summary>Stops any scroll movement, including a scroll animation or a snap.</summary>
         public void ForceStopScrolling() => engine?.ForceStopScrolling();
 
         /// <summary>Checks whether a slot is expanded.</summary>
@@ -268,11 +282,15 @@ namespace SlotList
             engine?.OnDragEnd();
         }
 
-        /// <summary>Applies the sizes measured slots reported during this frame's layout pass.</summary>
+        /// <summary>Applies the sizes measured slots reported during this frame's layout pass, then moves scroll animations on.</summary>
         protected override void LateUpdate()
         {
             base.LateUpdate();
-            engine?.ApplyPendingResizes();
+            if (engine == null)
+                return;
+
+            engine.ApplyPendingResizes();
+            engine.Tick(frameDeltaTime?.Invoke() ?? Time.unscaledDeltaTime);
         }
 
         protected override void OnEnable()

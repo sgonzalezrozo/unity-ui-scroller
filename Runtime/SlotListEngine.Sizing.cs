@@ -169,7 +169,23 @@ namespace SlotList
         }
 
         /// <summary>Measures an item again: at once if it's on screen, otherwise when it's shown. Fixed sizes ignore it.</summary>
+        /// <summary>In a looping list, takes a real index and measures every copy again.</summary>
         public void InvalidateSize(int index)
+        {
+            if (!isInitialized || !isLooping)
+            {
+                InvalidateEntrySize(index);
+                return;
+            }
+
+            if (!IsValidPublicIndex(index))
+                return;
+
+            for (int copy = 0; copy < loopCopies; copy++)
+                InvalidateEntrySize(index + copy * RealCount);
+        }
+
+        private void InvalidateEntrySize(int index)
         {
             if (!isInitialized || index < 0 || index >= layout.Placements.Length)
                 return;
