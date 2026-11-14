@@ -227,6 +227,116 @@ namespace SlotList.Tests.PlayMode
             AssertTile(2, 0f, -200f, 200f, 200f);
         }
 
+        // ---------- Sections ----------
+
+        private IEnumerator StartSections(BentoLayout layout, SectionedSource<TestItem, TestHeader> source, RigOptions options = null)
+        {
+            options ??= new RigOptions();
+            options.Bento = true;
+            options.Sectioned = true;
+            options.BentoLayout = layout;
+            rig = SlotListRig.Create(options);
+            yield return rig.InitializeSections(source);
+            yield return SlotListRig.Frames(2);
+        }
+
+        private static SectionedSource<TestItem, TestHeader> TwoSections(int first, int second, float firstHeader = SlotListRig.HEADER_BODY_HEIGHT, float secondHeader = SlotListRig.HEADER_BODY_HEIGHT)
+        {
+            SectionedSource<TestItem, TestHeader> source = new();
+            source.AddSection(new TestHeader("S0", firstHeader), new ListSource<TestItem>(SlotListRig.MakeItems(first, 0)));
+            source.AddSection(new TestHeader("S1", secondHeader), new ListSource<TestItem>(SlotListRig.MakeItems(second, 100)));
+            return source;
+        }
+
+        private void AssertHeader(string name, float x, float y, float width, float height)
+        {
+            RectTransform header = rig.HeaderFor(name);
+            Assert.IsNotNull(header, $"header {name} has no slot");
+            Assert.AreEqual(x, header.anchoredPosition.x, 0.5f, $"{name} x");
+            Assert.AreEqual(y, header.anchoredPosition.y, 0.5f, $"{name} y");
+            Assert.AreEqual(width, header.sizeDelta.x, 0.5f, $"{name} width");
+            Assert.AreEqual(height, header.sizeDelta.y, 0.5f, $"{name} height");
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_AHeaderTakesAWholeRow_AndItsItemsStartBelowIt()
+        {
+            // 2 columns of 200, rows of 100 (aspect 0.5), 50 px headers.
+            yield return StartSections(BentoLayout.Uniform(2), TwoSections(3, 2), new RigOptions { CellAspect = 0.5f });
+
+            AssertHeader("S0", 0f, 0f, 400f, 50f);
+            AssertTile(0, 0f, -50f, 200f, 100f);
+            AssertTile(1, 200f, -50f, 200f, 100f);
+            AssertTile(2, 0f, -150f, 200f, 100f);
+            AssertHeader("S1", 0f, -250f, 400f, 50f);
+            AssertTile(100, 0f, -300f, 200f, 100f);
+            AssertTile(101, 200f, -300f, 200f, 100f);
+            Assert.AreEqual(400f, rig.List.ContentSize, 0.5f);
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_TheLayoutStartsAgainInEachSection()
+        {
+            yield return StartSections(BigFirst(2), TwoSections(2, 2), new RigOptions { CellAspect = 0.5f });
+
+            AssertTile(0, 0f, -50f, 400f, 200f);
+            AssertTile(1, 0f, -250f, 200f, 100f);
+            AssertHeader("S1", 0f, -350f, 400f, 50f);
+            AssertTile(100, 0f, -400f, 400f, 200f);
+            Assert.AreEqual(new BentoTile(0, 0, 2, 2), rig.List.GetTile(rig.Sectioned.Source.FlatIndexOf(1, 0)), "tiles count rows from their section");
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_MeasuredHeaders_EachTakeTheirOwnHeight()
+        {
+            yield return StartSections(BentoLayout.Uniform(2), TwoSections(3, 2, firstHeader: 40f, secondHeader: 120f), new RigOptions { CellAspect = 0.5f, HeaderSize = -1f });
+
+            AssertHeader("S0", 0f, 0f, 400f, 40f);
+            AssertTile(0, 0f, -40f, 200f, 100f);
+            AssertHeader("S1", 0f, -240f, 400f, 120f);
+            AssertTile(100, 0f, -360f, 200f, 100f);
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_ATallTile_NeverReachesIntoTheNextSection()
+        {
+            BentoLayout layout = BentoLayout.FromSpans(2, new[] { new BentoSpan(1, 3), BentoSpan.One }, repeatFrom: 1);
+            yield return StartSections(layout, TwoSections(1, 2), new RigOptions { CellAspect = 0.5f });
+
+            AssertTile(0, 0f, -50f, 200f, 300f);
+            AssertHeader("S1", 0f, -350f, 400f, 50f);
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_ScrollToSection_GoesToItsHeader()
+        {
+            // 10 items in 2 columns: 5 rows of 200 under a 50 px header.
+            SectionedSource<TestItem, TestHeader> source = RigSections(10, 10, 10);
+            yield return StartSections(BentoLayout.Uniform(2), source);
+
+            rig.Sectioned.ScrollToSection(1);
+            yield return null;
+
+            Assert.AreEqual(1050f, rig.ScrollDistance, 0.5f);
+            Assert.IsNotNull(rig.HeaderFor("S1"));
+        }
+
+        [UnityTest]
+        public IEnumerator Sections_LeftToRight_AHeaderIsAWholeColumn()
+        {
+            yield return StartSections(BentoLayout.Uniform(2), TwoSections(3, 2),
+                new RigOptions { CellAspect = 0.5f, Direction = RigDirection.LeftToRight, ViewportSize = new Vector2(800f, 400f) });
+
+            AssertHeader("S0", 0f, 0f, 50f, 400f);
+            AssertTile(0, 50f, 0f, 100f, 200f);
+            AssertTile(1, 50f, -200f, 100f, 200f);
+            AssertTile(2, 150f, 0f, 100f, 200f);
+            AssertHeader("S1", 250f, 0f, 50f, 400f);
+        }
+
+        private static SectionedSource<TestItem, TestHeader> RigSections(params int[] counts)
+            => SlotListRig.MakeSections(counts);
+
         // ---------- Changes ----------
 
         [UnityTest]

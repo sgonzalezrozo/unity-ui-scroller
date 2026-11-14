@@ -280,7 +280,7 @@ namespace SlotList.Tests.Editor
         }
 
         [Test]
-        public void BentoProblems_WarnAboutSections()
+        public void BentoProblems_AreEmpty_ForASectionedList()
         {
             GameObject sectionedGo = new("SectionedBentoInspectorTest", typeof(RectTransform));
             try
@@ -288,9 +288,7 @@ namespace SlotList.Tests.Editor
                 TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
                 sectioned.Settings.bento = true;
 
-                IReadOnlyList<string> problems = SlotListEditor.BentoProblems(new SerializedObject(sectioned));
-
-                StringAssert.Contains("sections", problems[0]);
+                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(new SerializedObject(sectioned)));
             }
             finally
             {

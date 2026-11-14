@@ -43,7 +43,7 @@
     },
     {
       "displayName": "Examples",
-      "description": "Grid, bento, sections, expandable rows, a looping carousel and paging. Each builds its UI in code: add it to an empty scene and press Play. No TextMeshPro needed.",
+      "description": "Grid, bento (with sections), sections, expandable rows, a looping carousel and paging. Each builds its UI in code: add it to an empty scene and press Play. No TextMeshPro needed.",
       "path": "Samples~/Examples"
     },
     {

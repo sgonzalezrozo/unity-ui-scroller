@@ -7,7 +7,8 @@ namespace SlotList
     /// The bento layout (Settings.bento): tiles of different sizes on a grid of cells. A BentoLayout hands out each
     /// item's tile; rows of cells are the layout model's lines, so offsets, recycling and paging work as for a list.
     /// Columns come from the layout (or Slots Per Line when it gives none), the row height from the column width and
-    /// Cell Aspect. Tiles never expand and slots are never measured.
+    /// Cell Aspect. Tiles never expand and item slots are never measured. With sections, each header takes a whole
+    /// row as tall as the header (fixed or measured, like any header), and the layout starts again in each section.
     /// </summary>
     internal sealed partial class SlotListEngine<T>
     {
@@ -26,7 +27,7 @@ namespace SlotList
         /// <summary>Works out whether this list uses the bento layout, and starts its tiles again from the first item.</summary>
         private void UpdateBento()
         {
-            isBento = settings.bento && CanUseBento();
+            isBento = settings.bento;
             bentoTiles.Clear();
             if (!isBento)
             {
@@ -49,15 +50,6 @@ namespace SlotList
             }
 
             isLayoutSized = false;
-        }
-
-        private bool CanUseBento()
-        {
-            if (headerPrefab == null)
-                return true;
-
-            Debug.LogError($"[SlotList] {host.gameObject.name}: Bento doesn't work with sections yet. The list uses its usual layout.", host);
-            return false;
         }
 
         private void ReportBentoErrors(BentoLayout layout)
@@ -85,14 +77,42 @@ namespace SlotList
 
         private void BuildBentoLines(int fromItem)
         {
-            while (bentoTiles.Count < ItemCount)
-                bentoTiles.Add(bentoArranger.Next());
+            if (headerPrefab != null)
+            {
+                ArrangeSections();
+                layout.BuildBentoSectionLines(ItemCount, bentoTiles, BentoRowSize(), isHeaderFunc, itemSizeFunc);
+            }
+            else
+            {
+                while (bentoTiles.Count < ItemCount)
+                    bentoTiles.Add(bentoArranger.Next());
 
-            layout.BuildBentoLines(ItemCount, bentoTiles, BentoRowSize(), fromItem);
+                layout.BuildBentoLines(ItemCount, bentoTiles, BentoRowSize(), fromItem);
+            }
+
             if (recycler != null)
                 recycler.BentoColumns = bentoColumns;
             if (visibilityPass != null)
                 visibilityPass.ExtraLinesAbove = appliedBentoLayout.MaxRowSpan - 1;
+        }
+
+        /// <summary>Tiles for every entry: a header spans every column and starts the layout again for its section.</summary>
+        private void ArrangeSections()
+        {
+            bentoTiles.Clear();
+            bentoArranger.Reset();
+            for (int i = 0; i < ItemCount; i++)
+            {
+                if (hooks.IsHeader(i))
+                {
+                    bentoArranger.Reset();
+                    bentoTiles.Add(new BentoTile(0, 0, bentoColumns, 1));
+                }
+                else
+                {
+                    bentoTiles.Add(bentoArranger.Next());
+                }
+            }
         }
 
         private float BentoCellCross()

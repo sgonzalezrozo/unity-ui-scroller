@@ -10,7 +10,7 @@ All notable changes to this package are documented in this file.
 
 ### Added
 
-- **Bento layout** (in progress): `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop or have sections. List, Grid and Auto Grid don't change. The Examples sample has a `BentoExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
+- **Bento layout** (in progress): `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop. List, Grid and Auto Grid don't change. Bento works in a `SectionedSlotList` too: each header takes a whole row, as tall as the header itself (fixed, or measured so each header can differ), and the layout starts again in each section; a tall tile never reaches into the next section. The Examples sample has a `BentoExample` and a `BentoSectionsExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
 
 ## [1.0.0-preview.1] - Unreleased
 

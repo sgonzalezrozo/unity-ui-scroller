@@ -132,17 +132,14 @@ namespace SlotList.Editor
         }
 
         /// <summary>
-        /// What's wrong with a bento list's setup: the errors in its Layout JSON, and sections, which bento doesn't
-        /// support. Empty outside bento, and for a list with no JSON (1x1 tiles).
+        /// What's wrong with a bento list's setup: the errors in its Layout JSON. Empty outside bento, and for a list
+        /// with no JSON (1x1 tiles).
         /// </summary>
         public static IReadOnlyList<string> BentoProblems(SerializedObject serializedObject)
         {
             List<string> problems = new();
             if (GetLayoutMode(serializedObject) != SlotListLayoutMode.Bento)
                 return problems;
-
-            if (serializedObject.FindProperty("headerPrefab") != null)
-                problems.Add("Bento doesn't work with sections yet: the list will use its usual layout.");
 
             SerializedProperty json = serializedObject.FindProperty(BENTO_JSON);
             if (json?.objectReferenceValue is TextAsset asset)

@@ -403,6 +403,42 @@ list.SetSource(source); // starts the list the first time, replaces the sections
 
 A plain `SlotList<T>` has no headers.
 
+## Bento layout
+
+Bento places tiles of different sizes on a grid of cells: a big featured tile, a strip of small ones, a tall one beside two stacked, and so on. Set **Layout** to **Bento** and give the list a **Layout JSON** (a TextAsset), or set it from code. Items don't choose their size: the layout does.
+
+A layout is a sequence of **spans** packed in order (each tile goes in the first gap where it fits, without going back to fill earlier holes), or a sequence of **patterns** (blocks of cells drawn tile by tile). Both repeat from `repeatFrom` after their last entry:
+
+```json
+{
+  "columns": 4,
+  "repeatFrom": 1,
+  "patterns": [
+    { "rows": 2, "tiles": [ {"c":0,"r":0,"w":2,"h":2}, {"c":2,"r":0,"w":2,"h":1}, {"c":2,"r":1,"w":1,"h":1}, {"c":3,"r":1,"w":1,"h":1} ] },
+    { "rows": 1, "tiles": [ {"c":0,"r":0,"w":1,"h":1}, {"c":1,"r":0,"w":1,"h":1}, {"c":2,"r":0,"w":1,"h":1}, {"c":3,"r":0,"w":1,"h":1} ] }
+  ]
+}
+```
+
+```json
+{ "columns": 4, "repeatFrom": 1, "spans": [ {"w":2,"h":2}, {"w":1,"h":1} ] }
+```
+
+```csharp
+list.Settings.bento = true;
+list.Settings.cellAspect = 1f; // row height / column width
+list.SetBentoLayout(BentoLayout.FromJson(json)); // or BentoLayout.FromSpans / FromPatterns in code
+list.Initialize(source);
+```
+
+- Columns come from the layout; the column width from the list's width and **Column Spacing**, the row height from **Cell Aspect**. Tiles stretch to their cells.
+- Every layout is checked. A broken one logs its errors (the inspector lists them too) and places items as 1x1 tiles. `layout.Errors` has them in code.
+- Paging works: new pages continue the layout without moving what's on screen. `SetBentoLayout` after `Initialize` rebuilds with the new layout. `GetTile(index)` tells you where an item sits.
+- In a `SectionedSlotList`, each header takes a whole row, as tall as the header (fixed or measured, so headers can differ), and the layout starts again in each section.
+- Tiles don't expand, and a bento list doesn't loop. Another JSON library can fill `BentoLayoutData` for `BentoLayout.FromData`.
+
+The **Examples** sample has `BentoExample` and `BentoSectionsExample`.
+
 ## Reversed lists
 
 Choose **Bottom To Top** or **Right To Left** to start from the opposite end. It works with lists and grids.

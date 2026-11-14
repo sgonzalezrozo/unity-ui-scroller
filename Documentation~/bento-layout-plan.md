@@ -12,6 +12,7 @@ Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 r
 - **Inspector done:** **Layout: Bento** with **Layout JSON** (a TextAsset), **Cell Aspect** and the column spacing underneath; Allow Multiple Expanded and Loop hidden; JSON errors and sections shown as an error box. 6 EditMode tests.
 - **Fix found while testing:** a page that lands during the bounce at the end no longer drifts the list back towards the start (both directions; it showed most bottom to top). 459 tests pass.
 - **Merged into `main`** (2026-11-14).
+- **Sections done:** bento in a `SectionedSlotList`. A header is a line of its own across every column, as tall as the header (fixed, or measured per header); each section's rows start below it and the layout starts again (decision: restart per section, one layout for all sections). A section ends after its last row, so a tall tile never crosses a header. `BentoSectionsExample` with measured headers of different heights. Also confirmed by tests: headers of different heights in a sectioned list and grid (no bento) already worked.
 - **Left:** item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, the pattern asset with a grid editor, README and agent rules.
 
 ## Decisions (B0, 2026-11-14)
@@ -176,7 +177,7 @@ What stays out of bento mode, each with a clear message:
 |---|---|
 | Expand | Warning once, ignored (as in Grid) |
 | Loop | Error once, doesn't loop (as with Grid) |
-| Sections (`SectionedSlotList`) | Error once in the first version. Later, possibly: a header takes a full-width row and each section starts a new row. |
+| Sections (`SectionedSlotList`) | Supported: a header takes a full-width row as tall as the header, and the layout starts again in each section. |
 | Measured slots | Warning once, the tile size is used |
 | Auto Grid columns | The first version has a fixed column count. Later, possibly: patterns per column count, chosen by width. |
 

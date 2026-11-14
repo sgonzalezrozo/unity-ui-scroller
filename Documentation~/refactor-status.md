@@ -25,7 +25,7 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 | 10 Performance | Done, measured on two phones | `refactor/p10-performance` | |
 | 11 New features | Done, except the manual scenes | `feat/p11-features` | 400 (196 + 204) |
 | 12 Tests, samples, docs, release | Samples, migration guide and compatibility done; merged into `main`; the release (1.0.0) left | `feat/p11-features` | 400 |
-| Bento layout (for 1.1.0) | Model, engine, inspector and sample done; snapping and a pattern editor left | `feat/bento-layout` | 459 (231 + 228) |
+| Bento layout (for 1.1.0) | Model, engine, inspector, sections and samples done; snapping and a pattern editor left | `feat/bento-layout`, `feat/bento-sections` | 467 (231 + 236) |
 
 ## Owner decisions along the way
 
@@ -279,7 +279,7 @@ Not done:
 ### Bento layout (for 1.1.0)
 Branch `feat/bento-layout`, merged into `main`. The plan, decisions and progress are in `bento-layout-plan.md`.
 - A layout mode where tiles of different sizes sit on a grid of cells. The owner chose to define it in **JSON**: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Items don't decide their own size.
-- Done: the model with validation (a broken layout logs its errors and uses 1x1 tiles), the engine (rows of cells are lines), `SetBentoLayout`, `GetTile`, **Layout: Bento** in the inspector with a **Layout JSON** field and **Cell Aspect**, and `BentoExample`. Expand is ignored, loop and sections are refused. List, Grid and Auto Grid are unchanged.
+- Done: the model with validation (a broken layout logs its errors and uses 1x1 tiles), the engine (rows of cells are lines), `SetBentoLayout`, `GetTile`, **Layout: Bento** in the inspector with a **Layout JSON** field and **Cell Aspect**, `BentoExample`, and sections (`feat/bento-sections`): a header takes a whole row as tall as the header, and the layout starts again in each section, with `BentoSectionsExample`. Expand is ignored and loop refused. List, Grid and Auto Grid are unchanged.
 - Used in MyTools: the Shop's enemy list (`ShopBg.prefab`) is a 2-column bento with `Shop/EnemyBentoLayout.json`. Not committed in MyTools.
 - Left: item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, a pattern asset with a grid editor, README and agent rules.
 
