@@ -190,6 +190,28 @@ namespace SlotList.Tests.Editor
             CollectionAssert.DoesNotContain(drawn, "settings.slotsPerLine");
         }
 
+        // ---------- Sections ----------
+
+        [Test]
+        public void SectionSpacing_IsDrawnOnlyForASectionedList_AfterRowSpacing()
+        {
+            CollectionAssert.DoesNotContain(Drawn(), "settings.sectionSpacing");
+
+            GameObject sectionedGo = new("SectionSpacingInspectorTest", typeof(RectTransform));
+            try
+            {
+                TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
+                IReadOnlyList<string> drawn = SlotListEditor.DrawnEntries(new SerializedObject(sectioned));
+
+                Assert.AreEqual(IndexOf(drawn, "settings.lineSpacing") + 1, IndexOf(drawn, "settings.sectionSpacing"));
+                Assert.AreEqual("Section Spacing", SlotListEditor.LabelFor("settings.sectionSpacing", SlotListDirection.TopToBottom));
+            }
+            finally
+            {
+                Object.DestroyImmediate(sectionedGo);
+            }
+        }
+
         // ---------- Bento ----------
 
         [Test]

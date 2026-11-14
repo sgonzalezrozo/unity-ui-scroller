@@ -115,6 +115,7 @@ namespace SlotList
         {
             Placement placement = placementBuffer[itemIndex];
             line.Placements[0] = placement;
+            line.StartsSection = true;
             itemToLine[itemIndex] = line.LineIndex;
             placement.Tile = tile;
             placement.CacheSize(size);

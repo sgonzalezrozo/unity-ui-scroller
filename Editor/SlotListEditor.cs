@@ -75,6 +75,8 @@ namespace SlotList.Editor
 
             entries.Add(HEADER + "Spacing & Padding");
             entries.Add(S + "lineSpacing");
+            if (serializedObject.FindProperty("headerPrefab") != null)
+                entries.Add(S + "sectionSpacing");
             entries.Add(S + "paddingStart");
             entries.Add(S + "paddingEnd");
 
@@ -183,6 +185,7 @@ namespace SlotList.Editor
                 S + "minSlotsPerLine" => "Min " + slots + "s",
                 S + "maxSlotsPerLine" => "Max " + slots + "s",
                 BENTO_JSON => "Layout JSON",
+                S + "sectionSpacing" => "Section Spacing",
                 _ => null
             };
         }

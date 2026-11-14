@@ -4,6 +4,10 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
+
 ### Fixed
 
 - A page that lands while the list bounces back from its end no longer makes it drift towards the start: the new items end the overscroll, and ScrollRect turned the elastic pull into inertia. The bounce now stops and the list stays where it is. Easy to see in a bottom-to-top list.

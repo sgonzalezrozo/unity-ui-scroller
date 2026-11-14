@@ -8,6 +8,9 @@ namespace SlotList
         public int LineIndex { get; internal set; }
         public readonly Placement[] Placements;
 
+        /// <summary>A header's line: the section spacing goes before it, unless it's the first line.</summary>
+        internal bool StartsSection;
+
         public Line(int lineIndex, int gridCount)
         {
             LineIndex = lineIndex;
@@ -19,6 +22,7 @@ namespace SlotList
         {
             LineIndex = lineIndex;
             Size = 0f;
+            StartsSection = false;
             Array.Clear(Placements, 0, Placements.Length);
         }
 

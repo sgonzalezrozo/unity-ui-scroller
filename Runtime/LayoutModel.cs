@@ -27,6 +27,7 @@ namespace SlotList
         private float paddingStart;
         private float paddingEnd;
         private float lineSpacing;
+        private float sectionSpacing;
 
         /// <summary>Counts created placements and lines, for tests. Optional.</summary>
         internal WorkCounters Work;
@@ -60,12 +61,15 @@ namespace SlotList
             }
         }
 
-        public void SetSpacing(float paddingStartValue, float paddingEndValue, float lineSpacingValue)
+        /// <summary>Padding at both ends, the space between lines, and the extra space before every header but the first.</summary>
+        public void SetSpacing(float paddingStartValue, float paddingEndValue, float lineSpacingValue, float sectionSpacingValue = 0f)
         {
             paddingStart = paddingStartValue;
             paddingEnd = paddingEndValue;
             lineSpacing = lineSpacingValue;
+            sectionSpacing = sectionSpacingValue;
             firstDirtyLine = 0;
+            offsetsValidCount = 0;
         }
 
         /// <summary>Sets up <paramref name="itemCount"/> fresh placements, reusing the existing objects. None may hold a slot.</summary>
@@ -171,7 +175,9 @@ namespace SlotList
             {
                 if (isHeader(item) || item >= placementCount)
                 {
-                    BuildHeaderLine(TakeLine(line, 1), item, getItemSize);
+                    Line headerLine = TakeLine(line, 1);
+                    headerLine.StartsSection = item < placementCount;
+                    BuildHeaderLine(headerLine, item, getItemSize);
                     item++;
                 }
                 else
@@ -364,6 +370,9 @@ namespace SlotList
             float position = start == 0 ? paddingStart : offsets[start - 1] + lineBuffer[start - 1].Size + lineSpacing;
             for (int i = start; i < lineCount; i++)
             {
+                if (i > 0 && lineBuffer[i].StartsSection)
+                    position += sectionSpacing;
+
                 offsets[i] = position;
                 position += lineBuffer[i].Size + lineSpacing;
             }

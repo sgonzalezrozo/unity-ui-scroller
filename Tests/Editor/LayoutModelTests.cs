@@ -145,6 +145,33 @@ namespace SlotList.Tests.Editor
         }
 
         [Test]
+        public void SectionSpacing_GoesBeforeEveryHeader_ButTheFirst()
+        {
+            // Entries: header 0, items 1 and 2, header 3, item 4, header 5. 100 px each, 5 between lines, 30 between sections.
+            LayoutModel layout = Build(6, 1, i => i == 0 || i == 3 || i == 5);
+            layout.SetSpacing(10f, 20f, 5f, 30f);
+            layout.RecomputeOffsets();
+
+            Assert.AreEqual(10f, layout.OffsetOf(0), "the first header starts at the padding");
+            Assert.AreEqual(115f, layout.OffsetOf(1));
+            Assert.AreEqual(220f, layout.OffsetOf(2));
+            Assert.AreEqual(355f, layout.OffsetOf(3), "220 + 100 + 5 + 30");
+            Assert.AreEqual(460f, layout.OffsetOf(4));
+            Assert.AreEqual(595f, layout.OffsetOf(5));
+            Assert.AreEqual(715f, layout.TotalExtent);
+        }
+
+        [Test]
+        public void SectionSpacing_DoesNothing_WithoutHeaders()
+        {
+            LayoutModel layout = Build(3, 1);
+            layout.SetSpacing(0f, 0f, 5f, 30f);
+            layout.RecomputeOffsets();
+
+            Assert.AreEqual(210f, layout.OffsetOf(2));
+        }
+
+        [Test]
         public void ExtendPlacements_KeepsTheExistingOnes_AndAddsTheRest()
         {
             LayoutModel layout = Build(3, 1);

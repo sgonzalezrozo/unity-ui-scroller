@@ -43,6 +43,61 @@ namespace SlotList.Tests.PlayMode
             Assert.AreEqual(height, rect.sizeDelta.y, 0.5f, $"{what} height");
         }
 
+        // ---------- Section Spacing: 30 px before every header but the first. 50 px headers, 2 items per section ----------
+
+        private IEnumerator StartSpaced(RigOptions options)
+        {
+            options.Sectioned = true;
+            options.SectionSpacing = 30f;
+            rig = SlotListRig.Create(options);
+            yield return rig.InitializeSections(SlotListRig.MakeSections(2, 2));
+            yield return SlotListRig.Frames(2);
+        }
+
+        [UnityTest]
+        public IEnumerator SectionSpacing_InAList_GoesBeforeEachHeaderButTheFirst()
+        {
+            yield return StartSpaced(new RigOptions());
+
+            AssertAt(rig.HeaderFor("S0"), 0f, 50f, "S0");
+            AssertAt(rig.ItemFor(1), -150f, 100f, "item 1");
+            AssertAt(rig.HeaderFor("S1"), -280f, 50f, "S1");
+            AssertAt(rig.ItemFor(100), -330f, 100f, "item 100");
+            Assert.AreEqual(530f, rig.List.ContentSize, 0.5f);
+        }
+
+        [UnityTest]
+        public IEnumerator SectionSpacing_InAGrid()
+        {
+            yield return StartSpaced(new RigOptions { SlotsPerLine = 3 });
+
+            AssertAt(rig.ItemFor(1), -50f, 100f, "item 1");
+            AssertAt(rig.HeaderFor("S1"), -180f, 50f, "S1");
+            AssertAt(rig.ItemFor(101), -230f, 100f, "item 101");
+        }
+
+        [UnityTest]
+        public IEnumerator SectionSpacing_InBento()
+        {
+            yield return StartSpaced(new RigOptions { Bento = true, BentoLayout = BentoLayout.Uniform(2), CellAspect = 0.5f });
+
+            AssertAt(rig.ItemFor(1), -50f, 100f, "item 1");
+            AssertAt(rig.HeaderFor("S1"), -180f, 50f, "S1");
+            AssertAt(rig.ItemFor(100), -230f, 100f, "item 100");
+        }
+
+        [UnityTest]
+        public IEnumerator SectionSpacing_ScrollToSection_StopsAtTheHeader()
+        {
+            rig = SlotListRig.Create(new RigOptions { Sectioned = true, SectionSpacing = 30f });
+            yield return rig.InitializeSections(SlotListRig.MakeSections(10, 10, 10));
+
+            rig.Sectioned.ScrollToSection(1);
+            yield return null;
+
+            Assert.AreEqual(1080f, rig.ScrollDistance, 0.5f, "50 + 10 x 100, then the 30 px gap");
+        }
+
         [UnityTest]
         public IEnumerator InAList_EachHeaderTakesItsOwnHeight()
         {

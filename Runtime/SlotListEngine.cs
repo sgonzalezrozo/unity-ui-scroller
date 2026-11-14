@@ -157,7 +157,7 @@ namespace SlotList
 
             viewportSize = viewportMetrics.GetViewportSize();
             gridResolver.Resolve(viewportMetrics.GetCrossAxisViewportSize());
-            layout.SetSpacing(settings.paddingStart, settings.paddingEnd, settings.lineSpacing);
+            layout.SetSpacing(settings.paddingStart, settings.paddingEnd, settings.lineSpacing, headerPrefab != null ? settings.sectionSpacing : 0f);
             return true;
         }
 

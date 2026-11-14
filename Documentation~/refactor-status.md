@@ -283,6 +283,9 @@ Branch `feat/bento-layout`, merged into `main`. The plan, decisions and progress
 - Used in MyTools: the Shop's enemy list (`ShopBg.prefab`) is a 2-column bento with `Shop/EnemyBentoLayout.json`. Not committed in MyTools.
 - Left: item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, a pattern asset with a grid editor, README and agent rules.
 
+### Section Spacing (2026-11-14)
+- `Settings.sectionSpacing`: extra space before every header except the first (lists, grids and bento). A header's line is marked `StartsSection`, and the offsets add the spacing before it. In the inspector under Row Spacing, for sectioned lists only.
+
 ### Fixes found while testing bento (2026-11-14)
 - A page that landed while the list bounced back from its end made it drift about 85 px towards the start: the new items ended the overscroll, and ScrollRect turned the elastic pull into inertia. It showed most in a bottom-to-top list, where the start is at the bottom. The bounce now stops when the page lands; a list still moving towards the end keeps its speed. Tests in `PagingTests` for both directions.
 - Checked, not a bug: a bottom-to-top paged list loads its first and next pages (with and without bento). It scrolls on by dragging down, and pages load near the top.

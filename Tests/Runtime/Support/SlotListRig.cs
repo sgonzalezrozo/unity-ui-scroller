@@ -43,6 +43,7 @@ namespace SlotList.Tests.PlayMode
 
         /// <summary>Settings.bento on, with this layout (null: 1x1 tiles over SlotsPerLine columns).</summary>
         public bool Bento;
+        public float SectionSpacing;
         public BentoLayout BentoLayout;
         public float CellAspect = 1f;
 
@@ -149,6 +150,7 @@ namespace SlotList.Tests.PlayMode
             settings.paddingEnd = options.PaddingEnd;
             settings.allowMultipleExpanded = options.AllowMultipleExpanded;
             settings.bento = options.Bento;
+            settings.sectionSpacing = options.SectionSpacing;
             settings.cellAspect = options.CellAspect;
             if (options.BentoLayout != null)
                 List.SetBentoLayout(options.BentoLayout);

@@ -42,6 +42,9 @@ namespace SlotList
         [Tooltip("Space between slots in the same line.")]
         public float slotSpacing;
 
+        [Tooltip("Extra space before each section's header, except the first. Sectioned lists only.")]
+        public float sectionSpacing;
+
         public float paddingStart;
         public float paddingEnd;
 

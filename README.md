@@ -396,6 +396,7 @@ list.SetSource(source); // starts the list the first time, replaces the sections
 - `InsertSection`, `RemoveSection` and `ClearSections` change the sections. After changing an inner source (adding to a section's `ListSource`, for example), call `list.Refresh()`, as with any list.
 - `list.ScrollToSection(index)` jumps to a section's header (or the next section shown, if that one is empty).
 - **A header takes a whole row in a grid**, and each section starts a new row.
+- **Section Spacing** (inspector, or `Settings.sectionSpacing`) adds space before every header except the first, in lists, grids and bento.
 - Headers follow the same size rule as slots: a positive `DefaultExtent` is fixed, 0 or less is measured with layout. Headers never change the average size used for items not measured yet.
 - Indexes in the list's API (`ScrollToItem`, `Expand`, `IsItemVisible`, `VisibleStartIndex`...) count headers. Use `source.FlatIndexOf(section, indexInSection)` to find an item's index, and `source.Locate(index)` for the other way round.
 - To build the source elsewhere (a screen's Model, for example), implement `ISectionedSourceProvider<TItem, THeader>` and call `list.SetSource(provider)`.
