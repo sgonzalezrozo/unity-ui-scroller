@@ -415,5 +415,104 @@ namespace SlotList.Tests.PlayMode
             Assert.Less(speedAtRelease, 100_000f, "a 40 px-per-frame drag can't release at millions of px/s");
             Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
         }
+
+        // ---------- Inertia matches a plain ScrollRect ----------
+
+        /// <summary>A plain Unity ScrollRect next to the list: same size, settings, content height and position.</summary>
+        private UnityEngine.UI.ScrollRect BuildTwinScrollRect()
+        {
+            GameObject twinGo = new("TwinScrollRect", typeof(RectTransform));
+            RectTransform twinRect = (RectTransform)twinGo.transform;
+            twinRect.SetParent(rig.ScrollerRect.parent, false);
+            twinRect.sizeDelta = rig.ScrollerRect.sizeDelta;
+            twinRect.anchoredPosition = rig.ScrollerRect.anchoredPosition + new Vector2(1000f, 0f);
+
+            RectTransform viewport = (RectTransform)new GameObject("Viewport", typeof(RectTransform)).transform;
+            viewport.SetParent(twinRect, false);
+            viewport.anchorMin = Vector2.zero;
+            viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = viewport.offsetMax = Vector2.zero;
+            viewport.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+
+            RectTransform content = (RectTransform)new GameObject("Content", typeof(RectTransform)).transform;
+            content.SetParent(viewport, false);
+            content.anchorMin = rig.Content.anchorMin;
+            content.anchorMax = rig.Content.anchorMax;
+            content.pivot = rig.Content.pivot;
+            content.sizeDelta = rig.Content.sizeDelta;
+            content.anchoredPosition = rig.Content.anchoredPosition;
+
+            UnityEngine.UI.ScrollRect twin = twinGo.AddComponent<UnityEngine.UI.ScrollRect>();
+            twin.viewport = viewport;
+            twin.content = content;
+            twin.horizontal = false;
+            twin.vertical = true;
+            twin.inertia = rig.List.inertia;
+            twin.movementType = rig.List.movementType;
+            twin.decelerationRate = rig.List.decelerationRate;
+            twin.elasticity = rig.List.elasticity;
+            return twin;
+        }
+
+        /// <summary>Drags both with the same pointer moves in the same frames, then lets both coast. Returns (list, twin) travel after release.</summary>
+        private IEnumerator DragBoth(UnityEngine.UI.ScrollRect twin, float pixelsPerFrame, int frames, int coastFrames, float[] result)
+        {
+            PointerEventData listPointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 350f) };
+            PointerEventData twinPointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 350f) };
+            rig.List.OnInitializePotentialDrag(listPointer);
+            twin.OnInitializePotentialDrag(twinPointer);
+            rig.List.OnBeginDrag(listPointer);
+            twin.OnBeginDrag(twinPointer);
+            for (int i = 0; i < frames; i++)
+            {
+                listPointer.position += new Vector2(0f, pixelsPerFrame);
+                twinPointer.position += new Vector2(0f, pixelsPerFrame);
+                rig.List.OnDrag(listPointer);
+                twin.OnDrag(twinPointer);
+                yield return null;
+            }
+
+            result[0] = rig.List.velocity.y;
+            result[1] = twin.velocity.y;
+            rig.List.OnEndDrag(listPointer);
+            twin.OnEndDrag(twinPointer);
+
+            // Travel in items, unwrapped: the list may loop round, the twin just moves.
+            float listTravel = 0f;
+            float lastDistance = rig.ScrollDistance;
+            float twinStart = twin.content.anchoredPosition.y;
+            for (int i = 0; i < coastFrames; i++)
+            {
+                yield return null;
+                float now = rig.ScrollDistance;
+                float step = now - lastDistance;
+                float period = TEN_THOUSAND * 120f;
+                if (Mathf.Abs(step) > period * 0.5f)
+                    step -= Mathf.Sign(step) * period;
+                listTravel += step;
+                lastDistance = now;
+            }
+
+            result[2] = listTravel;
+            result[3] = twin.content.anchoredPosition.y - twinStart;
+        }
+
+        [UnityTest]
+        public IEnumerator LoopingList_ReleasesAtThePlainScrollRectSpeed([Values(-40f, 40f, -120f)] float pixelsPerFrame)
+        {
+            yield return StartTenThousandWithInertia();
+            UnityEngine.UI.ScrollRect twin = BuildTwinScrollRect();
+            yield return null;
+            float[] result = new float[4];
+
+            yield return DragBoth(twin, pixelsPerFrame, 15, 40, result);
+
+            // Coasting distance isn't compared: test frames last under a millisecond, so each frame moves a few pixels and
+            // float rounding at ~2.4 million px (0.25 px steps) makes it vary from run to run. The speed is exact.
+            Debug.Log($"[Inertia] drag {pixelsPerFrame}/frame: release speed list {result[0]:F0} vs plain {result[1]:F0}; coasting list {result[2]:F0} px vs plain {result[3]:F0} px");
+            Assert.AreEqual(result[1], result[0], Mathf.Abs(result[1]) * 0.01f + 1f, "release speed");
+            Assert.AreEqual(Mathf.Sign(result[3]), Mathf.Sign(result[2]), "it coasts the same way");
+            Object.Destroy(twin.gameObject);
+        }
     }
 }
