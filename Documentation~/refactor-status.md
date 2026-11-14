@@ -24,7 +24,8 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 | 9 Sections | Code and docs done; scene missing | `refactor/p9-sections` (`c7a184e` + docs) | 243 |
 | 10 Performance | Done, measured on two phones | `refactor/p10-performance` | |
 | 11 New features | Done, except the manual scenes | `feat/p11-features` | 400 (196 + 204) |
-| 12 Tests, samples, docs, release | Samples, migration guide and compatibility done; merge and tag left | `feat/p11-features` | 400 |
+| 12 Tests, samples, docs, release | Samples, migration guide and compatibility done; merged into `main`; the release (1.0.0) left | `feat/p11-features` | 400 |
+| Bento layout (for 1.1.0) | Model, engine, inspector and sample done; snapping and a pattern editor left | `feat/bento-layout` | 459 (231 + 228) |
 
 ## Owner decisions along the way
 
@@ -271,8 +272,20 @@ Not done:
 - Done: `Documentation~/migration-from-recyclable-scroller.md`.
 - Done: the compatibility table (IL2CPP on the A02s and Pixel 5; domain reload off supported by design, not checked by hand).
 - Found while writing the Grid example: Auto Grid set from code with `slotsPerLine` at 1 made a list. Fixed.
-- Left: merge into `main`, the `v1.0.0-preview.1` tag.
+- Done: merged into `main` and pushed (2026-11-14).
+- Left: the release. The owner wants it to ship as **1.0.0**, not a preview: on release day, change every `1.0.0-preview.1` to `1.0.0` and tag `v1.0.0`.
 - **Update the AI rules repository** (`unity-architecture-agents`): its docs still describe Recyclable Scroller's API and package name. Also settle the naming clash between `ISlot<T>` and MVC Models. Then bump the `.ai` submodule in MyTools.
+
+### Bento layout (for 1.1.0)
+Branch `feat/bento-layout`, merged into `main`. The plan, decisions and progress are in `bento-layout-plan.md`.
+- A layout mode where tiles of different sizes sit on a grid of cells. The owner chose to define it in **JSON**: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Items don't decide their own size.
+- Done: the model with validation (a broken layout logs its errors and uses 1x1 tiles), the engine (rows of cells are lines), `SetBentoLayout`, `GetTile`, **Layout: Bento** in the inspector with a **Layout JSON** field and **Cell Aspect**, and `BentoExample`. Expand is ignored, loop and sections are refused. List, Grid and Auto Grid are unchanged.
+- Used in MyTools: the Shop's enemy list (`ShopBg.prefab`) is a 2-column bento with `Shop/EnemyBentoLayout.json`. Not committed in MyTools.
+- Left: item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, a pattern asset with a grid editor, README and agent rules.
+
+### Fixes found while testing bento (2026-11-14)
+- A page that landed while the list bounced back from its end made it drift about 85 px towards the start: the new items ended the overscroll, and ScrollRect turned the elastic pull into inertia. It showed most in a bottom-to-top list, where the start is at the bottom. The bounce now stops when the page lands; a list still moving towards the end keeps its speed. Tests in `PagingTests` for both directions.
+- Checked, not a bug: a bottom-to-top paged list loads its first and next pages (with and without bento). It scrolls on by dragging down, and pages load near the top.
 
 ## Public API today
 

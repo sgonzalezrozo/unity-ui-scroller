@@ -10,6 +10,8 @@ Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 r
 - **B2 done:** rows of cells are lines (`LayoutModel.BuildBentoLines`), tiles are placed through `PositionInLine` plus a cross-axis stretch, the visible range reaches up by the tallest tile, and the pool is sized from rows × columns. Also done early: the expand and loop guards (from B3), `GetTile`, tile sizes in `GetItemSize` and `ScrollToItem` (from B4), width changes, `SetBentoLayout` after `Initialize`, and appended pages (from B5). 18 PlayMode tests; all 447 tests pass.
 - **Sample done:** `BentoExample` in the Examples sample: patterns and spans written in JSON, switched at runtime with `SetBentoLayout`. Smoke-tested in Play mode.
 - **Inspector done:** **Layout: Bento** with **Layout JSON** (a TextAsset), **Cell Aspect** and the column spacing underneath; Allow Multiple Expanded and Loop hidden; JSON errors and sections shown as an error box. 6 EditMode tests.
+- **Fix found while testing:** a page that lands during the bounce at the end no longer drifts the list back towards the start (both directions; it showed most bottom to top). 459 tests pass.
+- **Merged into `main`** (2026-11-14).
 - **Left:** item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, the pattern asset with a grid editor, README and agent rules.
 
 ## Decisions (B0, 2026-11-14)
