@@ -1,0 +1,24 @@
+{
+    "name": "SlotList",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.UI",
+        "ToolsCore",
+        "Unity.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "1.0.0",
+            "define": "SLOTLIST_LOCALIZATION"
+        }
+    ],
+    "noEngineReferences": false
+}

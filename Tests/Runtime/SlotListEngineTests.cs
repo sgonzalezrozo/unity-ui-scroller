@@ -1,0 +1,112 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.TestTools;
+
+namespace SlotList.Tests.PlayMode
+{
+    /// <summary>
+    /// Design tests for the SlotList / SlotListEngine split (Phase 5, step 6): the view's hooks stay in the loop,
+    /// and calls before Initialize are safe.
+    /// </summary>
+    public class SlotListEngineTests
+    {
+        private SlotListRig rig;
+
+        [TearDown]
+        public void TearDown()
+        {
+            rig?.Dispose();
+            rig = null;
+        }
+
+        [UnityTest]
+        public IEnumerator BindItemOverride_RunsForEveryBoundSlot()
+        {
+            rig = SlotListRig.Create();
+            yield return rig.Initialize(100);
+
+            Assert.AreEqual(8, rig.Scroller.BindCalls);
+            Assert.AreEqual(Enumerable.Range(0, 8).ToList(), rig.BoundIds());
+        }
+
+        [UnityTest]
+        public IEnumerator OnInitialized_FiresOnce()
+        {
+            rig = SlotListRig.Create();
+            int calls = 0;
+            rig.Scroller.OnInitialized += () => calls++;
+
+            yield return rig.Initialize(100);
+            yield return SlotListRig.Frames(3);
+
+            Assert.AreEqual(1, calls);
+        }
+
+        [Test]
+        public void BeforeInitialize_ReportsAnEmptyList()
+        {
+            rig = SlotListRig.Create();
+
+            Assert.IsFalse(rig.Scroller.IsInitialized);
+            Assert.AreEqual(0, rig.Scroller.GetItemCount());
+            Assert.AreEqual(-1, rig.Scroller.VisibleStartIndex);
+            Assert.AreEqual(-1, rig.Scroller.VisibleEndIndex);
+            Assert.IsFalse(rig.Scroller.IsItemVisible(0));
+            Assert.IsFalse(rig.Scroller.IsExpanded(0));
+        }
+
+        [Test]
+        public void Bug_6_16_DraggingBeforeInitialize_DoesNotThrow()
+        {
+            rig = SlotListRig.Create();
+            PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left };
+
+            Assert.DoesNotThrow(() => rig.Scroller.OnBeginDrag(pointer));
+            Assert.DoesNotThrow(() => rig.Scroller.OnEndDrag(pointer));
+        }
+
+        [Test]
+        public void Bug_6_14_MissingContent_LogsAnError_AndDoesNotInitialize()
+        {
+            rig = SlotListRig.Create();
+            rig.Scroller.content = null;
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("Content"));
+
+            Assert.DoesNotThrow(() => rig.Scroller.Initialize(new ListSource<TestItem>(SlotListRig.MakeItems(10))));
+            Assert.IsFalse(rig.Scroller.IsInitialized);
+        }
+
+        [Test]
+        public void ContentWithAContentSizeFitter_LogsAnError_AndDoesNotInitialize()
+        {
+            rig = SlotListRig.Create();
+            rig.Content.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("ContentSizeFitter on Content"));
+
+            rig.Scroller.Initialize(new ListSource<TestItem>(SlotListRig.MakeItems(10)));
+
+            Assert.IsFalse(rig.Scroller.IsInitialized);
+        }
+
+        [Test]
+        public void CallsBeforeInitialize_DoNothing()
+        {
+            rig = SlotListRig.Create();
+
+            Assert.DoesNotThrow(() =>
+            {
+                rig.Scroller.ScrollToItem(3);
+                rig.Scroller.ScrollToStart();
+                rig.Scroller.ScrollToEnd();
+                rig.Scroller.ForceStopScrolling();
+                rig.Scroller.Expand(1);
+                rig.Scroller.Collapse(1);
+                rig.Scroller.Clear();
+            });
+        }
+    }
+}

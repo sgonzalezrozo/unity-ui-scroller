@@ -1,6 +1,6 @@
-# Recyclable Scroller
+# Slot List
 
-> Virtualized (recycling) ScrollRect for Unity 6 uGUI: lists and grids of thousands of items that create only visible cells and reuse them. Subclass `RecyclableScrollRect<T>`, implement `IRecyclableCell<T>`, initialize with `ListDataSource<T>`. Dynamic cell sizes, expandable cells, headers, reversed lists, filtering, pull to refresh and pagination, with optional dependency injection. Requires Tools Core. MIT licensed, pre-release (0.x), single author, no other users yet.
+> Virtualized (recycling) ScrollRect for Unity 6 uGUI: lists and grids of thousands of items that create only visible slots and reuse them. Subclass `SlotList<T>`, implement `ISlot<T>`, initialize with `ListSource<T>`. Slot sizes measured with Unity's layout, expandable slots, sections with headers (`SectionedSlotList<TItem, THeader>` + `SectionedSource`), reversed lists, filtering, pull to refresh and pagination, with optional dependency injection. Requires Tools Core. MIT licensed, pre-release (0.x), single author, no other users yet.
 
 ## Docs
 

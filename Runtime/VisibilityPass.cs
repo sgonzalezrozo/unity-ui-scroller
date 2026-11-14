@@ -1,0 +1,77 @@
+using UnityEngine;
+
+namespace SlotList
+{
+    internal class VisibilityPass
+    {
+        private readonly AxisMetrics viewportMetrics;
+        private readonly LayoutModel layout;
+        private readonly VisibleRangeFinder lineFinder;
+        private readonly VisibleRangeTracker scrollStateManager;
+        private readonly WorkCounters work;
+        private const float MIN_SCROLL_STEP = 0.5f;
+        private float lastCheckedScroll = float.NaN;
+
+        private SlotRecycler recycler;
+        private float lastViewportSize;
+
+        public float LastViewportSize => lastViewportSize;
+
+        public VisibilityPass(
+            AxisMetrics viewportMetrics,
+            LayoutModel layout,
+            VisibleRangeFinder lineFinder,
+            VisibleRangeTracker scrollStateManager,
+            WorkCounters work)
+        {
+            this.work = work;
+            this.viewportMetrics = viewportMetrics;
+            this.layout = layout;
+            this.lineFinder = lineFinder;
+            this.scrollStateManager = scrollStateManager;
+        }
+
+        public void UpdateWiring(SlotRecycler slotRecycler)
+            => recycler = slotRecycler;
+
+        public void RebuildVisibleItems(ref bool needsPositionRecalculation, bool forceRebindAll)
+        {
+            using var _ = SlotListMarkers.UpdateVisible.Auto();
+            ListView<Line> lines = layout.Lines;
+            if (lines.Length == 0 || recycler == null)
+                return;
+
+            lastViewportSize = viewportMetrics.GetViewportSize();
+
+            if (needsPositionRecalculation)
+            {
+                layout.RecomputeOffsets();
+                needsPositionRecalculation = false;
+            }
+
+            float scrollPosition = viewportMetrics.GetScrollPosition();
+
+            // P4: a scroll under half a pixel since the last check can't change what's visible. A reset range (a rebuild)
+            // always checks. Measured from the last check, not the last event, so small steps still add up.
+            bool rangeIsKnown = scrollStateManager.VisibleStartIndex >= 0;
+            if (rangeIsKnown && Mathf.Abs(scrollPosition - lastCheckedScroll) < MIN_SCROLL_STEP)
+                return;
+
+            lastCheckedScroll = scrollPosition;
+            work.RangeChecks++;
+            Vector2 contentAnchoredPosition = viewportMetrics.GetContentAnchoredPosition();
+
+            int newStartLine = lineFinder.FindFirstLine(scrollPosition, contentAnchoredPosition, layout);
+            int newEndLine = lineFinder.FindLastLine(scrollPosition, lastViewportSize, newStartLine, layout);
+
+            if (!scrollStateManager.HasVisibilityRangeChanged(newStartLine, newEndLine))
+                return;
+
+            recycler.RecycleOutOfViewLines(newStartLine, newEndLine);
+            recycler.ShowLines(newStartLine, newEndLine, forceRebindAll);
+
+            scrollStateManager.UpdateVisibilityRange(newStartLine, newEndLine);
+        }
+    }
+}
+

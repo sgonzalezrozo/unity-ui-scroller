@@ -1,8 +1,8 @@
 {
-  "name": "com.sgonzalezrozo.recyclable-scroller",
-  "version": "0.3.0",
-  "displayName": "Recyclable Scroller",
-  "description": "Recycling (virtualized) ScrollRect for Unity uGUI: long lists and grids with reused cells, dynamic sizes, expandable cells, headers, pull to refresh and infinite scroll with pagination.",
+  "name": "com.sgonzalezrozo.slot-list",
+  "version": "1.0.0-preview.1",
+  "displayName": "Slot List",
+  "description": "Recycling (virtualized) scroll view for Unity uGUI: long lists and grids that reuse a few slots, with dynamic sizes, expandable slots, headers, pull to refresh and infinite scroll with pagination.",
   "unity": "2022.3",
   "license": "MIT",
   "author": {
@@ -14,6 +14,7 @@
     "url": "https://github.com/sgonzalezrozo/unity-recyclable-scroller.git"
   },
   "keywords": [
+    "slot-list",
     "ui",
     "scroll",
     "recycling",
@@ -39,6 +40,11 @@
       "displayName": "Quick Start",
       "description": "Scripts for a simple list of 10,000 recycled items.",
       "path": "Samples~/QuickStart"
+    },
+    {
+      "displayName": "Extras",
+      "description": "A pull-to-refresh indicator and an empty-state panel. Uses TextMeshPro.",
+      "path": "Samples~/Extras"
     }
   ],
   "dependencies": {

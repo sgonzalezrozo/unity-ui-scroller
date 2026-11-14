@@ -1,0 +1,62 @@
+using System;
+using UnityEngine;
+
+namespace SlotList
+{
+    /// <summary>The direction items flow in. The first item is at the start of this direction.</summary>
+    public enum SlotListDirection
+    {
+        TopToBottom,
+        BottomToTop,
+        LeftToRight,
+        RightToLeft
+    }
+
+    /// <summary>Layout and behaviour settings for a whole slot list. Changes apply on the next Initialize.</summary>
+    [Serializable]
+    public class SlotListSettings
+    {
+        public const float DEFAULT_POOL_BUFFER = 1.4f;
+
+        public SlotListDirection direction = SlotListDirection.TopToBottom;
+
+        [Tooltip("Space between lines (rows in a vertical list, columns in a horizontal one).")]
+        public float lineSpacing;
+
+        [Tooltip("Space between slots in the same line.")]
+        public float slotSpacing;
+
+        public float paddingStart;
+        public float paddingEnd;
+
+        [Tooltip("Slots per line. 1 is a list, more is a grid. Slots scale to fill the line.")]
+        public uint slotsPerLine = 1;
+
+        [Tooltip("Work out the slots per line from the viewport width and Target Slot Size.")]
+        public bool autoSlotsPerLine;
+
+        public float targetSlotSize = 240f;
+        public uint minSlotsPerLine = 1;
+        public uint maxSlotsPerLine = 8;
+
+        public bool allowMultipleExpanded;
+
+        [Tooltip("Go back to the start every time the list is enabled.")]
+        public bool resetScrollOnEnable;
+
+        public bool overridePoolBuffer;
+
+        [Range(1.4f, 3.0f)]
+        [Tooltip("How many slots to keep, as a multiple of the slots that fit on screen.")]
+        public float poolBuffer = DEFAULT_POOL_BUFFER;
+
+        public bool IsVertical
+            => direction is SlotListDirection.TopToBottom or SlotListDirection.BottomToTop;
+
+        public bool IsReversed
+            => direction is SlotListDirection.BottomToTop or SlotListDirection.RightToLeft;
+
+        public float EffectivePoolBuffer
+            => overridePoolBuffer ? poolBuffer : DEFAULT_POOL_BUFFER;
+    }
+}

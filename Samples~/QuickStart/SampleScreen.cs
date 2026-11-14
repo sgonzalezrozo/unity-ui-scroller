@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using RecyclableScroller.Runtime;
+using SlotList;
 using UnityEngine;
 
 public class SampleScreen : MonoBehaviour
 {
-    [SerializeField] private SampleScroller scroller;
+    [SerializeField] private SampleSlotList scroller;
 
     private void Start()
     {
@@ -12,6 +12,6 @@ public class SampleScreen : MonoBehaviour
         for (int i = 0; i < 10000; i++)
             items.Add(new SampleItem { Name = $"Item {i}" });
 
-        scroller.Initialize(new ListDataSource<SampleItem>(items));
+        scroller.Initialize(new ListSource<SampleItem>(items));
     }
 }
