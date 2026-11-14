@@ -190,6 +190,114 @@ namespace SlotList.Tests.Editor
             CollectionAssert.DoesNotContain(drawn, "settings.slotsPerLine");
         }
 
+        // ---------- Bento ----------
+
+        [Test]
+        public void LayoutMode_IsBento_WheneverBentoIsOn()
+        {
+            list.Settings.bento = true;
+            Assert.AreEqual(SlotListLayoutMode.Bento, SlotListEditor.GetLayoutMode(Serialized()));
+
+            list.Settings.slotsPerLine = 3;
+            list.Settings.autoSlotsPerLine = true;
+            Assert.AreEqual(SlotListLayoutMode.Bento, SlotListEditor.GetLayoutMode(Serialized()));
+        }
+
+        [Test]
+        public void ChoosingBento_TurnsItOn_AndShowsItsFieldsBelowTheChoice()
+        {
+            list.Settings.autoSlotsPerLine = true;
+            SerializedObject serialized = Serialized();
+
+            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Bento);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            IReadOnlyList<string> drawn = Drawn();
+
+            Assert.IsTrue(list.Settings.bento);
+            Assert.IsFalse(list.Settings.autoSlotsPerLine);
+            foreach (string field in new[] { SlotListEditor.BENTO_JSON, "settings.cellAspect", "settings.slotSpacing" })
+                Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, SlotListEditor.LAYOUT_MODE), field);
+            foreach (string hidden in new[] { "settings.slotsPerLine", "settings.targetSlotSize", "settings.loop", "settings.allowMultipleExpanded" })
+                CollectionAssert.DoesNotContain(drawn, hidden);
+        }
+
+        [Test]
+        public void LeavingBento_TurnsItOff_AndHidesItsFields()
+        {
+            list.Settings.bento = true;
+            SerializedObject serialized = Serialized();
+
+            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Grid);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+
+            Assert.IsFalse(list.Settings.bento);
+            CollectionAssert.DoesNotContain(Drawn(), SlotListEditor.BENTO_JSON);
+            CollectionAssert.DoesNotContain(Drawn(), "settings.cellAspect");
+        }
+
+        [Test]
+        public void BentoProblems_ListTheJsonErrors_OnlyInBento()
+        {
+            TextAsset json = new("{ \"columns\": 0 }");
+            try
+            {
+                SerializedObject serialized = Serialized();
+                serialized.FindProperty(SlotListEditor.BENTO_JSON).objectReferenceValue = json;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()), "not in bento");
+
+                list.Settings.bento = true;
+                IReadOnlyList<string> problems = SlotListEditor.BentoProblems(Serialized());
+
+                Assert.AreEqual(1, problems.Count);
+                StringAssert.Contains("columns", problems[0]);
+            }
+            finally
+            {
+                Object.DestroyImmediate(json);
+            }
+        }
+
+        [Test]
+        public void BentoProblems_AreEmpty_ForAValidLayout_OrNone()
+        {
+            list.Settings.bento = true;
+            CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()), "no JSON: 1x1 tiles");
+
+            TextAsset json = new("{ \"columns\": 2, \"spans\": [ {\"w\":2,\"h\":1}, {\"w\":1,\"h\":1} ] }");
+            try
+            {
+                SerializedObject serialized = Serialized();
+                serialized.FindProperty(SlotListEditor.BENTO_JSON).objectReferenceValue = json;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+
+                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()));
+            }
+            finally
+            {
+                Object.DestroyImmediate(json);
+            }
+        }
+
+        [Test]
+        public void BentoProblems_WarnAboutSections()
+        {
+            GameObject sectionedGo = new("SectionedBentoInspectorTest", typeof(RectTransform));
+            try
+            {
+                TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
+                sectioned.Settings.bento = true;
+
+                IReadOnlyList<string> problems = SlotListEditor.BentoProblems(new SerializedObject(sectioned));
+
+                StringAssert.Contains("sections", problems[0]);
+            }
+            finally
+            {
+                Object.DestroyImmediate(sectionedGo);
+            }
+        }
+
         [Test]
         public void ChoosingList_GoesBackToOneSlotPerLine()
         {

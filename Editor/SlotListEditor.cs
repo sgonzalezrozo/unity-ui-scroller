@@ -10,7 +10,8 @@ namespace SlotList.Editor
     {
         List,
         Grid,
-        AutoGrid
+        AutoGrid,
+        Bento
     }
 
     /// <summary>
@@ -24,13 +25,17 @@ namespace SlotList.Editor
         /// <summary>The entry for the Layout dropdown in <see cref="DrawnEntries"/>.</summary>
         public const string LAYOUT_MODE = "#layoutMode";
 
+        /// <summary>The list's Bento Layout JSON field.</summary>
+        public const string BENTO_JSON = "bentoLayoutJson";
+
         private const string HEADER = "#header:";
         private const string S = "settings.";
         private const int MIN_GRID_SLOTS = 2;
 
         private static readonly HashSet<string> INDENTED = new()
         {
-            S + "slotsPerLine", S + "slotSpacing", S + "targetSlotSize", S + "minSlotsPerLine", S + "maxSlotsPerLine", S + "poolBuffer"
+            S + "slotsPerLine", S + "slotSpacing", S + "targetSlotSize", S + "minSlotsPerLine", S + "maxSlotsPerLine", S + "poolBuffer",
+            BENTO_JSON, S + "cellAspect"
         };
 
         /// <summary>What the inspector draws, in order: property paths, headers ("#header:…") and the Layout dropdown.</summary>
@@ -61,6 +66,11 @@ namespace SlotList.Editor
                     entries.Add(S + "maxSlotsPerLine");
                     entries.Add(S + "slotSpacing");
                     break;
+                case SlotListLayoutMode.Bento:
+                    entries.Add(BENTO_JSON);
+                    entries.Add(S + "cellAspect");
+                    entries.Add(S + "slotSpacing");
+                    break;
             }
 
             entries.Add(HEADER + "Spacing & Padding");
@@ -79,7 +89,9 @@ namespace SlotList.Editor
             if (serializedObject.FindProperty(S + "snap").enumValueIndex == (int)SnapMode.Item)
                 entries.Add(S + "snapAlign");
 
-            if (!canLoop || !serializedObject.FindProperty(S + "loop").boolValue)
+            // Bento tiles never expand; a looping list doesn't either.
+            bool isBento = GetLayoutMode(serializedObject) == SlotListLayoutMode.Bento;
+            if (!isBento && (!canLoop || !serializedObject.FindProperty(S + "loop").boolValue))
                 entries.Add(S + "allowMultipleExpanded");
             entries.Add(S + "resetScrollOnEnable");
             entries.Add(S + "overridePoolBuffer");
@@ -91,6 +103,9 @@ namespace SlotList.Editor
 
         public static SlotListLayoutMode GetLayoutMode(SerializedObject serializedObject)
         {
+            if (serializedObject.FindProperty(S + "bento").boolValue)
+                return SlotListLayoutMode.Bento;
+
             if (serializedObject.FindProperty(S + "autoSlotsPerLine").boolValue)
                 return SlotListLayoutMode.AutoGrid;
 
@@ -104,11 +119,39 @@ namespace SlotList.Editor
             SerializedProperty auto = serializedObject.FindProperty(S + "autoSlotsPerLine");
 
             auto.boolValue = mode == SlotListLayoutMode.AutoGrid;
+            serializedObject.FindProperty(S + "bento").boolValue = mode == SlotListLayoutMode.Bento;
+
+            // Bento takes its columns from its layout; Slots Per Line is only its fallback, so it's left alone.
+            if (mode == SlotListLayoutMode.Bento)
+                return;
 
             if (mode == SlotListLayoutMode.List)
                 slotsPerLine.uintValue = 1;
             else if (slotsPerLine.uintValue < MIN_GRID_SLOTS)
                 slotsPerLine.uintValue = MIN_GRID_SLOTS;
+        }
+
+        /// <summary>
+        /// What's wrong with a bento list's setup: the errors in its Layout JSON, and sections, which bento doesn't
+        /// support. Empty outside bento, and for a list with no JSON (1x1 tiles).
+        /// </summary>
+        public static IReadOnlyList<string> BentoProblems(SerializedObject serializedObject)
+        {
+            List<string> problems = new();
+            if (GetLayoutMode(serializedObject) != SlotListLayoutMode.Bento)
+                return problems;
+
+            if (serializedObject.FindProperty("headerPrefab") != null)
+                problems.Add("Bento doesn't work with sections yet: the list will use its usual layout.");
+
+            SerializedProperty json = serializedObject.FindProperty(BENTO_JSON);
+            if (json?.objectReferenceValue is TextAsset asset)
+            {
+                foreach (string error in BentoLayout.FromJson(asset.text).Errors)
+                    problems.Add($"Layout JSON: {error} Items are placed as 1x1 tiles until it's fixed.");
+            }
+
+            return problems;
         }
 
         /// <summary>The label for a setting, in the words of the chosen direction.</summary>
@@ -142,6 +185,7 @@ namespace SlotList.Editor
                 S + "targetSlotSize" => vertical ? "Target Column Width" : "Target Row Height",
                 S + "minSlotsPerLine" => "Min " + slots + "s",
                 S + "maxSlotsPerLine" => "Max " + slots + "s",
+                BENTO_JSON => "Layout JSON",
                 _ => null
             };
         }
@@ -172,12 +216,23 @@ namespace SlotList.Editor
 
             EditorGUI.EndDisabledGroup();
 
+            DrawBentoProblems();
             DrawContentLayoutError();
 
             if (Application.isPlaying)
                 EditorGUILayout.HelpBox("Settings are read-only while playing.", MessageType.Info);
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawBentoProblems()
+        {
+            if (serializedObject.isEditingMultipleObjects)
+                return;
+
+            IReadOnlyList<string> problems = BentoProblems(serializedObject);
+            if (problems.Count > 0)
+                EditorGUILayout.HelpBox(string.Join("\n", problems), MessageType.Error);
         }
 
         /// <summary>An error, with a fix button, when a layout component would fight the list over Content's size.</summary>
@@ -212,7 +267,7 @@ namespace SlotList.Editor
         {
             SlotListLayoutMode current = GetLayoutMode(serializedObject);
             SlotListLayoutMode chosen = (SlotListLayoutMode)EditorGUILayout.EnumPopup(
-                new GUIContent("Layout", "List: one slot per row (or column). Grid: a fixed number. Auto Grid: as many as fit."),
+                new GUIContent("Layout", "List: one slot per row (or column). Grid: a fixed number. Auto Grid: as many as fit. Bento: tiles of different sizes, placed by a JSON layout."),
                 current);
 
             if (chosen == current)
