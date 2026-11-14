@@ -107,7 +107,7 @@ namespace SlotList
         public float QueryItemSize(int index)
         {
             int line = IsValidPublicIndex(index) ? LineIndexOf(ToNearestCopy(index)) : -1;
-            return line < 0 ? -1f : layout.Lines[line].Size;
+            return line < 0 ? -1f : MainSizeOf(ToNearestCopy(index), line);
         }
 
         public float ViewportSize => isInitialized ? viewportMetrics.GetViewportSize() : 0f;
@@ -132,7 +132,7 @@ namespace SlotList
 
         public void Expand(int index, float newSize)
         {
-            if (!isInitialized || RejectInLoop() || !expansion.Expand(index, newSize, settings.allowMultipleExpanded, gridResolver.Current))
+            if (!isInitialized || RejectInLoop() || RejectInBento() || !expansion.Expand(index, newSize, settings.allowMultipleExpanded, gridResolver.Current))
                 return;
 
             ApplyExpansionChange();
@@ -172,7 +172,7 @@ namespace SlotList
 
         public void SetExpandedSize(int index, float newSize)
         {
-            if (isInitialized && !isLooping && expansion.SetExpandedSize(index, newSize, gridResolver.Current))
+            if (isInitialized && !isLooping && !RejectInBento() && expansion.SetExpandedSize(index, newSize, gridResolver.Current))
                 ApplyExpansionChange();
         }
 

@@ -41,6 +41,11 @@ namespace SlotList.Tests.PlayMode
         /// <summary>The slot gets a VerticalLayoutGroup and a body whose height is the item's Height. Combine with ItemSize = -1 to measure with layout.</summary>
         public bool LayoutContent;
 
+        /// <summary>Settings.bento on, with this layout (null: 1x1 tiles over SlotsPerLine columns).</summary>
+        public bool Bento;
+        public BentoLayout BentoLayout;
+        public float CellAspect = 1f;
+
         /// <summary>The slot is a QuietSlot (allocates nothing when bound) instead of a RecordingSlot. Every slot also gets a ParentWatch.</summary>
         public bool QuietSlots;
     }
@@ -143,6 +148,10 @@ namespace SlotList.Tests.PlayMode
             settings.paddingStart = options.PaddingStart;
             settings.paddingEnd = options.PaddingEnd;
             settings.allowMultipleExpanded = options.AllowMultipleExpanded;
+            settings.bento = options.Bento;
+            settings.cellAspect = options.CellAspect;
+            if (options.BentoLayout != null)
+                List.SetBentoLayout(options.BentoLayout);
         }
 
         public static SlotListRig Create(RigOptions options = null)

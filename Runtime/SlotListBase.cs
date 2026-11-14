@@ -52,6 +52,9 @@ namespace SlotList
 
         [SerializeField] protected GameObject slotPrefab;
         [SerializeField] private SlotListSettings settings = new();
+        [SerializeField] private TextAsset bentoLayoutJson;
+
+        private BentoLayout bentoLayout;
 
         internal IPrefabInstantiator injectedInstantiator;
 
@@ -142,7 +145,31 @@ namespace SlotList
         /// <summary>A new engine for entries of type <typeparamref name="TEntry"/>, with this list's settings and prefabs.</summary>
         private protected SlotListEngine<TEntry> CreateEngine<TEntry>(GameObject headerPrefab)
             where TEntry : class
-            => new(this, this, this, settings, slotPrefab, headerPrefab, injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator);
+        {
+            SlotListEngine<TEntry> created = new(this, this, this, settings, slotPrefab, headerPrefab, injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator);
+            created.BentoSource = ResolveBentoLayout();
+            return created;
+        }
+
+        private BentoLayout ResolveBentoLayout()
+        {
+            if (bentoLayout != null)
+                return bentoLayout;
+            return bentoLayoutJson != null ? BentoLayout.FromJson(bentoLayoutJson.text) : null;
+        }
+
+        /// <summary>
+        /// The bento layout (with Settings.bento on): where each item's tile goes. Set it before Initialize, or later
+        /// to rebuild with the new layout. It replaces the Bento Layout JSON field. Null uses 1x1 tiles.
+        /// </summary>
+        public void SetBentoLayout(BentoLayout layout)
+        {
+            bentoLayout = layout;
+            engine?.SetBentoLayout(layout ?? ResolveBentoLayout());
+        }
+
+        /// <summary>An item's tile in a bento list: its first column and row, and its span. A 0x0 tile outside bento.</summary>
+        public BentoTile GetTile(int index) => engine?.QueryTile(index) ?? default;
 
         bool ISlotListHooks.IsHeader(int index) => IsHeaderEntry(index);
         void ISlotListHooks.BindItem(SlotHandle slot, int index) => BindEntry(slot, index);

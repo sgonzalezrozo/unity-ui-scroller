@@ -23,6 +23,9 @@ namespace SlotList
         private readonly List<Placement> shown = new();
         private float crossSize;
 
+        /// <summary>The columns of a bento layout, or 0. In bento, a slot is placed from its tile instead of its index in the line.</summary>
+        public int BentoColumns { get; set; }
+
         /// <summary>Decides which newly shown slots play their appear animation.</summary>
         public AppearAnimationPolicy AppearPolicy { get; } = new();
 
@@ -133,11 +136,19 @@ namespace SlotList
             SlotHandle handle = placement.Handle;
             int itemIndex = placement.DataIndex;
 
+            // A bento tile is a slot at its column in a line of BentoColumns cells, as long as its own span, stretched across its columns.
+            bool isBento = BentoColumns > 0;
+            float mainSize = isBento ? placement.Size : line.Size;
+            int indexInLine = isBento ? placement.Tile.Column : slotIndex;
+            int slotsInLine = isBento ? BentoColumns : line.Placements.Length;
+
             // P3: a slot that already sits there keeps its RectTransform untouched (each write can dirty the canvas).
-            if (forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, line.Size, line.Placements.Length, crossSize))
+            if (forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize))
             {
-                direction.PositionInLine(handle.Rect, lineOffset, line.Size, slotIndex, line.Placements.Length, viewport, content, settings.slotSpacing);
-                placement.MarkPlaced(lineOffset, line.Size, line.Placements.Length, crossSize);
+                direction.PositionInLine(handle.Rect, lineOffset, mainSize, indexInLine, slotsInLine, viewport, content, settings.slotSpacing);
+                if (isBento)
+                    StretchAcrossColumns(handle.Rect, placement.Tile.Columns);
+                placement.MarkPlaced(lineOffset, mainSize, slotsInLine, crossSize);
                 work.SlotsPlaced++;
             }
 
@@ -168,6 +179,18 @@ namespace SlotList
                 handle.GameObject.SetActive(true);
             }
             callbacks.OnSlotShown(handle, itemIndex, true);
+        }
+
+        private void StretchAcrossColumns(RectTransform slot, int span)
+        {
+            float cell = (crossSize - settings.slotSpacing * (BentoColumns - 1)) / BentoColumns;
+            float size = span * cell + (span - 1) * settings.slotSpacing;
+            Vector2 sizeDelta = slot.sizeDelta;
+            if (settings.IsVertical)
+                sizeDelta.x = size;
+            else
+                sizeDelta.y = size;
+            slot.sizeDelta = sizeDelta;
         }
 
         /// <summary>

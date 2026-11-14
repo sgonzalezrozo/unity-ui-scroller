@@ -74,8 +74,8 @@ namespace SlotList
         public bool IsInitialized => isInitialized;
         public bool IsScrolling => (dragState?.IsScrolling ?? false) || scrollAnimation.IsRunning;
         public bool IsDragging => dragState?.IsDragging ?? false;
-        public int VisibleStartIndex => ToReal(FirstItemIn(FirstVisibleLine));
-        public int VisibleEndIndex => ToReal(LastItemIn(LastVisibleLine));
+        public int VisibleStartIndex => isBento ? FirstItemInVisibleLines() : ToReal(FirstItemIn(FirstVisibleLine));
+        public int VisibleEndIndex => isBento ? LastItemInVisibleLines() : ToReal(LastItemIn(LastVisibleLine));
         public bool IsFirstItemVisible => isInitialized && !isLooping && FirstVisibleLine == 0;
         public bool IsLastItemVisible => isInitialized && !isLooping && layout.Lines.Length > 0 && LastVisibleLine == layout.Lines.Length - 1;
 
@@ -129,6 +129,7 @@ namespace SlotList
             if (!BindScrollRect())
                 return;
 
+            UpdateBento();
             UpdateLooping();
             layout.CreatePlacements(ItemCount);
             isInitialized = true;
@@ -173,12 +174,13 @@ namespace SlotList
         private void CreatePool()
         {
             int visibleCount = GetActualVisibleItemCount();
-            int poolItemsNeeded = Mathf.CeilToInt(visibleCount * settings.EffectivePoolBuffer) * gridResolver.Current;
+            int poolItemsNeeded = isBento ? BentoPoolSize() : Mathf.CeilToInt(visibleCount * settings.EffectivePoolBuffer) * gridResolver.Current;
             int totalItemsNeeded = Mathf.Min(poolItemsNeeded, ItemCount);
 
             slotPool?.DestroyAllSlots();
             slotPool = new SlotPool(slotPrefab, components.Content, totalItemsNeeded, instantiator, headerPrefab, headerPrefab != null ? HEADER_POOL_SIZE : 0, settings.IsVertical);
             recycler = new SlotRecycler(slotPool, components, layout, expansion, this, settings, Work);
+            recycler.BentoColumns = isBento ? bentoColumns : 0;
 
             int poolBufferEnd = Mathf.Min(visibleCount + (poolItemsNeeded - visibleCount), layout.Lines.Length - 1);
             recycler.AppearPolicy.ConfigureNonAnimatingRange(visibleCount, poolBufferEnd);
@@ -186,7 +188,15 @@ namespace SlotList
         }
 
         private void BuildLines(int fromItem = 0)
-            => layout.BuildLines(ItemCount, gridResolver.Current, isHeaderFunc, itemSizeFunc, lineSizeFunc, fromItem);
+        {
+            if (isBento)
+            {
+                BuildBentoLines(fromItem);
+                return;
+            }
+
+            layout.BuildLines(ItemCount, gridResolver.Current, isHeaderFunc, itemSizeFunc, lineSizeFunc, fromItem);
+        }
 
         private float GetLineSizeConsideringExpansion(int itemIndex)
             => expansion.GetSizeOrDefault(itemIndex, GetItemSize(itemIndex));

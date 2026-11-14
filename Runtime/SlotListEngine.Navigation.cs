@@ -164,7 +164,7 @@ namespace SlotList
                 return viewportMetrics.GetScrollDistance();
 
             layout.RecomputeOffsets();
-            return ScrollTargets.For(layout.OffsetOf(line), layout.Lines[line].Size, viewportSize, content, viewportMetrics.GetScrollDistance(), targetAlign, targetOffset);
+            return ScrollTargets.For(layout.OffsetOf(line), MainSizeOf(targetIndex, line), viewportSize, content, viewportMetrics.GetScrollDistance(), targetAlign, targetOffset);
         }
 
         private void MoveTo(float distance)

@@ -24,6 +24,9 @@ namespace SlotList
         internal int PlacedCount;
         internal float PlacedCross;
 
+        /// <summary>The item's tile in a bento layout. Unused otherwise.</summary>
+        internal BentoTile Tile;
+
         /// <summary>True when the slot already sits where these values put it (P3: no need to place it again).</summary>
         internal bool IsPlacedAt(float offset, float size, int count, float cross)
             => PlacedOffset == offset && PlacedSize == size && PlacedCount == count && PlacedCross == cross;

@@ -30,6 +30,8 @@ namespace SlotList
 
         float QueryItemOffset(int index);
         float QueryItemSize(int index);
+        BentoTile QueryTile(int index);
+        void SetBentoLayout(BentoLayout layout);
         float ViewportSize { get; }
         float ContentSize { get; }
         int ExpandedCount { get; }

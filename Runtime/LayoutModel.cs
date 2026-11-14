@@ -10,7 +10,7 @@ namespace SlotList
     /// Arrays keep spare capacity and Placement and Line objects are reused, so rebuilds and appended pages only
     /// create what's new (P11).
     /// </summary>
-    public sealed class LayoutModel
+    public sealed partial class LayoutModel
     {
         private Placement[] placementBuffer = Array.Empty<Placement>();
         private int placementCount;

@@ -17,6 +17,9 @@ namespace SlotList
 
         public float LastViewportSize => lastViewportSize;
 
+        /// <summary>Lines added above the first visible one: a bento tile can start that many rows up and still reach the screen.</summary>
+        public int ExtraLinesAbove { get; set; }
+
         public VisibilityPass(
             AxisMetrics viewportMetrics,
             LayoutModel layout,
@@ -63,6 +66,7 @@ namespace SlotList
 
             int newStartLine = lineFinder.FindFirstLine(scrollPosition, contentAnchoredPosition, layout);
             int newEndLine = lineFinder.FindLastLine(scrollPosition, lastViewportSize, newStartLine, layout);
+            newStartLine = Mathf.Max(0, newStartLine - ExtraLinesAbove);
 
             if (!scrollStateManager.HasVisibilityRangeChanged(newStartLine, newEndLine))
                 return;

@@ -276,7 +276,11 @@ namespace SlotList
 
             if (isInitialized)
             {
-                if (gridResolver.IsDynamic && gridResolver.Calculate(viewportMetrics.GetCrossAxisViewportSize()) != gridResolver.Current)
+                if (isBento)
+                {
+                    RebuildBentoForNewWidth();
+                }
+                else if (gridResolver.IsDynamic && gridResolver.Calculate(viewportMetrics.GetCrossAxisViewportSize()) != gridResolver.Current)
                 {
                     RebuildLayout();
                 }

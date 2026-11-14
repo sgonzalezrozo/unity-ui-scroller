@@ -69,7 +69,9 @@ namespace SlotList
         private bool CanLoop()
         {
             string reason = null;
-            if (settings.slotsPerLine != 1 || settings.autoSlotsPerLine)
+            if (isBento)
+                reason = "a bento layout";
+            else if (settings.slotsPerLine != 1 || settings.autoSlotsPerLine)
                 reason = "a grid";
             else if (headerPrefab != null || !hooks.SupportsLooping())
                 reason = "sections";
