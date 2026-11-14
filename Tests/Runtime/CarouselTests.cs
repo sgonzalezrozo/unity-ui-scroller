@@ -284,5 +284,89 @@ namespace SlotList.Tests.PlayMode
             CollectionAssert.AreEqual(new[] { 17, 18, 19, 0, 1, 2, 3 }, OnScreenTopToBottom(), "two more rounds forward");
             Assert.Less(rig.ScrollDistance, rig.List.ContentSize - rig.List.ViewportSize, "never reached an end");
         }
+
+        // ---------- Dragging with inertia across a loop jump (10,000 items, the Shop's settings) ----------
+
+        private const int TEN_THOUSAND = 10_000;
+        private const int MAX_ITEMS_PER_FRAME = 60;
+
+        private int largestJump;
+        private int previousTop = -1;
+
+        private IEnumerator StartTenThousandWithInertia()
+        {
+            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), LineSpacing = 20f });
+            rig.List.inertia = true;
+            rig.List.movementType = UnityEngine.UI.ScrollRect.MovementType.Elastic;
+            rig.List.Settings.loop = true;
+            yield return rig.Initialize(TEN_THOUSAND);
+            yield return null;
+            largestJump = 0;
+            previousTop = rig.List.VisibleStartIndex;
+        }
+
+        /// <summary>How far the top item moved since the last frame, the shortest way round the loop.</summary>
+        private void RecordFrame()
+        {
+            int top = rig.List.VisibleStartIndex;
+            int moved = Mathf.Abs(top - previousTop);
+            moved = Mathf.Min(moved, TEN_THOUSAND - moved);
+            largestJump = Mathf.Max(largestJump, moved);
+            previousTop = top;
+        }
+
+        /// <summary>A finger drag: one pointer move per frame, then release and let inertia run.</summary>
+        private IEnumerator FingerDrag(float pixelsPerFrame, int frames, int framesAfter = 90)
+        {
+            PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 350f) };
+            rig.List.OnInitializePotentialDrag(pointer);
+            rig.List.OnBeginDrag(pointer);
+            for (int i = 0; i < frames; i++)
+            {
+                pointer.position += new Vector2(0f, pixelsPerFrame);
+                rig.List.OnDrag(pointer);
+                yield return null;
+                RecordFrame();
+            }
+
+            rig.List.OnEndDrag(pointer);
+            for (int i = 0; i < framesAfter; i++)
+            {
+                yield return null;
+                RecordFrame();
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_DragTowardTheStart_WithInertia_NeverJumps()
+        {
+            yield return StartTenThousandWithInertia();
+
+            yield return FingerDrag(-40f, 20);
+
+            Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_FastFlicksBothWays_WithInertia_NeverJump()
+        {
+            yield return StartTenThousandWithInertia();
+
+            for (int flick = 0; flick < 6; flick++)
+                yield return FingerDrag(flick % 2 == 0 ? -120f : 120f, 6, 30);
+
+            Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_ManyFlicksTowardTheStart_WithInertia_NeverJump()
+        {
+            yield return StartTenThousandWithInertia();
+
+            for (int flick = 0; flick < 8; flick++)
+                yield return FingerDrag(-150f, 5, 20);
+
+            Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME, "the top item jumped in one frame");
+        }
     }
 }
