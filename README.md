@@ -442,7 +442,7 @@ carousel.SnappedTo += index => Debug.Log($"Showing {index}");
 carousel.ScrollToItem(3, ScrollAlign.Center, 0.3f);
 ```
 
-The list lays out a few copies of the items and, before the scroll reaches an end, jumps back by whole copies. The jump shows the same items in the same place, so you can't see it. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop).
+The list lays out a few copies of the items and, before the scroll reaches an end, jumps back by whole copies. The jump shows the same items in the same place, so you can't see it. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop). Pull to refresh never fires, because the list never reaches its start.
 
 ## Pull to refresh
 
@@ -714,7 +714,7 @@ Yes. It's MIT licensed.
 - Items must be reference types.
 - Expandable slots don't work in grids.
 - `FilteredSource<T>` walks the source list on each item lookup.
-- A looping list can't be a grid, have sections, use a paged source or expand items.
+- A looping list can't be a grid, have sections, use a paged source or expand items, and it has no pull to refresh (it never reaches its start).
 - Snapping runs after a drag, not after the mouse wheel.
 
 ## Project status
