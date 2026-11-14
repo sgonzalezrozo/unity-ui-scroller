@@ -253,6 +253,26 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator BottomToTop_Paged_LoadsTheFirstPage_AndMoreNearTheEnd(
+            [Values(false, true)] bool bento)
+        {
+            rig = SlotListRig.Create(new RigOptions
+            {
+                Direction = RigDirection.BottomToTop, Bento = bento, BentoLayout = bento ? BigFirst(2) : null, CellAspect = 0.5f, LineSpacing = 20f
+            });
+            FakePageLoader loader = new() { PageSize = 30, Total = 153 };
+            yield return rig.Initialize(new PagedSource<TestItem>(loader));
+            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 30, "first page");
+            yield return null;
+
+            Assert.IsNotNull(rig.ItemFor(0), "the first item is shown");
+            Assert.Greater(rig.BoundIds().Count, 2);
+
+            yield return rig.ScrollToOffset(rig.List.ContentSize - 800f);
+            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 60, "second page");
+        }
+
+        [UnityTest]
         public IEnumerator AnAppendedPage_ContinuesTheLayout_WithoutMovingTheTilesAbove()
         {
             rig = SlotListRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });

@@ -185,5 +185,52 @@ namespace SlotList.Tests.PlayMode
             Assert.AreEqual(-300f, ten.anchoredPosition.y, 0.01f);
             Assert.AreEqual(rig.ItemFor(9).anchoredPosition.y, ten.anchoredPosition.y, 0.01f);
         }
+
+        // ---------- A page that lands during the bounce at the end ----------
+
+        /// <summary>
+        /// The list is pulled past the end and the elastic bounce is taking it back, at <paramref name="speed"/> px/s
+        /// along the list (negative is towards the start), when the next page lands.
+        /// </summary>
+        private IEnumerator LandAPageWhileMoving(RigDirection direction, float overscroll, float speed)
+        {
+            rig = SlotListRig.Create(new RigOptions { Direction = direction });
+            rig.List.inertia = true;
+            rig.List.movementType = UnityEngine.UI.ScrollRect.MovementType.Elastic;
+            loader = new FakePageLoader { PageSize = 20, Total = 60 };
+            source = new PagedSource<TestItem>(loader);
+            yield return rig.Initialize(source);
+            loader.Hold = true;
+
+            float max = rig.List.ContentSize - rig.List.ViewportSize;
+            yield return rig.ScrollToOffset(max + overscroll);
+            Assert.AreEqual(2, loader.Requested.Count, "the second page is loading");
+
+            float towardsEnd = direction == RigDirection.TopToBottom ? 1f : -1f;
+            rig.List.velocity = new Vector2(0f, speed * towardsEnd);
+            loader.Release();
+            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() == 40, "second page");
+        }
+
+        [UnityTest]
+        public IEnumerator APageThatLandsDuringTheBounceBack_StopsIt_SoTheListDoesNotDriftToTheStart(
+            [Values(RigDirection.TopToBottom, RigDirection.BottomToTop)] RigDirection direction)
+        {
+            yield return LandAPageWhileMoving(direction, overscroll: 25f, speed: -245f);
+            yield return null;
+
+            Assert.AreEqual(0f, rig.List.velocity.y, 0.01f, "the bounce back is stopped");
+        }
+
+        [UnityTest]
+        public IEnumerator APageThatLandsWhileMovingTowardsTheEnd_KeepsTheMovement(
+            [Values(RigDirection.TopToBottom, RigDirection.BottomToTop)] RigDirection direction)
+        {
+            yield return LandAPageWhileMoving(direction, overscroll: 25f, speed: 600f);
+            yield return null;
+
+            float towardsEnd = direction == RigDirection.TopToBottom ? 1f : -1f;
+            Assert.Greater(rig.List.velocity.y * towardsEnd, 100f, "still moving on into the new items");
+        }
     }
 }

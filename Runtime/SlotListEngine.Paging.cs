@@ -97,14 +97,31 @@ namespace SlotList
                 return;
             }
 
+            bool wasBouncingBack = IsBouncingBackFromTheEnd();
             layout.ExtendPlacements(ItemCount);
             BuildLines(start);
             RecalculateContentSize();
             layout.RecomputeOffsets();
             hooks.OnPageLoaded(count);
 
+            // The new items end the overscroll, so ScrollRect would turn the elastic pull into inertia and drift
+            // towards the start. Stop it: the list stays where it is, with the new items ready to scroll into.
+            if (wasBouncingBack)
+                mover.ForceStop();
+
             visibleRange.ResetState();
             RebuildVisibleItems();
+        }
+
+        /// <summary>Past the end of the content, not dragged, and moving back towards the start: the elastic bounce.</summary>
+        private bool IsBouncingBackFromTheEnd()
+        {
+            if (dragState.IsDragging)
+                return false;
+
+            float max = ScrollTargets.MaxDistance(viewportSize, layout.TotalExtent);
+            return viewportMetrics.GetScrollDistance() > max + ARRIVED_TOLERANCE
+                && viewportMetrics.ToScrollSpeed(components.ScrollRect.velocity) < 0f;
         }
 
         private void OnSourceCleared()
