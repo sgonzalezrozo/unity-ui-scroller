@@ -101,6 +101,25 @@ namespace SlotList.Samples
             return rect.gameObject.AddComponent<TSlot>();
         }
 
+        /// <summary>A button at the top right of the title bar, over the status label.</summary>
+        public static Button CreateTitleButton(RectTransform body, string label)
+        {
+            const float WIDTH = 420f;
+            const float HEIGHT = 80f;
+
+            RectTransform rect = CreateRect("Button", body.parent);
+            rect.anchorMin = Vector2.one;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = Vector2.one;
+            rect.sizeDelta = new Vector2(WIDTH, HEIGHT);
+            rect.anchoredPosition = new Vector2(-MARGIN, -(TITLE_HEIGHT - HEIGHT) / 2f);
+            rect.gameObject.AddComponent<Image>().color = Accent;
+
+            Text text = CreateText("Label", rect, SMALL_FONT_SIZE, TextAnchor.MiddleCenter, TextColor);
+            text.text = label;
+            return rect.gameObject.AddComponent<Button>();
+        }
+
         public static Text CreateText(string name, Transform parent, int fontSize, TextAnchor alignment, Color color)
         {
             RectTransform rect = CreateRect(name, parent);
