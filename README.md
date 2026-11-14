@@ -442,7 +442,7 @@ carousel.SnappedTo += index => Debug.Log($"Showing {index}");
 carousel.ScrollToItem(3, ScrollAlign.Center, 0.3f);
 ```
 
-The list lays out a few copies of the items and, before the scroll reaches an end, jumps back by whole copies. The jump shows the same items in the same place, so you can't see it. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop). Pull to refresh never fires, because the list never reaches its start.
+A short list lays out a few copies of its items and, before the scroll reaches an end, jumps back by whole copies. A long one (when a few copies would be over 20,000 px) lays out only about ten screens of entries and maps them to items through an offset; near either end it moves back to the middle and shifts the offset, so the same items stay on screen. Either way you can't see the jump, the scroll position stays small (so movement and inertia are exact, as in a plain ScrollRect), and drags and flings carry on across it. In a long loop, `ScrollToItem` to an item far outside those screens jumps there rather than animating across thousands of items. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop). Pull to refresh never fires, because the list never reaches its start.
 
 ## Pull to refresh
 

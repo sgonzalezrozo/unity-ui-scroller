@@ -162,6 +162,7 @@ namespace SlotList
                 return;
 
             layout.SetItemSize(index, size, CountsInAverage(index));
+            RememberLoopSize(index, size);
             sizesChanged = true;
             // A first measurement grows upwards above the anchor; a remeasured item (invalidated) keeps its start.
             if (!isMeasured && !remeasuring.Contains(index))
@@ -180,6 +181,12 @@ namespace SlotList
 
             if (!IsValidPublicIndex(index))
                 return;
+
+            if (isLoopWindow)
+            {
+                InvalidateLoopWindowEntries(index);
+                return;
+            }
 
             for (int copy = 0; copy < loopCopies; copy++)
                 InvalidateEntrySize(index + copy * RealCount);
@@ -209,6 +216,7 @@ namespace SlotList
                 return;
 
             layout.ForgetAllSizes();
+            ForgetAllLoopSizes();
             appliedPlaceholder = float.NaN; // every item is unmeasured now: the next pass must run
             pendingResizes.Clear();
 
@@ -283,6 +291,7 @@ namespace SlotList
                     continue;
 
                 layout.SetItemSize(index, resize.Value, CountsInAverage(index));
+                RememberLoopSize(index, resize.Value);
                 changed = true;
             }
 

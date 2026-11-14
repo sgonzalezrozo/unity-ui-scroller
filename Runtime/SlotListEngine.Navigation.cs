@@ -41,6 +41,13 @@ namespace SlotList
             targetAlign = align;
             targetOffset = offset;
             targetIndex = isLooping ? ShortestCopyTo(index) : index;
+            if (isLoopWindow && LineIndexOf(targetIndex) < 0)
+            {
+                // Too far for the window: map the window around the item, then aim at it there.
+                CentreLoopWindowOn(index, 0f);
+                targetIndex = ToNearestCopy(index);
+            }
+
             if (LineIndexOf(targetIndex) < 0)
                 return;
 

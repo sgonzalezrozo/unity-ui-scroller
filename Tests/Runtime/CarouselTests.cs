@@ -498,7 +498,7 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator LoopingList_ReleasesAtThePlainScrollRectSpeed([Values(-40f, 40f, -120f)] float pixelsPerFrame)
+        public IEnumerator LoopingList_ReleasesAndCoastsLikeAPlainScrollRect([Values(-40f, 40f, -120f)] float pixelsPerFrame)
         {
             yield return StartTenThousandWithInertia();
             UnityEngine.UI.ScrollRect twin = BuildTwinScrollRect();
@@ -507,12 +507,104 @@ namespace SlotList.Tests.PlayMode
 
             yield return DragBoth(twin, pixelsPerFrame, 15, 40, result);
 
-            // Coasting distance isn't compared: test frames last under a millisecond, so each frame moves a few pixels and
-            // float rounding at ~2.4 million px (0.25 px steps) makes it vary from run to run. The speed is exact.
+            // A big loop scrolls a short window, so its position stays small and moves in exact steps: it coasts as far.
             Debug.Log($"[Inertia] drag {pixelsPerFrame}/frame: release speed list {result[0]:F0} vs plain {result[1]:F0}; coasting list {result[2]:F0} px vs plain {result[3]:F0} px");
             Assert.AreEqual(result[1], result[0], Mathf.Abs(result[1]) * 0.01f + 1f, "release speed");
-            Assert.AreEqual(Mathf.Sign(result[3]), Mathf.Sign(result[2]), "it coasts the same way");
+            Assert.AreEqual(result[3], result[2], Mathf.Abs(result[3]) * 0.03f + 1f, "distance coasted after release");
             Object.Destroy(twin.gameObject);
+        }
+
+        // ---------- Big loops: a short window, so positions stay small ----------
+
+        private const float SMALL_POSITION = 20_000f;
+
+        [UnityTest]
+        public IEnumerator TenThousand_ScrollPositionAndContentStaySmall_WhileFlicking()
+        {
+            yield return StartTenThousandWithInertia();
+            float largest = Mathf.Max(rig.ScrollDistance, rig.List.ContentSize);
+
+            for (int flick = 0; flick < 8; flick++)
+            {
+                yield return FingerDrag(flick % 2 == 0 ? -150f : 150f, 5, 20);
+                largest = Mathf.Max(largest, Mathf.Abs(rig.ScrollDistance));
+            }
+
+            Assert.Less(rig.List.ContentSize, SMALL_POSITION, "only a short window of entries is laid out");
+            Assert.Less(largest, SMALL_POSITION, "the scroll position stays small, so it moves in exact steps");
+            Assert.LessOrEqual(largestJump, MAX_ITEMS_PER_FRAME);
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_StartsOnTheFirstItem_WithTheLastJustAbove()
+        {
+            yield return StartTenThousandWithInertia();
+            rig.List.inertia = false;
+
+            Assert.AreEqual(0, rig.List.VisibleStartIndex);
+            yield return Drag(-240f);
+
+            List<int> shown = OnScreenTopToBottom();
+            CollectionAssert.AreEqual(new[] { TEN_THOUSAND - 2, TEN_THOUSAND - 1, 0 }, shown.GetRange(0, 3));
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_ScrollingFarEachWay_ShowsTheRightItemsInOrder([Values(1f, -1f)] float direction)
+        {
+            yield return StartTenThousandWithInertia();
+            rig.List.inertia = false;
+
+            // 300 items each way, in steps: many re-centres of the window.
+            for (int i = 0; i < 300; i++)
+                yield return rig.ScrollToOffset(rig.ScrollDistance + 120f * direction);
+
+            int expected = LoopIndex.Real(Mathf.RoundToInt(300 * direction), TEN_THOUSAND);
+            Assert.AreEqual(expected, rig.List.VisibleStartIndex);
+            List<int> shown = OnScreenTopToBottom();
+            for (int k = 1; k < shown.Count; k++)
+                Assert.AreEqual(LoopIndex.Real(shown[k - 1] + 1, TEN_THOUSAND), shown[k], "consecutive items on screen");
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousand_ScrollToAFarItem_ShowsIt()
+        {
+            yield return StartTenThousandWithInertia();
+
+            rig.List.ScrollToItem(5000);
+            yield return SlotListRig.Frames(2);
+
+            Assert.AreEqual(5000, rig.List.VisibleStartIndex);
+            Assert.IsTrue(rig.List.IsItemVisible(5000));
+            Assert.Less(Mathf.Abs(rig.ScrollDistance), SMALL_POSITION);
+        }
+
+        [UnityTest]
+        public IEnumerator TenThousandMeasured_SizesFollowTheRealItems_AcrossRecentres()
+        {
+            List<TestItem> items = SlotListRig.MakeItems(TEN_THOUSAND);
+            for (int i = 0; i < items.Count; i++)
+                items[i].Height = i % 3 == 0 ? 200f : 100f;
+            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), ItemSize = -1f, LayoutContent = true });
+            rig.List.inertia = false;
+            rig.List.Settings.loop = true;
+            yield return rig.Initialize(new ListSource<TestItem>(items));
+            yield return SlotListRig.Frames(2);
+
+            for (int i = 0; i < 200; i++)
+                yield return rig.ScrollToOffset(rig.ScrollDistance + 90f);
+            for (int i = 0; i < 260; i++)
+                yield return rig.ScrollToOffset(rig.ScrollDistance - 90f);
+            yield return SlotListRig.Frames(3);
+
+            foreach (int id in rig.BoundIds())
+                Assert.AreEqual(id % 3 == 0 ? 200f : 100f, rig.ItemFor(id).sizeDelta.y, 0.5f, $"item {id} has its own size");
+            List<int> shown = OnScreenTopToBottom();
+            for (int k = 1; k < shown.Count; k++)
+            {
+                RectTransform previous = rig.ItemFor(shown[k - 1]);
+                float expectedTop = -previous.anchoredPosition.y + previous.sizeDelta.y;
+                Assert.AreEqual(expectedTop, -rig.ItemFor(shown[k]).anchoredPosition.y, 0.5f, $"item {shown[k]} follows item {shown[k - 1]}");
+            }
         }
     }
 }

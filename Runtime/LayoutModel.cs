@@ -382,6 +382,26 @@ namespace SlotList
         }
 
         /// <summary>The start of a line along the scroll axis, or 0 when out of range.</summary>
+        public int LineAtDistance(float distance)
+        {
+            if (lineCount == 0)
+                return -1;
+
+            RecomputeOffsets();
+            int low = 0;
+            int high = lineCount - 1;
+            while (low < high)
+            {
+                int mid = (low + high + 1) / 2;
+                if (offsets[mid] <= distance)
+                    low = mid;
+                else
+                    high = mid - 1;
+            }
+
+            return low;
+        }
+
         public float OffsetOf(int lineIndex)
             => lineIndex >= 0 && lineIndex < lineCount && lineIndex < offsets.Length ? offsets[lineIndex] : 0f;
 

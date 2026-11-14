@@ -82,7 +82,7 @@ namespace SlotList
         private int FirstVisibleLine => visibleRange?.VisibleStartIndex ?? -1;
         private int LastVisibleLine => visibleRange?.VisibleEndIndex ?? -1;
         /// <summary>Entries laid out: the items, or every copy of them in a looping list.</summary>
-        public int ItemCount => RealCount * loopCopies;
+        public int ItemCount => isLooping ? loopEntries : RealCount;
         public WorkCounters Work { get; } = new();
 
         public SlotListEngine(MonoBehaviour host, ISlotList owner, ISlotListHooks hooks, SlotListSettings settings, GameObject slotPrefab, GameObject headerPrefab, IPrefabInstantiator instantiator)
@@ -274,7 +274,7 @@ namespace SlotList
             if (slot == null)
                 return;
 
-            index = ToReal(index);
+            // Already a real item: ISlotCallbacks.BindItem converts the entry before the list's BindItem runs.
             T item = Source.GetItem(index);
             if (item == null)
             {
