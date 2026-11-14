@@ -42,6 +42,11 @@
       "path": "Samples~/QuickStart"
     },
     {
+      "displayName": "Examples",
+      "description": "Grid, sections, expandable rows, a looping carousel and paging. Each builds its UI in code: add it to an empty scene and press Play. No TextMeshPro needed.",
+      "path": "Samples~/Examples"
+    },
+    {
       "displayName": "Extras",
       "description": "A pull-to-refresh indicator and an empty-state panel. Uses TextMeshPro.",
       "path": "Samples~/Extras"

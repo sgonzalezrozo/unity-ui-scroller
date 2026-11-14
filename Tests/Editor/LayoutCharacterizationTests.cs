@@ -30,12 +30,14 @@ namespace SlotList.Tests.Editor
         }
 
         [Test]
-        public void Dynamic_OnlyAppliesInGridMode()
+        public void Dynamic_WorksWhateverTheFixedCount()
         {
+            // Auto Grid set from code, with slotsPerLine left at 1: the inspector shows Auto Grid, so it must be one.
             SlotsPerLineResolver resolver = new(1, true, 100f, 10f, 1, 8);
 
-            Assert.IsFalse(resolver.IsDynamic);
-            Assert.AreEqual(1, resolver.Calculate(5000f));
+            Assert.IsTrue(resolver.IsDynamic);
+            Assert.IsTrue(resolver.IsGridMode);
+            Assert.AreEqual(4, resolver.Calculate(450f));
         }
     }
 

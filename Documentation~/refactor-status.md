@@ -22,9 +22,9 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 | 7 Pagination | Done; footer and top loading left out | `refactor/p7-paging` (`ad8a94e`) | 176 |
 | 8 Layout sizing | Done; measuring ahead and the scenes left out | `refactor/p8-layout-sizing` (`3aa980e`) | 219 |
 | 9 Sections | Code and docs done; scene missing | `refactor/p9-sections` (`c7a184e` + docs) | 243 |
-| 10 Performance | Not started (P1 and P5 done in Phase 5) | | |
-| 11 New features | Not started | | |
-| 12 Tests, samples, docs, release | Not started (README kept up to date as we went) | | |
+| 10 Performance | Done, measured on two phones | `refactor/p10-performance` | |
+| 11 New features | Done, except the manual scenes | `feat/p11-features` | 400 (196 + 204) |
+| 12 Tests, samples, docs, release | Samples, migration guide and compatibility done; merge and tag left | `feat/p11-features` | 400 |
 
 ## Owner decisions along the way
 
@@ -146,7 +146,7 @@ These override the plan where they differ.
 
 **Skipped (until the owner asks):**
 - The optional footer (Loading, Failed with Retry, End), because it adds a Footer Prefab to the inspector. The PlayMode test for it was not written.
-- Loading at the top, for chat lists.
+- Loading at the top (prepending pages).
 - The `Gestures` manual scene.
 
 ### Phase 8: Layout sizing
@@ -229,14 +229,12 @@ These override the plan where they differ.
   - `SlotListBase.cs` (425 lines): move the editor setup code into a partial.
   - `LayoutModel.cs` (332 lines) and `SlotListEngine.Rebuild.cs` (313 lines).
 - [ ] **Tick the plan's checkboxes** for Phases 0 to 7, or point them to this document.
-- [ ] **README:**
-  - The version badge says 0.3.0, but the package is `1.0.0-preview.1`.
-  - The links point to the old repository name.
+- [ ] **README:** the links point to the old repository name (until the repository is renamed).
 - [ ] Write `Documentation~/behaviour-checklist.md` (Phase 0.4), or drop it in favour of the playgrounds.
 - [ ] Rename the GitHub repository and the folder to `unity-slot-list`, and update `manifest.json` in MyTools.
 
 ### Left out on purpose (until the owner asks)
-- The paging footer (Loading / Failed with Retry / End) and loading at the top (chat lists). From Phase 7.
+- The paging footer (Loading / Failed with Retry / End) and loading at the top (prepending pages). From Phase 7.
 - Measuring ahead with a hidden copy, the expand animation, the localized-text scene and S1 to S6 as real scenes. From Phase 8.
 - Sticky headers. From Phase 9.
 
@@ -261,18 +259,20 @@ Not done:
 Branch `feat/p11-features`.
 - **11.1** `ScrollToItem(index, align, duration, offset)` with `ScrollAlign` (Start, Center, End, Nearest). The name stays `ScrollToItem` (existing calls keep working). `ScrollToStart`, `ScrollToEnd` and `ScrollToSection` take a duration. The animation eases out in `LateUpdate`, re-reads its target every frame (measured items move it), and a drag or `ForceStopScrolling` cancels it. Tests: `ScrollTargetTests`, `ScrollAnimationTests` (EditMode), `ScrollNavigationTests` (PlayMode, fixed 0.1 s frames through the internal `frameDeltaTime`).
 - **11.2** `settings.snap` (None, Item, Page) and `settings.snapAlign` (Start, Center, End), with `SnappedTo(int)`. Item snapping waits until a fling is under 600 px/s and back inside the content. Page snapping moves one viewport from where the drag started on a flick (over 400 px/s), otherwise to the nearest page. Not after the mouse wheel.
-- **11.3** `settings.loop`. Copies of the items are laid out (at least 4, enough for one viewport plus three copies), and the scroll jumps by whole copies when it gets within one copy of either end. Because there are only a few copies, a loop never scrolls far enough to lose float precision (P22). The public API takes and returns real indexes; `ScrollToItem` takes the shortest way round; `Refresh()` with a new count keeps the same item at the top. Grids, sections and paged sources log an error and don't loop; `Expand` logs a warning. Tests: `LoopIndexTests` (EditMode), `CarouselTests` (PlayMode).
+- **11.3** `settings.loop`. A short list lays out copies of its items (at least 4) and jumps by whole copies near either end. A long one (4 copies over 20,000 px) lays out a window of about ten screens of entries mapped to items through an offset, and re-centres it near either end, with measured sizes cached per real item. Either way the scroll position stays small, so movement and inertia match a plain ScrollRect (P22). A loop jump during a drag restarts the drag from the list's own copy of the pointer (the Input System reuses one event for every button). The public API takes and returns real indexes; `ScrollToItem` takes the shortest way round; `Refresh()` with a new count keeps the same item at the top. Grids, sections and paged sources log an error and don't loop; `Expand` logs a warning. Tests: `LoopIndexTests` (EditMode), `CarouselTests` (PlayMode).
 - The inspector shows Loop (plain lists only), Snap, and Snap Align (Item snapping only), and hides Allow Multiple Expanded on a looping list.
 
 Not done:
 - The manual scenes `SlotListTests/Carousel` and `SlotListTests/Nested` (11.4, nested scrollers with the MIT plugin) in MyTools.
 - A device check of snapping and the carousel by hand.
 
-### Phase 12: Tests, samples, docs, release (not started)
-- Samples: Grid, Sections, Chat, Expandable, LayoutSizedText, Carousel, and an update of QuickStart. Today only QuickStart and Extras exist.
-- `Documentation~/migration-from-recyclable-scroller.md`. Today the CHANGELOG has the name table, and plan 9.4 has the sections notes.
+### Phase 12: Tests, samples, docs, release (in progress)
+- Done: the **Examples** sample (Grid, Sections, Expandable, Carousel, Paging), each building its UI in code, smoke-tested in Play mode; the Quick Start README updated.
+- Done: `Documentation~/migration-from-recyclable-scroller.md`.
+- Done: the compatibility table (IL2CPP on the A02s and Pixel 5; domain reload off supported by design, not checked by hand).
+- Found while writing the Grid example: Auto Grid set from code with `slotsPerLine` at 1 made a list. Fixed.
+- Left: merge into `main`, the `v1.0.0-preview.1` tag.
 - **Update the AI rules repository** (`unity-architecture-agents`): its docs still describe Recyclable Scroller's API and package name. Also settle the naming clash between `ISlot<T>` and MVC Models. Then bump the `.ai` submodule in MyTools.
-- An IL2CPP build, Play mode with domain reload off, the compatibility table, and the `v1.0.0-preview.1` tag.
 
 ## Public API today
 

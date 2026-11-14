@@ -81,12 +81,12 @@ I built and refined it on my own time in personal projects. It isn't used in pro
 
 | Requirement | Supported |
 |---|---|
-| Unity | Tested on Unity 6 (`6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
-| Scripting backend | Not verified yet |
-| Platforms | Not verified yet |
+| Unity | Tested on Unity 6 (`6000.3.6f1` and `6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
+| Scripting backend | Mono (Editor) and IL2CPP (Android, 32-bit ARMv7 and 64-bit ARM64) |
+| Platforms | macOS Editor; Android, tested on a Samsung Galaxy A02s and a Google Pixel 5. iOS, WebGL and desktop players aren't tested yet. |
 | UI frameworks | uGUI only |
-| Enter Play Mode with domain reload disabled | Not verified yet. The package has no static reset for this mode, so keep domain reload on until you've tested it. |
-| Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), uGUI. The samples also use TextMeshPro. |
+| Enter Play Mode with domain reload disabled | Supported by design: the runtime keeps no static state between plays (its only static field is an internal switch for tests). Not yet checked by hand. |
+| Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
 
 ## Installation
 
@@ -117,10 +117,22 @@ https://github.com/sgonzalezrozo/unity-recyclable-scroller.git
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v0.3.0
+https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v1.0.0-preview.1
 ```
 
-The package itself doesn't need TextMeshPro. The samples use it: it's included with uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
+The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's included with uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
+
+Coming from Recyclable Scroller `0.3.0`? Every type and serialized field is renamed. Follow the [migration guide](Documentation~/migration-from-recyclable-scroller.md).
+
+### Samples
+
+Import them from the package's page in the Package Manager (**Samples** tab):
+
+| Sample | What's in it |
+|---|---|
+| **Examples** | Grid, sections, expandable rows, a looping carousel, and paging with pull to refresh. Each builds its UI in code: add one to an empty GameObject in an empty scene and press Play. |
+| **Quick Start** | The scripts for the quick start below. |
+| **Extras** | A pull-to-refresh indicator and an empty-state panel. |
 
 ## Quick start
 
@@ -330,6 +342,8 @@ public class ExpandableInventorySlot : MonoBehaviour, IExpandableSlot<InventoryI
 
 In the inspector, set **Layout** to **Grid** and choose the number of columns (rows in a horizontal list), or to **Auto Grid** to fit as many as the width allows, between a minimum and a maximum, from a target slot size. Slots are stretched to fill the line. The spacing between slots on a line is the **Column Spacing** (**Row Spacing** in a horizontal list).
 
+From code, set them before `Initialize`: `list.Settings.slotsPerLine = 3` for a fixed grid, or `list.Settings.autoSlotsPerLine = true` with `targetSlotSize` (and optionally `minSlotsPerLine` and `maxSlotsPerLine`) for an auto grid.
+
 ## Sections and headers
 
 For a list split into sections, each with a header, use `SectionedSlotList<TItem, THeader>` and a `SectionedSource<TItem, THeader>`. Headers and items are different types, with their own prefabs:
@@ -391,7 +405,7 @@ A plain `SlotList<T>` has no headers.
 
 ## Reversed lists
 
-Turn on **Reverse** to start from the opposite end, as in a chat list. It works with vertical and horizontal lists.
+Choose **Bottom To Top** or **Right To Left** to start from the opposite end. It works with lists and grids.
 
 ## Filtered data
 
@@ -667,7 +681,7 @@ Yes. It's tested on Unity `6000.3`. The package declares `2022.3` as its minimum
 
 ### Does it work with IL2CPP and mobile?
 
-Not verified yet. See [Compatibility](#compatibility).
+Yes on Android: it's tested with IL2CPP (32-bit and 64-bit) on a Samsung Galaxy A02s and a Google Pixel 5. iOS isn't tested yet. See [Compatibility](#compatibility).
 
 ### Why doesn't my slot update correctly when I scroll?
 
@@ -687,7 +701,7 @@ In Unity, open **Window > Package Manager**, select **+ > Add package from git U
 
 ### Is it production-ready? Does anyone use it?
 
-Not yet. Slot List is a pre-release package (`0.x`) by a single author. It isn't used in a shipped game, and it has no other users yet, so expect rough edges and API changes before `1.0.0`. Bug reports are very welcome. See [Project status](#project-status).
+Not yet. Slot List is a preview (`1.0.0-preview.1`) by a single author. It isn't used in a shipped game, and it has no other users yet, so expect rough edges, and possibly API changes before `1.0.0`. Bug reports are very welcome. See [Project status](#project-status).
 
 ### Is it free for commercial use?
 
@@ -719,9 +733,9 @@ Yes. It's MIT licensed.
 
 ## Project status
 
-This is a pre-release package at version `0.3.0`. Its API and behavior may change before `1.0.0`. Not yet used in a shipped game.
+This is a preview, version `1.0.0-preview.1`. Its API and behavior may still change before `1.0.0`. Not yet used in a shipped game.
 
-Until `1.0.0`, minor versions (`0.x.0`) can include breaking changes, and patch versions (`0.x.y`) don't. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
+Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
 
 There's no public roadmap yet. Known gaps are listed under [Limitations](#limitations), and planned work is tracked in [issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues).
 

@@ -6,6 +6,15 @@ All notable changes to this package are documented in this file.
 
 ## [1.0.0-preview.1] - Unreleased
 
+### Added
+
+- An **Examples** sample: grid, sections, expandable rows, a looping carousel and paging with pull to refresh. Each builds its UI in code, so it runs from an empty scene, and none needs TextMeshPro.
+- A migration guide from Recyclable Scroller 0.3.0: `Documentation~/migration-from-recyclable-scroller.md`.
+
+### Fixed
+
+- `autoSlotsPerLine` set from code with `slotsPerLine` left at 1 made a plain list. Auto Grid is now a grid whatever the fixed count, as the inspector already showed.
+
 ### Changed
 
 - `ScrollToItem(index, align, duration, offset)` takes an alignment (`ScrollAlign`: `Start`, `Center`, `End`, `Nearest`), an optional animation and a gap from the aligned edge. `ScrollToStart`, `ScrollToEnd` and `ScrollToSection` take an optional duration. A drag or `ForceStopScrolling()` cancels the animation, and `IsScrolling` is true while it runs. Existing calls keep jumping to the start of the item.

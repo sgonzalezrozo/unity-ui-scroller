@@ -14,8 +14,8 @@ namespace SlotList
         private int currentGridCount = 1;
 
         public int Current => Mathf.Max(1, currentGridCount);
-        public bool IsGridMode => configuredGridCount > 1;
-        public bool IsDynamic => IsGridMode && useDynamic;
+        public bool IsGridMode => configuredGridCount > 1 || useDynamic;
+        public bool IsDynamic => useDynamic;
 
         public SlotsPerLineResolver(uint configuredGridCount, bool useDynamic, float dynamicItemSize, float slotSpacing, uint minDynamicCount, uint maxDynamicCount)
         {

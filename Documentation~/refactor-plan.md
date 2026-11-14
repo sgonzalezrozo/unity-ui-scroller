@@ -498,7 +498,7 @@ public sealed class PagedSource<T> : IPagedSource<T> { … }
 - [ ] **Optional footer view.** An optional `footerPrefab` implementing `IPagingFooter` with `SetState(PagingState.Loading | Failed | End)`, from the `Footer` pool. When it's assigned, the layout adds one footer lane while `IsLoading`, after a failure, or at the end (each configurable). `Failed` exposes `Retry()`.
 - [ ] **Events on the view:** `PageRequested`, `PageLoaded(int count)`, `PageFailed(Exception)` and `ReachedEnd`.
 - [ ] **Pull to refresh with paging:** `PullRefreshRequested` event. The common handler is `source.Reset(); await source.LoadNextAsync(ct);`.
-- [ ] **Optional: loading at the top**, needed for chat. Add `HasMoreBefore`, `LoadPreviousAsync` and `ItemsPrepended`. On prepend, shift the scroll offset by the added extent so the visible items don't move. This can come after 1.0.
+- [ ] **Optional: loading at the top** (prepending pages). Add `HasMoreBefore`, `LoadPreviousAsync` and `ItemsPrepended`. On prepend, shift the scroll offset by the added extent so the visible items don't move. This can come after 1.0.
 
 ### 7.3 Tests
 - [ ] A fake loader with a configurable delay, page size, failure on page N, and a total count.
@@ -508,7 +508,7 @@ public sealed class PagedSource<T> : IPagedSource<T> { … }
 
 ### 7.4 What Phase 7 applied (2026-11-12)
 - Done: `IPageLoader<T>.LoadAsync(page, ct)` with `PageResult<T>(items, hasMore)`, `IPagedSource<T>`, the rewritten `PagedSource<T>`, the engine asking for pages (fewer than 10 items left, a constant rather than a setting), appending without a rebuild, one load at a time, cancellation, `Reset` handling, and the `PageRequested`, `PageLoaded`, `PageFailed` and `ReachedEnd` events. Bug 6.9 is fixed.
-- **Not done, on purpose:** the optional footer (loading, error, end), because it adds a Footer Prefab field to the inspector, and loading at the top for chat lists. Both wait until the owner asks for them.
+- **Not done, on purpose:** the optional footer (loading, error, end), because it adds a Footer Prefab field to the inspector, and loading at the top (prepending pages). Both wait until the owner asks for them.
 
 ---
 
@@ -870,7 +870,7 @@ By now most tests exist (written first in each phase). This step fills the gaps:
 - [ ] Play-mode smoke tests: load each test scene, scroll programmatically, and check that bound views match `FirstVisibleIndex…LastVisibleIndex`.
 
 ### 12.2 Samples (`package.json` → `samples`)
-- [ ] `QuickStart` (updated), `Grid`, `Sections`, `Chat` (bottom-to-top with paging), `Expandable`, `LayoutSizedText` (including localized text), `Carousel`, `Extras` (pull indicator, empty state).
+- [ ] `QuickStart` (updated), `Grid`, `Sections`, `Paging`, `Expandable`, `LayoutSizedText` (including localized text), `Carousel`, `Extras` (pull indicator, empty state).
 
 ### 12.3 Docs
 - [ ] Rewrite `README.md`: install, quick start, one recipe per sample, API reference, and inspector reference.

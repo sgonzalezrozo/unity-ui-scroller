@@ -199,7 +199,7 @@ A guide to the refactor for the owner: for every feature of the original, what's
 
 **Left out until you ask:**
 - A paging footer (Loading / Failed with Retry / End).
-- Loading at the top, for chat lists.
+- Loading at the top (prepending pages).
 
 ---
 
