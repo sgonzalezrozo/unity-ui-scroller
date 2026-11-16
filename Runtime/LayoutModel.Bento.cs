@@ -45,9 +45,8 @@ namespace SlotList
                 {
                     Placement placement = placementBuffer[i];
                     BentoTile tile = tiles[i];
-                    line.Placements[i - first] = placement;
+                    line[i - first] = placement;
                     itemToLine[i] = row;
-                    placement.Tile = tile;
                     placement.CacheSize(tile.Rows * rowSize + (tile.Rows - 1) * lineSpacing);
                 }
 
@@ -115,10 +114,9 @@ namespace SlotList
         private void BuildBentoHeaderLine(Line line, int itemIndex, BentoTile tile, float size)
         {
             Placement placement = placementBuffer[itemIndex];
-            line.Placements[0] = placement;
+            line[0] = placement;
             line.StartsSection = true;
             itemToLine[itemIndex] = line.LineIndex;
-            placement.Tile = tile;
             placement.CacheSize(size);
             line.CacheSize(size);
         }
@@ -126,9 +124,8 @@ namespace SlotList
         private void PlaceBentoItem(Line line, int slot, int itemIndex, BentoTile tile, float rowSize, int lineIndex)
         {
             Placement placement = placementBuffer[itemIndex];
-            line.Placements[slot] = placement;
+            line[slot] = placement;
             itemToLine[itemIndex] = lineIndex;
-            placement.Tile = tile;
             placement.CacheSize(tile.Rows * rowSize + (tile.Rows - 1) * lineSpacing);
         }
     }

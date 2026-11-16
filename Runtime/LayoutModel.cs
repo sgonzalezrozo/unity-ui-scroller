@@ -166,7 +166,7 @@ namespace SlotList
             if (fromItem > 0 && fromItem <= placementCount && LineOf(fromItem - 1) >= 0)
             {
                 line = LineOf(fromItem - 1);
-                item = lineBuffer[line].Placements[0]?.DataIndex ?? 0;
+                item = lineBuffer[line][0]?.DataIndex ?? 0;
             }
 
             int startLine = line;
@@ -203,7 +203,7 @@ namespace SlotList
                 Array.Resize(ref lineBuffer, Math.Max(lineIndex + 1, lineBuffer.Length * 2));
 
             Line line = lineBuffer[lineIndex];
-            if (line != null && line.Placements.Length == slots)
+            if (line != null && line.SlotCount == slots)
             {
                 line.Reset(lineIndex);
                 return line;
@@ -242,8 +242,10 @@ namespace SlotList
                 return;
 
             float lineSize = 0f;
-            foreach (Placement placement in Lines[line].Placements)
+            Line changedLine = Lines[line];
+            for (int slot = 0; slot < changedLine.SlotCount; slot++)
             {
+                Placement placement = changedLine[slot];
                 if (placement != null && placement.Size > lineSize)
                     lineSize = placement.Size;
             }
@@ -265,8 +267,9 @@ namespace SlotList
                 bool changed = false;
                 float lineSize = 0f;
 
-                foreach (Placement placement in line.Placements)
+                for (int slot = 0; slot < line.SlotCount; slot++)
                 {
+                    Placement placement = line[slot];
                     if (placement == null)
                         continue;
 
@@ -421,7 +424,7 @@ namespace SlotList
                 return;
 
             Placement placement = placementBuffer[itemIndex];
-            line.Placements[0] = placement;
+            line[0] = placement;
             itemToLine[itemIndex] = line.LineIndex;
 
             float itemSize = getItemSize(itemIndex);
@@ -444,19 +447,19 @@ namespace SlotList
                     break;
 
                 Placement placement = placementBuffer[itemIndex];
-                line.Placements[slot] = placement;
+                line[slot] = placement;
                 itemToLine[itemIndex] = line.LineIndex;
                 placement.CacheSize(getItemSize(itemIndex));
                 itemIndex++;
             }
 
             // The first item decides the line size (it carries an expanded size), and other items can only make it taller.
-            int firstItem = line.Placements[0]?.DataIndex ?? 0;
+            int firstItem = line[0]?.DataIndex ?? 0;
             float lineSize = getLineSizeForFirstItem(firstItem);
-            for (int slot = 1; slot < line.Placements.Length; slot++)
+            for (int slot = 1; slot < line.SlotCount; slot++)
             {
-                if (line.Placements[slot] != null)
-                    lineSize = Mathf.Max(lineSize, line.Placements[slot].Size);
+                if (line[slot] != null)
+                    lineSize = Mathf.Max(lineSize, line[slot].Size);
             }
 
             line.CacheSize(lineSize);

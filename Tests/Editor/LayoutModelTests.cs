@@ -22,9 +22,9 @@ namespace SlotList.Tests.Editor
 
         private static int[] ItemsIn(Line line)
         {
-            int[] result = new int[line.Placements.Length];
-            for (int i = 0; i < line.Placements.Length; i++)
-                result[i] = line.Placements[i]?.DataIndex ?? -1;
+            int[] result = new int[line.SlotCount];
+            for (int i = 0; i < line.SlotCount; i++)
+                result[i] = line[i]?.DataIndex ?? -1;
             return result;
         }
 

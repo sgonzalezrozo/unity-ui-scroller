@@ -91,7 +91,10 @@ namespace SlotList
             }
 
             if (recycler != null)
+            {
                 recycler.BentoColumns = bentoColumns;
+                recycler.BentoTiles = bentoTiles;
+            }
             if (visibilityPass != null)
                 visibilityPass.ExtraLinesAbove = appliedBentoLayout.MaxRowSpan - 1;
         }
@@ -158,7 +161,7 @@ namespace SlotList
 
         /// <summary>An item's tile, or a 0x0 tile before initialization, outside bento, or for a bad index.</summary>
         public BentoTile QueryTile(int index)
-            => isBento && index >= 0 && index < layout.Placements.Length ? layout.Placements[index].Tile : default;
+            => isBento && index >= 0 && index < layout.Placements.Length && index < bentoTiles.Count ? bentoTiles[index] : default;
 
         /// <summary>The length of an item along the scroll axis: its tile in bento, its line otherwise.</summary>
         private float MainSizeOf(int index, int line)

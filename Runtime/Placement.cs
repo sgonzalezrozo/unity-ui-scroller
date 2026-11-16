@@ -2,7 +2,10 @@ using UnityEngine;
 
 namespace SlotList
 {
-    /// <summary>One item's place in a line: its index, cached size, expansion flag and the slot showing it (if any).</summary>
+    /// <summary>
+    /// One item's place in a line: its index, cached size, expansion flag and the slot showing it (if any). Kept small,
+    /// because there's one per item: what only shown items need (where the slot was placed) lives on the slot handle.
+    /// </summary>
     public class Placement
     {
         /// <summary>The pooled slot showing this item, or null while it's off screen.</summary>
@@ -18,30 +21,6 @@ namespace SlotList
         public bool NeedsBind { get; set; }
         public int DataIndex { get; set; }
 
-        /// <summary>Where the slot was last placed: line offset, line size, slots in the line and cross size. NaN when never placed.</summary>
-        internal float PlacedOffset = float.NaN;
-        internal float PlacedSize;
-        internal int PlacedCount;
-        internal float PlacedCross;
-
-        /// <summary>The item's tile in a bento layout. Unused otherwise.</summary>
-        internal BentoTile Tile;
-
-        /// <summary>True when the slot already sits where these values put it (P3: no need to place it again).</summary>
-        internal bool IsPlacedAt(float offset, float size, int count, float cross)
-            => PlacedOffset == offset && PlacedSize == size && PlacedCount == count && PlacedCross == cross;
-
-        internal void MarkPlaced(float offset, float size, int count, float cross)
-        {
-            PlacedOffset = offset;
-            PlacedSize = size;
-            PlacedCount = count;
-            PlacedCross = cross;
-        }
-
-        internal void ForgetPlacement()
-            => PlacedOffset = float.NaN;
-
         public Placement(int dataIndex)
         {
             DataIndex = dataIndex;
@@ -55,7 +34,6 @@ namespace SlotList
             WasExpanded = false;
             NeedsBind = false;
             Handle = null;
-            ForgetPlacement();
         }
 
         public void CacheSize(float size)

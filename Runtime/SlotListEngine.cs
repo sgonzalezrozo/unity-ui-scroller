@@ -181,6 +181,7 @@ namespace SlotList
             slotPool = new SlotPool(slotPrefab, components.Content, totalItemsNeeded, instantiator, headerPrefab, headerPrefab != null ? HEADER_POOL_SIZE : 0, settings.IsVertical);
             recycler = new SlotRecycler(slotPool, components, layout, expansion, this, settings, Work);
             recycler.BentoColumns = isBento ? bentoColumns : 0;
+            recycler.BentoTiles = bentoTiles;
 
             int poolBufferEnd = Mathf.Min(visibleCount + (poolItemsNeeded - visibleCount), layout.Lines.Length - 1);
             recycler.AppearPolicy.ConfigureNonAnimatingRange(visibleCount, poolBufferEnd);
@@ -213,11 +214,12 @@ namespace SlotList
             if (lineIndex < 0 || lineIndex >= layout.Lines.Length)
                 return -1;
 
-            Placement[] placements = layout.Lines[lineIndex].Placements;
-            for (int i = 0; i < placements.Length; i++)
+            Line line = layout.Lines[lineIndex];
+            for (int i = 0; i < line.SlotCount; i++)
             {
-                if (placements[i] != null)
-                    return placements[i].DataIndex;
+                Placement placement = line[i];
+                if (placement != null)
+                    return placement.DataIndex;
             }
 
             return -1;
@@ -229,11 +231,12 @@ namespace SlotList
             if (lineIndex < 0 || lineIndex >= layout.Lines.Length)
                 return -1;
 
-            Placement[] placements = layout.Lines[lineIndex].Placements;
-            for (int i = placements.Length - 1; i >= 0; i--)
+            Line line = layout.Lines[lineIndex];
+            for (int i = line.SlotCount - 1; i >= 0; i--)
             {
-                if (placements[i] != null)
-                    return placements[i].DataIndex;
+                Placement placement = line[i];
+                if (placement != null)
+                    return placement.DataIndex;
             }
 
             return -1;

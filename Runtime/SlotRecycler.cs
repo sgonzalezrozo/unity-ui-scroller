@@ -26,6 +26,9 @@ namespace SlotList
         /// <summary>The columns of a bento layout, or 0. In bento, a slot is placed from its tile instead of its index in the line.</summary>
         public int BentoColumns { get; set; }
 
+        /// <summary>The bento tile of every entry, by entry index (the engine's list). Used only when BentoColumns is above 0.</summary>
+        public List<BentoTile> BentoTiles { get; set; }
+
         /// <summary>Decides which newly shown slots play their appear animation.</summary>
         public AppearAnimationPolicy AppearPolicy { get; } = new();
 
@@ -80,11 +83,14 @@ namespace SlotList
 
         private void Release(Placement placement)
         {
-            if (placement.Handle != null && placement.Slot != null)
-                slotPool.ReturnSlot(placement.Handle);
+            if (placement.Handle != null)
+            {
+                placement.Handle.ForgetPlacement();
+                if (placement.Slot != null)
+                    slotPool.ReturnSlot(placement.Handle);
+            }
 
             placement.Handle = null;
-            placement.ForgetPlacement();
         }
 
         // Order doesn't matter: swap with the last one so removing is O(1).
@@ -118,7 +124,7 @@ namespace SlotList
             float lineOffset = layout.OffsetOf(lineIndex);
             int itemCount = callbacks.ItemCount;
 
-            for (int slotIndex = 0; slotIndex < line.Placements.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < line.SlotCount; slotIndex++)
                 ShowPlacement(line, slotIndex, lineIndex, lineOffset, itemCount, forceRebindAll, firstVisibleLine, lastVisibleLine);
         }
 
@@ -132,7 +138,7 @@ namespace SlotList
             int firstVisibleLine,
             int lastVisibleLine)
         {
-            Placement placement = line.Placements[slotIndex];
+            Placement placement = line[slotIndex];
             if (placement?.Handle == null || placement.Slot == null)
                 return;
 
@@ -142,16 +148,17 @@ namespace SlotList
             // A bento tile is a slot at its column in a line of BentoColumns cells, as long as its own span, stretched across its columns.
             bool isBento = BentoColumns > 0;
             float mainSize = isBento ? placement.Size : line.Size;
-            int indexInLine = isBento ? placement.Tile.Column : slotIndex;
+            BentoTile tile = isBento ? BentoTiles[itemIndex] : default;
+            int indexInLine = isBento ? tile.Column : slotIndex;
             // A header's line has room for a whole row of slots, but the header is one slot across it.
-            int slotsInLine = isBento ? BentoColumns : line.StartsSection ? 1 : line.Placements.Length;
+            int slotsInLine = isBento ? BentoColumns : line.StartsSection ? 1 : line.SlotCount;
 
             // P3: a slot that already sits there keeps its RectTransform untouched (each write can dirty the canvas).
-            bool moved = forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize);
+            bool moved = forceRebindAll || placement.NeedsBind || !handle.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize);
             if (moved)
             {
-                Place(handle, lineOffset, mainSize, indexInLine, slotsInLine, isBento ? placement.Tile.Columns : 1);
-                placement.MarkPlaced(lineOffset, mainSize, slotsInLine, crossSize);
+                Place(handle, lineOffset, mainSize, indexInLine, slotsInLine, isBento ? tile.Columns : 1);
+                handle.MarkPlaced(lineOffset, mainSize, slotsInLine, crossSize);
                 work.SlotsPlaced++;
             }
 
@@ -244,9 +251,9 @@ namespace SlotList
             using var _ = SlotListMarkers.Acquire.Auto();
             int itemCount = callbacks.ItemCount;
 
-            for (int i = 0; i < line.Placements.Length; i++)
+            for (int i = 0; i < line.SlotCount; i++)
             {
-                Placement placement = line.Placements[i];
+                Placement placement = line[i];
                 if (placement == null || placement.DataIndex < 0 || placement.DataIndex >= itemCount)
                     continue;
 
@@ -257,9 +264,9 @@ namespace SlotList
                     if (placement.Handle.Kind == kind)
                         continue;
 
+                    placement.Handle.ForgetPlacement();
                     slotPool.ReturnSlot(placement.Handle);
                     placement.Handle = null;
-                    placement.ForgetPlacement();
                 }
                 else
                 {

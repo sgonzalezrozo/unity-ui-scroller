@@ -225,8 +225,10 @@ namespace SlotList
 
             for (int line = FirstVisibleLine; line >= 0 && line <= LastVisibleLine && line < layout.Lines.Length; line++)
             {
-                foreach (Placement placement in layout.Lines[line].Placements)
+                Line shownLine = layout.Lines[line];
+                for (int slot = 0; slot < shownLine.SlotCount; slot++)
                 {
+                    Placement placement = shownLine[slot];
                     if (placement?.Handle != null)
                         remeasuring.Add(placement.DataIndex);
                 }

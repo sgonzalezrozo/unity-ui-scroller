@@ -79,10 +79,11 @@ namespace SlotList
             ListView<Line> lines = layout.Lines;
             for (int lineIndex = firstLine; lineIndex <= lastLine && lineIndex < lines.Length; lineIndex++)
             {
-                Placement[] placements = lines[lineIndex].Placements;
-                for (int i = 0; i < placements.Length; i++)
+                Line line = lines[lineIndex];
+                for (int i = 0; i < line.SlotCount; i++)
                 {
-                    if (placements[i] != null && ToReal(placements[i].DataIndex) == index)
+                    Placement placement = line[i];
+                    if (placement != null && ToReal(placement.DataIndex) == index)
                         return true;
                 }
             }

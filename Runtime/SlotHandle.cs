@@ -24,6 +24,29 @@ namespace SlotList
         /// <summary>The slot's GameObject, looked up once (reading Rect.gameObject is a native call).</summary>
         public GameObject GameObject { get; }
 
+        // Where the list last placed the slot: line offset, length along the line, cells in the line and cross size.
+        // NaN until placed. Only shown items have a slot, so this costs nothing per item.
+        private float placedOffset = float.NaN;
+        private float placedLength;
+        private int placedCells;
+        private float placedCross;
+
+        /// <summary>True when the slot already sits where these values put it (P3: no need to place it again).</summary>
+        internal bool IsPlacedAt(float offset, float length, int cells, float cross)
+            => placedOffset == offset && placedLength == length && placedCells == cells && placedCross == cross;
+
+        internal void MarkPlaced(float offset, float length, int cells, float cross)
+        {
+            placedOffset = offset;
+            placedLength = length;
+            placedCells = cells;
+            placedCross = cross;
+        }
+
+        /// <summary>Forgets where the slot was placed: it's back in the pool, or about to show another entry.</summary>
+        internal void ForgetPlacement()
+            => placedOffset = float.NaN;
+
         /// <summary>True once the list gave the slot its pivot and anchors, which never change for a list.</summary>
         internal bool IsAnchored;
 

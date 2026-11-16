@@ -119,6 +119,28 @@ Measured with `Tests/Runtime/HeapBench.cs` (`[Explicit]`, run with `-testFilter 
   - one `Line` object per line only where a line holds several slots (grids, bento), with plain lists keeping their line data in arrays;
   - the "where it was placed" fields moved from every `Placement` to the slot handle, since only shown items need them.
 
+## C7-lite results (2026-11-16)
+
+Done instead of the full C7, after P5:
+- **Where a slot was placed** (four fields used only to skip re-placing a slot) moved from every `Placement` to the slot handle. Only shown items have a slot.
+- **Bento tiles** live in the engine's tile list only, not copied onto every `Placement`.
+- **A line with room for one slot** (every line of a plain list or a sectioned list) keeps its placement in a field instead of a one-element array. `Line` now has an indexer (`line[slot]`) and `SlotCount` instead of the public `Placements` array.
+
+**Memory the list adds** (`HeapBench`, Editor):
+
+| Case | Before (P5) | C7-lite | Change |
+|---|---|---|---|
+| List, 100,000 | 12.8 MB (134 B/item) | 5.1 MB (54 B/item) | **−60 %** |
+| Grid 4, 100,000 | 6.4 MB (67 B/item) | 1.7 MB (18 B/item) | **−73 %** |
+| Bento, 100,000 | 8.3 MB (88 B/item) | 3.7 MB (39 B/item) | **−56 %** |
+| List, 1,000,000 | 182.7 MB (192 B/item) | 115.6 MB (121 B/item) | −37 % |
+| Grid 4, 1,000,000 | 117.5 MB (123 B/item) | 76.7 MB (80 B/item) | −35 % |
+| Bento, 1,000,000 | 133.5 MB (140 B/item) | 92.7 MB (97 B/item) | −31 % |
+
+A plain list also has one heap object less per item (2 instead of 3). The GC time is still within the Editor's noise at 100,000. At 1,000,000 the larger per-item figure comes from the buffers' doubling growth.
+
+**CPU:** unchanged. P4 (`4e0c4f0`) and C7-lite were run alternately, twice each. The only difference was bento at +3 to 5 %, from reading tiles through an interface; with the concrete list it matches P4 (list 2.3, grid 4.9, bento 5.0 to 5.2, sections 2.7 µs per event).
+
 ## 1. Definitions
 
 ### Zero GC
