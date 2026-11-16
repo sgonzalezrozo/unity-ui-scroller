@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>Scrolling and drags, source changes, visibility queries and expansion.</summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         // ---------- Scrolling and drags ----------
 
@@ -12,7 +12,7 @@ namespace SlotList
             if (!isInitialized)
                 return;
 
-            using (SlotListMarkers.OnScroll.Auto())
+            using (ScrollerMarkers.OnScroll.Auto())
             {
                 dragState.HandleScrollTick(components.ScrollRect.velocity.magnitude);
                 RebuildVisibleItems();

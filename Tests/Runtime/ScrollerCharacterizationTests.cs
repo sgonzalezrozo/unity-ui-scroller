@@ -2,21 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Characterization tests for the whole scroller through its public API.
     /// They pin today's behaviour (bugs included, marked "Bug 6.x") so Phases 1-5 can't change it by accident.
     /// Default rig: vertical list, 400 x 800 viewport, 100 px slots, no spacing or padding.
     /// </summary>
-    public class SlotListCharacterizationTests
+    public class ScrollerCharacterizationTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -33,7 +33,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Initialize_BindsTheFirstScreen()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
 
             Assert.AreEqual(Range(0, 7), rig.BoundIds());
@@ -46,10 +46,10 @@ namespace SlotList.Tests.PlayMode
         {
             // The first build used to wait for WaitForEndOfFrame, which never resumes in batch mode,
             // and resumes after rendering anyway. It now waits one frame.
-            rig = SlotListRig.Create();
-            rig.Scroller.Initialize(new ListSource<TestItem>(SlotListRig.MakeItems(1000)));
+            rig = ScrollerRig.Create();
+            rig.Scroller.Initialize(new ListSource<TestItem>(ScrollerRig.MakeItems(1000)));
 
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(Range(0, 7), rig.BoundIds());
         }
@@ -57,7 +57,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Initialize_SetsTheContentSize()
         {
-            rig = SlotListRig.Create(new RigOptions { LineSpacing = 10f, PaddingStart = 20f, PaddingEnd = 30f });
+            rig = ScrollerRig.Create(new RigOptions { LineSpacing = 10f, PaddingStart = 20f, PaddingEnd = 30f });
             yield return rig.Initialize(10);
 
             Assert.AreEqual(20f + 1000f + 90f + 30f, rig.ContentSize, 0.01f);
@@ -66,9 +66,9 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Initialize_CreatesABoundedPool_NotOneItemPerItem()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
-            yield return SlotListRig.Frames(8);
+            yield return ScrollerRig.Frames(8);
 
             // 8 visible slots created for the first build, plus a pool of ceil(8 x 1.4) = 12 warmed up afterwards,
             // two per frame (Phase 10, P9), so it's done after 6 frames.
@@ -78,7 +78,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Scroll_ToTheMiddle_BindsThatRange()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
 
             yield return rig.ScrollToOffset(5000f);
@@ -89,7 +89,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Scroll_HalfAItem_ShowsOneMorePartialItem()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
 
             yield return rig.ScrollToOffset(5050f);
@@ -100,7 +100,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Scroll_ToTheEnd_BindsTheLastItems()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
 
             yield return rig.ScrollToOffset(99200f);
@@ -111,9 +111,9 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Scroll_ManyScreens_ReusesItems()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
-            yield return SlotListRig.Frames(8); // the pool warm-up (two slots per frame) is done
+            yield return ScrollerRig.Frames(8); // the pool warm-up (two slots per frame) is done
             int before = rig.CountItemInstances();
 
             for (int screen = 1; screen <= 10; screen++)
@@ -125,7 +125,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator BoundItems_SitAtTheirLineOffset()
         {
-            rig = SlotListRig.Create(new RigOptions { LineSpacing = 10f, PaddingStart = 20f });
+            rig = ScrollerRig.Create(new RigOptions { LineSpacing = 10f, PaddingStart = 20f });
             yield return rig.Initialize(100);
 
             RectTransform slot = rig.ItemFor(3);
@@ -140,7 +140,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Grid_FillsTheRowWidth()
         {
-            rig = SlotListRig.Create(new RigOptions { SlotsPerLine = 3, SlotSpacing = 10f });
+            rig = ScrollerRig.Create(new RigOptions { SlotsPerLine = 3, SlotSpacing = 10f });
             yield return rig.Initialize(60);
 
             float width = (400f - 20f) / 3f;
@@ -158,7 +158,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Horizontal_BindsTheFirstScreen_AndPlacesItemsRightwards()
         {
-            rig = SlotListRig.Create(new RigOptions { Direction = RigDirection.LeftToRight });
+            rig = ScrollerRig.Create(new RigOptions { Direction = RigDirection.LeftToRight });
             yield return rig.Initialize(100);
 
             Assert.AreEqual(Range(0, 3), rig.BoundIds());
@@ -169,7 +169,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Horizontal_Scroll_BindsThatRange()
         {
-            rig = SlotListRig.Create(new RigOptions { Direction = RigDirection.LeftToRight });
+            rig = ScrollerRig.Create(new RigOptions { Direction = RigDirection.LeftToRight });
             yield return rig.Initialize(100);
 
             yield return rig.ScrollToOffset(5000f);
@@ -180,7 +180,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator BottomToTop_PlacesItemsUpwards()
         {
-            rig = SlotListRig.Create(new RigOptions { Direction = RigDirection.BottomToTop });
+            rig = ScrollerRig.Create(new RigOptions { Direction = RigDirection.BottomToTop });
             yield return rig.Initialize(100);
 
             Assert.AreEqual(Range(0, 7), rig.BoundIds());
@@ -190,7 +190,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator RightToLeft_PlacesItemsLeftwards()
         {
-            rig = SlotListRig.Create(new RigOptions { Direction = RigDirection.RightToLeft });
+            rig = ScrollerRig.Create(new RigOptions { Direction = RigDirection.RightToLeft });
             yield return rig.Initialize(100);
 
             Assert.AreEqual(Range(0, 3), rig.BoundIds());
@@ -202,8 +202,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Refresh_AfterAdd_ShowsTheNewItem()
         {
-            rig = SlotListRig.Create();
-            ListSource<TestItem> source = new(SlotListRig.MakeItems(5));
+            rig = ScrollerRig.Create();
+            ListSource<TestItem> source = new(ScrollerRig.MakeItems(5));
             yield return rig.Initialize(source);
 
             source.AddItem(new TestItem(5));
@@ -217,8 +217,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Refresh_AfterRemove_HidesTheItem()
         {
-            rig = SlotListRig.Create();
-            ListSource<TestItem> source = new(SlotListRig.MakeItems(5));
+            rig = ScrollerRig.Create();
+            ListSource<TestItem> source = new(ScrollerRig.MakeItems(5));
             yield return rig.Initialize(source);
 
             source.RemoveItemAt(0);
@@ -232,10 +232,10 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator SetDataSource_ShowsTheNewItems()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(5);
 
-            rig.Scroller.SetSource(new ListSource<TestItem>(SlotListRig.MakeItems(3, 100)));
+            rig.Scroller.SetSource(new ListSource<TestItem>(ScrollerRig.MakeItems(3, 100)));
             yield return null;
 
             Assert.AreEqual(Range(100, 102), rig.BoundIds());
@@ -246,7 +246,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Expand_GrowsTheContent_AndMovesFollowingItems()
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true });
             yield return rig.Initialize(20);
 
             rig.Scroller.Expand(2, 300f);
@@ -262,7 +262,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Collapse_RestoresTheLayout()
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true });
             yield return rig.Initialize(20);
             rig.Scroller.Expand(2, 300f);
             yield return null;
@@ -278,7 +278,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Expand_InSingleMode_CollapsesThePreviousItem()
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true });
             yield return rig.Initialize(20);
 
             rig.Scroller.Expand(1, 300f);
@@ -296,7 +296,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Expand_InMultipleMode_KeepsBoth()
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true, AllowMultipleExpanded = true });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true, AllowMultipleExpanded = true });
             yield return rig.Initialize(20);
 
             rig.Scroller.Expand(1, 300f);
@@ -311,7 +311,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Expand_IsIgnoredInAGrid()
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true, SlotsPerLine = 2 });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true, SlotsPerLine = 2 });
             yield return rig.Initialize(20);
 
             rig.Scroller.Expand(2, 300f);
@@ -326,7 +326,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator ScrollToEnd_ThenScrollToStart()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
 
             rig.Scroller.ScrollToEnd();
@@ -343,7 +343,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Visibility_ReportsLinesAndItems()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
             yield return rig.ScrollToOffset(5000f);
 
@@ -358,7 +358,7 @@ namespace SlotList.Tests.PlayMode
         public IEnumerator Visibility_InAGrid_ReportsItemIndices()
         {
             // Bug 6.13 (fixed): VisibleEndIndex used to be the line index (7). It is now the last visible item (23).
-            rig = SlotListRig.Create(new RigOptions { SlotsPerLine = 3 });
+            rig = ScrollerRig.Create(new RigOptions { SlotsPerLine = 3 });
             yield return rig.Initialize(60);
 
             Assert.AreEqual(0, rig.Scroller.VisibleStartIndex);
@@ -369,14 +369,14 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator DisableThenEnable_ShowsTheSameRangeAgain()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
             yield return rig.ScrollToOffset(5000f);
 
             rig.Scroller.gameObject.SetActive(false);
             yield return null;
             rig.Scroller.gameObject.SetActive(true);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(Range(50, 57), rig.BoundIds());
         }
@@ -384,7 +384,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Clear_HidesEverything_AndResetsThePosition()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(1000);
             yield return rig.ScrollToOffset(5000f);
 
@@ -399,7 +399,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator PullToRefresh_PastTheThreshold_CallsTheHook()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(100);
             PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left };
 

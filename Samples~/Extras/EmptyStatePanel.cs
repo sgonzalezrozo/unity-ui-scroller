@@ -1,8 +1,8 @@
-using SlotList;
+using UIScroller;
 using TMPro;
 using UnityEngine;
 
-namespace SlotList.Samples.Extras
+namespace UIScroller.Samples.Extras
 {
     /// <summary>Shows a message when a data source is empty. Call OnDataSourceChanged after you change the source.</summary>
     public class EmptyStatePanel : MonoBehaviour

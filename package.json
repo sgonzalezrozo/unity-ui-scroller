@@ -1,8 +1,8 @@
 {
-  "name": "com.sgonzalezrozo.slot-list",
+  "name": "com.sgonzalezrozo.ui-scroller",
   "version": "1.0.0-preview.1",
-  "displayName": "Slot List",
-  "description": "Recycling (virtualized) scroll view for Unity uGUI: long lists and grids that reuse a few slots, with dynamic sizes, expandable slots, headers, pull to refresh and infinite scroll with pagination.",
+  "displayName": "UI Scroller",
+  "description": "Recycling (virtualized) scroll view for Unity uGUI: lists, grids and bento layouts of any length that reuse a few slots, with zero allocations while scrolling. Measured sizes, sections with headers, expandable slots, looping carousels, pull to refresh and paged loading.",
   "unity": "2022.3",
   "license": "MIT",
   "author": {
@@ -11,10 +11,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sgonzalezrozo/unity-recyclable-scroller.git"
+    "url": "https://github.com/sgonzalezrozo/unity-ui-scroller.git"
   },
   "keywords": [
-    "slot-list",
+    "ui-scroller",
     "ui",
     "scroll",
     "recycling",

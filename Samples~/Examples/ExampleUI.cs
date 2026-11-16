@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// Builds the examples' UI in code, so each one runs from an empty scene: an EventSystem, a Canvas with a title,
@@ -64,7 +64,7 @@ namespace SlotList.Samples
         /// A list filling <paramref name="parent"/>: the list object, a Viewport with a RectMask2D and an empty Content.
         /// Set its Settings before Initialize or SetSource.
         /// </summary>
-        public static TList CreateList<TList>(RectTransform parent, GameObject slotTemplate) where TList : SlotListBase
+        public static TList CreateList<TList>(RectTransform parent, GameObject slotTemplate) where TList : ScrollerBase
         {
             RectTransform listRect = CreateRect(typeof(TList).Name, parent);
             Stretch(listRect);

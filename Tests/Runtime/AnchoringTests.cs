@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 8, step 5: when sizes change, what you're looking at stays still.
@@ -18,7 +18,7 @@ namespace SlotList.Tests.PlayMode
     {
         private const float DEEP_OFFSET = 15000f;
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private List<TestItem> items;
 
         [TearDown]
@@ -30,8 +30,8 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(RigDirection direction, bool deep)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, Direction = direction });
-            items = SlotListRig.MakeItems(200);
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, Direction = direction });
+            items = ScrollerRig.MakeItems(200);
             for (int i = 0; i < items.Count; i++)
                 items[i].Height = i < 4 ? 300f : 100f;
 
@@ -42,7 +42,7 @@ namespace SlotList.Tests.PlayMode
                 yield break;
 
             yield return rig.ScrollToOffset(DEEP_OFFSET);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
         }
 
         private bool IsTopToBottom => rig.Options.Direction == RigDirection.TopToBottom;
@@ -64,7 +64,7 @@ namespace SlotList.Tests.PlayMode
         {
             rig.ItemFor(id).GetComponent<RecordingSlot>().Body.preferredHeight = height;
             Canvas.ForceUpdateCanvases();
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
         }
 
         [UnityTest]
@@ -125,7 +125,7 @@ namespace SlotList.Tests.PlayMode
             pointer.position = new Vector2(200f, 250f);
             rig.Scroller.OnDrag(pointer);
             float afterDragEvent = Distance;
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
             float afterShift = Distance;
             Assume.That(Mathf.Abs(afterShift - afterDragEvent), Is.GreaterThan(1f), "measuring should have shifted the content");
 
@@ -141,7 +141,7 @@ namespace SlotList.Tests.PlayMode
             yield return Start(RigDirection.TopToBottom, deep: true);
             PointerEventData pointer = Pointer(200f, 400f);
             rig.Scroller.OnBeginDrag(pointer);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
             float before = Distance;
 
             // A much taller item raises the average, which resizes the unmeasured items above and shifts the content.

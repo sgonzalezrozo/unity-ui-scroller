@@ -1,16 +1,16 @@
-# Slot List rules for AI coding agents
+# UI Scroller rules for AI coding agents
 
-Copy this file into your project's agent rules (for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/slot-list.md`).
+Copy this file into your project's agent rules (for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/ui-scroller.md`).
 
 ## How lists work here
 
-- Long uGUI lists and grids use **Slot List** (`com.sgonzalezrozo.slot-list`, namespace `SlotList`). Don't instantiate one slot per item, and don't use `LayoutGroup` or `ContentSizeFitter` on the scroller's **Content**.
+- Long uGUI lists and grids use **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`). Don't instantiate one slot per item, and don't use `LayoutGroup` or `ContentSizeFitter` on the scroller's **Content**.
 - Items MUST be classes.
 
 ## Build a list
 
 ```csharp
-using SlotList;
+using UIScroller;
 
 // 1. The slot: a MonoBehaviour on the slot prefab.
 public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
@@ -32,8 +32,8 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
     }
 }
 
-// 2. A concrete scroller. SlotList<T> is abstract and Unity can't add an open generic component.
-public class InventoryScroller : SlotList<InventoryItem> { }
+// 2. A concrete scroller. Scroller<T> is abstract and Unity can't add an open generic component.
+public class InventoryScroller : Scroller<InventoryItem> { }
 
 // 3. Start it.
 scroller.Initialize(new ListSource<InventoryItem>(items));
@@ -50,8 +50,8 @@ The developer replaces a Scroll View's `ScrollRect` with the concrete scroller, 
 
 ## Sections with headers
 
-- Use `SectionedSlotList<TItem, THeader>` (assign Slot Prefab AND Header Prefab) with a `SectionedSource<TItem, THeader>`: `source.AddSection(header, new ListSource<TItem>(items))`, then `list.SetSource(source)`. Never check `IsInitialized` first.
-- The header slot implements `ISlot<THeader>`; the item slot `ISlot<TItem>`. No shared base class. A plain `SlotList<T>` has NO headers and no `IsHeader` override.
+- Use `SectionedScroller<TItem, THeader>` (assign Slot Prefab AND Header Prefab) with a `SectionedSource<TItem, THeader>`: `source.AddSection(header, new ListSource<TItem>(items))`, then `list.SetSource(source)`. Never check `IsInitialized` first.
+- The header slot implements `ISlot<THeader>`; the item slot `ISlot<TItem>`. No shared base class. A plain `Scroller<T>` has NO headers and no `IsHeader` override.
 - Empty sections are skipped automatically. List indexes count headers: use `source.FlatIndexOf(section, i)`. `ScrollToSection(section)` jumps to a header.
 
 ## Change data

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>The list owns Content's size, so layout components that would drive it are refused.</summary>
     public class ContentLayoutRulesTests

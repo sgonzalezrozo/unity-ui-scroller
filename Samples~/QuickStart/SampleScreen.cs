@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 
 public class SampleScreen : MonoBehaviour
 {
-    [SerializeField] private SampleSlotList scroller;
+    [SerializeField] private SampleScroller scroller;
 
     private void Start()
     {

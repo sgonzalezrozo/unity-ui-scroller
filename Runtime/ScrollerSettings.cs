@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>The direction items flow in. The first item is at the start of this direction.</summary>
-    public enum SlotListDirection
+    public enum ScrollerDirection
     {
         TopToBottom,
         BottomToTop,
@@ -30,11 +30,11 @@ namespace SlotList
 
     /// <summary>Layout and behaviour settings for a whole slot list. Changes apply on the next Initialize.</summary>
     [Serializable]
-    public class SlotListSettings
+    public class ScrollerSettings
     {
         public const float DEFAULT_POOL_BUFFER = 1.4f;
 
-        public SlotListDirection direction = SlotListDirection.TopToBottom;
+        public ScrollerDirection direction = ScrollerDirection.TopToBottom;
 
         [Tooltip("Space between lines (rows in a vertical list, columns in a horizontal one).")]
         public float lineSpacing;
@@ -85,10 +85,10 @@ namespace SlotList
         public float poolBuffer = DEFAULT_POOL_BUFFER;
 
         public bool IsVertical
-            => direction is SlotListDirection.TopToBottom or SlotListDirection.BottomToTop;
+            => direction is ScrollerDirection.TopToBottom or ScrollerDirection.BottomToTop;
 
         public bool IsReversed
-            => direction is SlotListDirection.BottomToTop or SlotListDirection.RightToLeft;
+            => direction is ScrollerDirection.BottomToTop or ScrollerDirection.RightToLeft;
 
         public float EffectivePoolBuffer
             => overridePoolBuffer ? poolBuffer : DEFAULT_POOL_BUFFER;

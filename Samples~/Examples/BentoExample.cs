@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// A bento list: tiles of different sizes on a 4-column grid, placed by a layout written in JSON. The button
@@ -66,7 +66,7 @@ namespace SlotList.Samples
 
             TileSlot template = TileSlot.CreateTemplate(ExampleUI.CreateTemplateRoot());
             list = ExampleUI.CreateList<BentoExampleList>(body, template.gameObject);
-            SlotListSettings settings = list.Settings;
+            ScrollerSettings settings = list.Settings;
             settings.bento = true;
             settings.cellAspect = 1f;
             settings.lineSpacing = SPACING;

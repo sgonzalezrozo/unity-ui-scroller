@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// A grid of 1,000 tiles. Auto Grid fits as many columns as the width allows from a target tile size.
@@ -19,7 +19,7 @@ namespace SlotList.Samples
 
             TileSlot template = TileSlot.CreateTemplate(ExampleUI.CreateTemplateRoot());
             GridExampleList list = ExampleUI.CreateList<GridExampleList>(body, template.gameObject);
-            SlotListSettings settings = list.Settings;
+            ScrollerSettings settings = list.Settings;
             settings.autoSlotsPerLine = true;
             settings.targetSlotSize = TileSlot.SIZE;
             settings.minSlotsPerLine = 2;

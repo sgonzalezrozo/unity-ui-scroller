@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>A section header in the Sections example.</summary>
     public class HeaderSlot : MonoBehaviour, ISlot<ExampleHeader>

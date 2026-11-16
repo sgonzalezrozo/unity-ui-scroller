@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Which items are expanded and how big they are. Expand, Collapse and SetExpandedSize resize the item's line
@@ -66,7 +66,7 @@ namespace SlotList
             if (slotsPerLine > 1)
             {
                 if (!hasWarnedAboutGrid)
-                    Debug.LogWarning("[SlotList] Expand is ignored in a grid (more than one slot per line).");
+                    Debug.LogWarning("[UIScroller] Expand is ignored in a grid (more than one slot per line).");
 
                 hasWarnedAboutGrid = true;
                 return false;
@@ -132,14 +132,14 @@ namespace SlotList
 
             if (sizesFromLayout)
             {
-                Debug.LogWarning("[SlotList] SetExpandedSize is ignored for slots measured with layout (DefaultExtent of 0 or less): " +
+                Debug.LogWarning("[UIScroller] SetExpandedSize is ignored for slots measured with layout (DefaultExtent of 0 or less): " +
                                  "the expanded slot's own layout decides its size.");
                 return false;
             }
 
             if (!expandedIndices.Contains(index))
             {
-                Debug.LogWarning($"[SlotList] Cannot update size - slot {index} is not expanded");
+                Debug.LogWarning($"[UIScroller] Cannot update size - slot {index} is not expanded");
                 return false;
             }
 
@@ -147,7 +147,7 @@ namespace SlotList
             {
                 if (newSize < 0)
                 {
-                    Debug.LogWarning($"[SlotList] Slot {index} was expanded without a size, so its content decides its size. Pass a size to fix it.");
+                    Debug.LogWarning($"[UIScroller] Slot {index} was expanded without a size, so its content decides its size. Pass a size to fix it.");
                     return false;
                 }
 
@@ -158,7 +158,7 @@ namespace SlotList
 
             if (slotsPerLine > 1)
             {
-                Debug.LogWarning("[SlotList] SetExpandedSize is not supported with more than one slot per line");
+                Debug.LogWarning("[UIScroller] SetExpandedSize is not supported with more than one slot per line");
                 return false;
             }
 
@@ -197,7 +197,7 @@ namespace SlotList
                 return;
 
             hasWarnedAboutGivenSize = true;
-            Debug.LogWarning("[SlotList] The size given to Expand is ignored for slots measured with layout (DefaultExtent of 0 or less): " +
+            Debug.LogWarning("[UIScroller] The size given to Expand is ignored for slots measured with layout (DefaultExtent of 0 or less): " +
                              "the expanded slot's own layout decides its size.");
         }
 

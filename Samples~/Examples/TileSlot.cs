@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>A coloured square with the item's number. Used by the Grid and Carousel examples.</summary>
     public class TileSlot : MonoBehaviour, ISlot<ExampleItem>

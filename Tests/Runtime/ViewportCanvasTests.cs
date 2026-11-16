@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// The Viewport is a nested Canvas (P18): moving slots rebuilds only the list's batches, not the whole screen's.
@@ -12,7 +12,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class ViewportCanvasTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -24,7 +24,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Initialize_MakesTheViewportANestedCanvas_WithARaycaster()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             Assert.IsTrue(rig.Viewport.GetComponent<Canvas>() == null, "The rig starts without one.");
 
             yield return rig.Initialize(20);
@@ -38,7 +38,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator TheNestedCanvas_CopiesTheShaderChannelsOfTheCanvasAboveIt()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             Canvas root = rig.ScrollerRect.GetComponentInParent<Canvas>();
             root.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.Normal | AdditionalCanvasShaderChannels.Tangent;
 
@@ -50,7 +50,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator TheRectMask2D_StillCullsWhatIsOutsideTheViewport()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             yield return rig.Initialize(20);
 
             Image inside = NewImage("Inside", new Vector2(100f, -100f));

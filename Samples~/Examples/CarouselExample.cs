@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// A horizontal carousel of 20 tiles that loops both ways and snaps the nearest tile to the centre.
@@ -28,8 +28,8 @@ namespace SlotList.Samples
 
             TileSlot template = TileSlot.CreateTemplate(ExampleUI.CreateTemplateRoot());
             CarouselExampleList list = ExampleUI.CreateList<CarouselExampleList>(strip, template.gameObject);
-            SlotListSettings settings = list.Settings;
-            settings.direction = SlotListDirection.LeftToRight;
+            ScrollerSettings settings = list.Settings;
+            settings.direction = ScrollerDirection.LeftToRight;
             settings.lineSpacing = SPACING;
             settings.loop = true;
             settings.snap = SnapMode.Item;

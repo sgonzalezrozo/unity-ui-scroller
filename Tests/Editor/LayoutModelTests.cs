@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// Design tests for LayoutModel (Phase 5, step 2): placements, lines, offsets, total extent and the item-to-line map.

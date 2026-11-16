@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 8, step 3: a slot whose DefaultExtent is 0 or less is measured with Unity's layout when it's bound.
@@ -14,7 +14,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class LayoutSizingTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -25,7 +25,7 @@ namespace SlotList.Tests.PlayMode
 
         private static List<TestItem> Items(int count, params float[] heights)
         {
-            List<TestItem> items = SlotListRig.MakeItems(count);
+            List<TestItem> items = ScrollerRig.MakeItems(count);
             for (int i = 0; i < items.Count; i++)
                 items[i].Height = heights[i % heights.Length];
             return items;
@@ -33,7 +33,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator StartLayoutSized(List<TestItem> items, uint slotsPerLine = 1)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, SlotsPerLine = slotsPerLine });
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, SlotsPerLine = slotsPerLine });
             yield return rig.Initialize(new ListSource<TestItem>(items));
             yield return null;
         }
@@ -87,7 +87,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator APositiveDefaultExtent_IsAFixedSize_EvenWithALayoutGroup()
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true });
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true });
             yield return rig.Initialize(new ListSource<TestItem>(Items(20, 300f)));
             yield return null;
 
@@ -100,7 +100,7 @@ namespace SlotList.Tests.PlayMode
         public IEnumerator APrefabWithoutALayout_KeepsItsOwnSize_AndWarnsOnce()
         {
             // DefaultExtent <= 0 but the root reports no preferred size (no layout group): measuring gives 0.
-            rig = SlotListRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = false });
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = false });
             LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("preferred size"));
 
             yield return rig.Initialize(new ListSource<TestItem>(Items(20, 300f)));
@@ -148,7 +148,7 @@ namespace SlotList.Tests.PlayMode
 
             items[2].Height = 300f;
             yield return rig.ScrollToOffset(0f);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             Assert.AreEqual(300f, rig.ItemFor(2).sizeDelta.y, 0.01f, "The size watcher catches what the cache missed.");
             float top2 = -rig.ItemFor(2).anchoredPosition.y;

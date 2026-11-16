@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>The bento layout model: span sequences packed in order, patterns, and the JSON format with its validation.</summary>
     public class BentoLayoutTests

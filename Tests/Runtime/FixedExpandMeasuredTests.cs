@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// The usual slot: a fixed default size (DefaultExtent > 0) and an expanded size that follows its content.
@@ -12,9 +12,9 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class FixedExpandMeasuredTests
     {
-        private const float EXPANDED = 100f + SlotListRig.DETAILS_HEIGHT;
+        private const float EXPANDED = 100f + ScrollerRig.DETAILS_HEIGHT;
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -25,12 +25,12 @@ namespace SlotList.Tests.PlayMode
         }
 
         /// <summary>An opened slot is measured in Unity's layout pass and grows on the next frame.</summary>
-        private static IEnumerator SettleOpen() => SlotListRig.Frames(3);
+        private static IEnumerator SettleOpen() => ScrollerRig.Frames(3);
 
         private IEnumerator Start(bool allowMultiple = false)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true, Expandable = true, AllowMultipleExpanded = allowMultiple });
-            List<TestItem> items = SlotListRig.MakeItems(100);
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true, Expandable = true, AllowMultipleExpanded = allowMultiple });
+            List<TestItem> items = ScrollerRig.MakeItems(100);
             foreach (TestItem item in items)
                 item.Height = 100f;
             yield return rig.Initialize(new ListSource<TestItem>(items));
@@ -97,7 +97,7 @@ namespace SlotList.Tests.PlayMode
             yield return SettleOpen();
 
             rig.ItemFor(2).GetComponent<ExpandableRecordingSlot>().Details.preferredHeight = 400f;
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             Assert.AreEqual(100f + 400f, rig.ItemFor(2).sizeDelta.y, 0.01f);
             Assert.AreEqual(200f + 500f, Top(3), 0.01f);
@@ -125,7 +125,7 @@ namespace SlotList.Tests.PlayMode
             yield return SettleOpen();
 
             yield return rig.ScrollToOffset(3000f);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             foreach (int id in rig.BoundIds())
                 Assert.AreEqual(100f, rig.ItemFor(id).sizeDelta.y, 0.01f, $"Item {id} must keep the fixed size.");
@@ -172,7 +172,7 @@ namespace SlotList.Tests.PlayMode
             yield return SettleOpen();
             Assert.AreEqual(100f, rig.ItemFor(2).sizeDelta.y, 0.01f, "Opened, but its details haven't arrived yet.");
 
-            yield return SlotListRig.Frames(6);
+            yield return ScrollerRig.Frames(6);
 
             Assert.AreEqual(EXPANDED, rig.ItemFor(2).sizeDelta.y, 0.01f, "The late details resize it.");
             Assert.AreEqual(200f + EXPANDED, Top(3), 0.01f);

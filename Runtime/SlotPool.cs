@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using ToolsCore;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Creates and reuses slots, with one queue per slot kind. A returned slot always goes back to its own kind's queue.

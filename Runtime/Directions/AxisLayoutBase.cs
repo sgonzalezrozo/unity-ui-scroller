@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Base class for scroll direction strategies.

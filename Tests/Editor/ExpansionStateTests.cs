@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// Design tests for ExpansionState (Phase 5, step 5). It merges the old expansion controller and its handler,

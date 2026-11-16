@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Added by the list to slots measured with layout (DefaultExtent of 0 or less). Unity calls it whenever it rebuilds

@@ -1,4 +1,4 @@
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>A section header in the Sections examples: a title and an optional description.</summary>
     public class ExampleHeader

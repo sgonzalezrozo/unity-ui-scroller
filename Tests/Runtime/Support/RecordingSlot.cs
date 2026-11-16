@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>A test slot that records every item bound to it.</summary>
     public class RecordingSlot : MonoBehaviour, ISlot<TestItem>

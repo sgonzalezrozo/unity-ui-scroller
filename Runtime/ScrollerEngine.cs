@@ -3,14 +3,14 @@ using ToolsCore;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
-    /// Everything a SlotList does, without the MonoBehaviour: setup, layout, recycling, binding, expansion,
-    /// paging and pull detection, navigation, rebuilds and deferred work. SlotList forwards to it.
+    /// Everything a scroller does, without the MonoBehaviour: setup, layout, recycling, binding, expansion,
+    /// paging and pull detection, navigation, rebuilds and deferred work. ScrollerBase forwards to it.
     /// Split into partial files: setup and binding (this file), sizing and measuring, rebuilds and lifecycle, interaction, paging.
     /// </summary>
-    internal sealed partial class SlotListEngine<T> : ISlotCallbacks, IItemSizes, ISlotSizeListener, ISlotListEngine
+    internal sealed partial class ScrollerEngine<T> : ISlotCallbacks, IItemSizes, ISlotSizeListener, IScrollerEngine
         where T : class
     {
         private const float PULL_THRESHOLD = 75f;
@@ -25,9 +25,9 @@ namespace SlotList
         private const float PLACEHOLDER_RELATIVE_CHANGE = 0.005f;
 
         private readonly MonoBehaviour host;
-        private readonly ISlotList owner;
-        private readonly ISlotListHooks hooks;
-        private readonly SlotListSettings settings;
+        private readonly IScroller owner;
+        private readonly IScrollerHooks hooks;
+        private readonly ScrollerSettings settings;
         private readonly GameObject slotPrefab;
         private readonly GameObject headerPrefab;
         private readonly IPrefabInstantiator instantiator;
@@ -85,7 +85,7 @@ namespace SlotList
         public int ItemCount => isLooping ? loopEntries : RealCount;
         public WorkCounters Work { get; } = new();
 
-        public SlotListEngine(MonoBehaviour host, ISlotList owner, ISlotListHooks hooks, SlotListSettings settings, GameObject slotPrefab, GameObject headerPrefab, IPrefabInstantiator instantiator)
+        public ScrollerEngine(MonoBehaviour host, IScroller owner, IScrollerHooks hooks, ScrollerSettings settings, GameObject slotPrefab, GameObject headerPrefab, IPrefabInstantiator instantiator)
         {
             this.headerPrefab = headerPrefab;
             this.host = host;
@@ -119,7 +119,7 @@ namespace SlotList
 
             if (slotPrefab == null)
             {
-                Debug.LogError($"[SlotList] Slot Prefab is not assigned to {host.gameObject.name}. Assign a prefab implementing ISlot in the Inspector.");
+                Debug.LogError($"[UIScroller] Slot Prefab is not assigned to {host.gameObject.name}. Assign a prefab implementing ISlot in the Inspector.");
                 return;
             }
 
@@ -308,7 +308,7 @@ namespace SlotList
                 return;
             }
 
-            Debug.LogError($"[SlotList] Index {index} - the slot does not implement ISlot<{typeof(T).Name}> or IExpandableSlot<{typeof(T).Name}>");
+            Debug.LogError($"[UIScroller] Index {index} - the slot does not implement ISlot<{typeof(T).Name}> or IExpandableSlot<{typeof(T).Name}>");
         }
     }
 }

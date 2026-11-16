@@ -6,7 +6,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Design tests for Phase 7 paging through the list: the list asks for pages itself, appends them without a
@@ -15,7 +15,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class PagingTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private FakePageLoader loader;
         private PagedSource<TestItem> source;
 
@@ -30,7 +30,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator StartList(RigOptions options = null)
         {
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             loader ??= new FakePageLoader();
             source = new PagedSource<TestItem>(loader);
             yield return rig.Initialize(source);
@@ -131,7 +131,7 @@ namespace SlotList.Tests.PlayMode
             loader.Hold = true;
             yield return rig.ScrollToOffset(1200f);
 
-            rig.Scroller.SetSource(new ListSource<TestItem>(SlotListRig.MakeItems(5, 100)));
+            rig.Scroller.SetSource(new ListSource<TestItem>(ScrollerRig.MakeItems(5, 100)));
             yield return null;
             loader.Release();
             yield return null;
@@ -194,7 +194,7 @@ namespace SlotList.Tests.PlayMode
         /// </summary>
         private IEnumerator LandAPageWhileMoving(RigDirection direction, float overscroll, float speed)
         {
-            rig = SlotListRig.Create(new RigOptions { Direction = direction });
+            rig = ScrollerRig.Create(new RigOptions { Direction = direction });
             rig.List.inertia = true;
             rig.List.movementType = UnityEngine.UI.ScrollRect.MovementType.Elastic;
             loader = new FakePageLoader { PageSize = 20, Total = 60 };
@@ -209,7 +209,7 @@ namespace SlotList.Tests.PlayMode
             float towardsEnd = direction == RigDirection.TopToBottom ? 1f : -1f;
             rig.List.velocity = new Vector2(0f, speed * towardsEnd);
             loader.Release();
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() == 40, "second page");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() == 40, "second page");
         }
 
         [UnityTest]

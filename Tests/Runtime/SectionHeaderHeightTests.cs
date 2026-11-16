@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Headers measured with layout, each as tall as its own content, in a sectioned list and a sectioned grid.
@@ -11,7 +11,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class SectionHeaderHeightTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -23,17 +23,17 @@ namespace SlotList.Tests.PlayMode
         private static SectionedSource<TestItem, TestHeader> Sections()
         {
             SectionedSource<TestItem, TestHeader> source = new();
-            source.AddSection(new TestHeader("S0", 40f), new ListSource<TestItem>(SlotListRig.MakeItems(2, 0)));
-            source.AddSection(new TestHeader("S1", 120f), new ListSource<TestItem>(SlotListRig.MakeItems(2, 100)));
-            source.AddSection(new TestHeader("S2", 80f), new ListSource<TestItem>(SlotListRig.MakeItems(1, 200)));
+            source.AddSection(new TestHeader("S0", 40f), new ListSource<TestItem>(ScrollerRig.MakeItems(2, 0)));
+            source.AddSection(new TestHeader("S1", 120f), new ListSource<TestItem>(ScrollerRig.MakeItems(2, 100)));
+            source.AddSection(new TestHeader("S2", 80f), new ListSource<TestItem>(ScrollerRig.MakeItems(1, 200)));
             return source;
         }
 
         private IEnumerator Start(uint slotsPerLine)
         {
-            rig = SlotListRig.Create(new RigOptions { Sectioned = true, HeaderSize = -1f, SlotsPerLine = slotsPerLine });
+            rig = ScrollerRig.Create(new RigOptions { Sectioned = true, HeaderSize = -1f, SlotsPerLine = slotsPerLine });
             yield return rig.InitializeSections(Sections());
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
         }
 
         private static void AssertAt(RectTransform rect, float y, float height, string what)
@@ -49,9 +49,9 @@ namespace SlotList.Tests.PlayMode
         {
             options.Sectioned = true;
             options.SectionSpacing = 30f;
-            rig = SlotListRig.Create(options);
-            yield return rig.InitializeSections(SlotListRig.MakeSections(2, 2));
-            yield return SlotListRig.Frames(2);
+            rig = ScrollerRig.Create(options);
+            yield return rig.InitializeSections(ScrollerRig.MakeSections(2, 2));
+            yield return ScrollerRig.Frames(2);
         }
 
         [UnityTest]
@@ -89,8 +89,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator SectionSpacing_ScrollToSection_StopsAtTheHeader()
         {
-            rig = SlotListRig.Create(new RigOptions { Sectioned = true, SectionSpacing = 30f });
-            yield return rig.InitializeSections(SlotListRig.MakeSections(10, 10, 10));
+            rig = ScrollerRig.Create(new RigOptions { Sectioned = true, SectionSpacing = 30f });
+            yield return rig.InitializeSections(ScrollerRig.MakeSections(10, 10, 10));
 
             rig.Sectioned.ScrollToSection(1);
             yield return null;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>Hands out the tiles of a bento layout one item at a time, in item order. Stateful, so pages can continue it.</summary>
     internal abstract class BentoArranger

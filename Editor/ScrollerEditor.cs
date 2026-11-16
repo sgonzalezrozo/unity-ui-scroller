@@ -3,10 +3,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Editor
+namespace UIScroller.Editor
 {
     /// <summary>How the list arranges its slots, as chosen in the inspector.</summary>
-    public enum SlotListLayoutMode
+    public enum ScrollerLayoutMode
     {
         List,
         Grid,
@@ -15,12 +15,12 @@ namespace SlotList.Editor
     }
 
     /// <summary>
-    /// The SlotList inspector. It shows only what setting up a list needs, with labels that follow the direction
+    /// The scroller inspector. It shows only what setting up a list needs, with labels that follow the direction
     /// (rows and columns, top, bottom, left and right). ScrollRect's own fields and the size estimates stay hidden.
     /// Rows that appear for a choice are drawn below that choice, so editing it never moves the field in use.
     /// </summary>
-    [CustomEditor(typeof(SlotListBase), true)]
-    public class SlotListEditor : UnityEditor.Editor
+    [CustomEditor(typeof(ScrollerBase), true)]
+    public class ScrollerEditor : UnityEditor.Editor
     {
         /// <summary>The entry for the Layout dropdown in <see cref="DrawnEntries"/>.</summary>
         public const string LAYOUT_MODE = "#layoutMode";
@@ -56,17 +56,17 @@ namespace SlotList.Editor
 
             switch (GetLayoutMode(serializedObject))
             {
-                case SlotListLayoutMode.Grid:
+                case ScrollerLayoutMode.Grid:
                     entries.Add(S + "slotsPerLine");
                     entries.Add(S + "slotSpacing");
                     break;
-                case SlotListLayoutMode.AutoGrid:
+                case ScrollerLayoutMode.AutoGrid:
                     entries.Add(S + "targetSlotSize");
                     entries.Add(S + "minSlotsPerLine");
                     entries.Add(S + "maxSlotsPerLine");
                     entries.Add(S + "slotSpacing");
                     break;
-                case SlotListLayoutMode.Bento:
+                case ScrollerLayoutMode.Bento:
                     entries.Add(BENTO_JSON);
                     entries.Add(S + "cellAspect");
                     entries.Add(S + "slotSpacing");
@@ -83,7 +83,7 @@ namespace SlotList.Editor
             entries.Add(HEADER + "Behaviour");
 
             // A looping list is a plain list: no grid, no sections.
-            bool canLoop = GetLayoutMode(serializedObject) == SlotListLayoutMode.List && serializedObject.FindProperty("headerPrefab") == null;
+            bool canLoop = GetLayoutMode(serializedObject) == ScrollerLayoutMode.List && serializedObject.FindProperty("headerPrefab") == null;
             if (canLoop)
                 entries.Add(S + "loop");
 
@@ -92,7 +92,7 @@ namespace SlotList.Editor
                 entries.Add(S + "snapAlign");
 
             // Bento tiles never expand; a looping list doesn't either.
-            bool isBento = GetLayoutMode(serializedObject) == SlotListLayoutMode.Bento;
+            bool isBento = GetLayoutMode(serializedObject) == ScrollerLayoutMode.Bento;
             if (!isBento && (!canLoop || !serializedObject.FindProperty(S + "loop").boolValue))
                 entries.Add(S + "allowMultipleExpanded");
             entries.Add(S + "resetScrollOnEnable");
@@ -103,31 +103,31 @@ namespace SlotList.Editor
             return entries;
         }
 
-        public static SlotListLayoutMode GetLayoutMode(SerializedObject serializedObject)
+        public static ScrollerLayoutMode GetLayoutMode(SerializedObject serializedObject)
         {
             if (serializedObject.FindProperty(S + "bento").boolValue)
-                return SlotListLayoutMode.Bento;
+                return ScrollerLayoutMode.Bento;
 
             if (serializedObject.FindProperty(S + "autoSlotsPerLine").boolValue)
-                return SlotListLayoutMode.AutoGrid;
+                return ScrollerLayoutMode.AutoGrid;
 
-            return serializedObject.FindProperty(S + "slotsPerLine").uintValue > 1 ? SlotListLayoutMode.Grid : SlotListLayoutMode.List;
+            return serializedObject.FindProperty(S + "slotsPerLine").uintValue > 1 ? ScrollerLayoutMode.Grid : ScrollerLayoutMode.List;
         }
 
         /// <summary>Writes the values a Layout choice implies. Grids keep their slot count if it's already at least 2.</summary>
-        public static void ApplyLayoutMode(SerializedObject serializedObject, SlotListLayoutMode mode)
+        public static void ApplyLayoutMode(SerializedObject serializedObject, ScrollerLayoutMode mode)
         {
             SerializedProperty slotsPerLine = serializedObject.FindProperty(S + "slotsPerLine");
             SerializedProperty auto = serializedObject.FindProperty(S + "autoSlotsPerLine");
 
-            auto.boolValue = mode == SlotListLayoutMode.AutoGrid;
-            serializedObject.FindProperty(S + "bento").boolValue = mode == SlotListLayoutMode.Bento;
+            auto.boolValue = mode == ScrollerLayoutMode.AutoGrid;
+            serializedObject.FindProperty(S + "bento").boolValue = mode == ScrollerLayoutMode.Bento;
 
             // Bento takes its columns from its layout; Slots Per Line is only its fallback, so it's left alone.
-            if (mode == SlotListLayoutMode.Bento)
+            if (mode == ScrollerLayoutMode.Bento)
                 return;
 
-            if (mode == SlotListLayoutMode.List)
+            if (mode == ScrollerLayoutMode.List)
                 slotsPerLine.uintValue = 1;
             else if (slotsPerLine.uintValue < MIN_GRID_SLOTS)
                 slotsPerLine.uintValue = MIN_GRID_SLOTS;
@@ -140,7 +140,7 @@ namespace SlotList.Editor
         public static IReadOnlyList<string> BentoProblems(SerializedObject serializedObject)
         {
             List<string> problems = new();
-            if (GetLayoutMode(serializedObject) != SlotListLayoutMode.Bento)
+            if (GetLayoutMode(serializedObject) != ScrollerLayoutMode.Bento)
                 return problems;
 
             SerializedProperty json = serializedObject.FindProperty(BENTO_JSON);
@@ -154,21 +154,21 @@ namespace SlotList.Editor
         }
 
         /// <summary>The label for a setting, in the words of the chosen direction.</summary>
-        public static string LabelFor(string path, SlotListDirection direction)
+        public static string LabelFor(string path, ScrollerDirection direction)
         {
-            bool vertical = direction is SlotListDirection.TopToBottom or SlotListDirection.BottomToTop;
+            bool vertical = direction is ScrollerDirection.TopToBottom or ScrollerDirection.BottomToTop;
             string start = direction switch
             {
-                SlotListDirection.TopToBottom => "Top",
-                SlotListDirection.BottomToTop => "Bottom",
-                SlotListDirection.LeftToRight => "Left",
+                ScrollerDirection.TopToBottom => "Top",
+                ScrollerDirection.BottomToTop => "Bottom",
+                ScrollerDirection.LeftToRight => "Left",
                 _ => "Right"
             };
             string end = direction switch
             {
-                SlotListDirection.TopToBottom => "Bottom",
-                SlotListDirection.BottomToTop => "Top",
-                SlotListDirection.LeftToRight => "Right",
+                ScrollerDirection.TopToBottom => "Bottom",
+                ScrollerDirection.BottomToTop => "Top",
+                ScrollerDirection.LeftToRight => "Right",
                 _ => "Left"
             };
             string lines = vertical ? "Row" : "Column";
@@ -195,7 +195,7 @@ namespace SlotList.Editor
             serializedObject.Update();
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
 
-            SlotListDirection direction = (SlotListDirection)serializedObject.FindProperty(S + "direction").enumValueIndex;
+            ScrollerDirection direction = (ScrollerDirection)serializedObject.FindProperty(S + "direction").enumValueIndex;
 
             foreach (string entry in DrawnEntries(serializedObject))
             {
@@ -238,7 +238,7 @@ namespace SlotList.Editor
         /// <summary>An error, with a fix button, when a layout component would fight the list over Content's size.</summary>
         private void DrawContentLayoutError()
         {
-            if (serializedObject.isEditingMultipleObjects || target is not SlotListBase list)
+            if (serializedObject.isEditingMultipleObjects || target is not ScrollerBase list)
                 return;
 
             List<Component> forbidden = ContentLayoutRules.FindForbidden(list.content, list.viewport);
@@ -265,8 +265,8 @@ namespace SlotList.Editor
 
         private void DrawLayoutMode()
         {
-            SlotListLayoutMode current = GetLayoutMode(serializedObject);
-            SlotListLayoutMode chosen = (SlotListLayoutMode)EditorGUILayout.EnumPopup(
+            ScrollerLayoutMode current = GetLayoutMode(serializedObject);
+            ScrollerLayoutMode chosen = (ScrollerLayoutMode)EditorGUILayout.EnumPopup(
                 new GUIContent("Layout", "List: one slot per row (or column). Grid: a fixed number. Auto Grid: as many as fit. Bento: tiles of different sizes, placed by a JSON layout."),
                 current);
 
@@ -281,7 +281,7 @@ namespace SlotList.Editor
             GUIUtility.ExitGUI();
         }
 
-        private void DrawProperty(string path, SlotListDirection direction)
+        private void DrawProperty(string path, ScrollerDirection direction)
         {
             SerializedProperty property = serializedObject.FindProperty(path);
             if (property == null)

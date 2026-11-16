@@ -1,4 +1,4 @@
-# Slot List
+# UI Scroller
 
 **A recycling (virtualized) scroll view for Unity uGUI: lists, grids and bento layouts of any length, zero allocations while scrolling, built and measured on low-end phones.**
 
@@ -6,7 +6,7 @@
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
 [![Version 1.0.0-preview.1](https://img.shields.io/badge/version-1.0.0--preview.1-blue.svg)](CHANGELOG.md)
 
-Slot List extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
+UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
 
 <!-- Demo GIF: Documentation~/images/demo.gif -->
 
@@ -49,7 +49,7 @@ Every run is in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). 
 
 ## Is it right for your project?
 
-**Slot List fits if you:**
+**UI Scroller fits if you:**
 - build your UI with uGUI and show long lists, grids or store-style layouts;
 - target phones, where GC spikes and canvas rebuilds hurt;
 - want measured sizes, sections, paging, expanding and bento in one component, with tests behind them.
@@ -73,7 +73,7 @@ See [Project status](#project-status).
 | Recycling | Only visible slots exist; a small buffer of pooled slots that stay active out of view; the first screen shows in the first frame; the pool warms up two slots per frame |
 | Layouts | Lists, fixed grids, auto grids (columns from the width), **bento** (spans or patterns in JSON), in all four directions |
 | Sizes | Fixed (`DefaultExtent`) or measured with Unity's layout, cached per item, followed when content changes late |
-| Sections | `SectionedSlotList`: a header per section, headers of any height, section spacing, works with grids and bento |
+| Sections | `SectionedScroller`: a header per section, headers of any height, section spacing, works with grids and bento |
 | Expanding | Accordion slots, one or several open, fixed or measured expanded size, nothing above moves |
 | Scrolling | `ScrollToItem` with alignment, animation and offset; snapping to items or pages; looping carousels |
 | Data | `ListSource`, `FilteredSource`, `PagedSource` (async pages with cancellation), `SectionedSource` |
@@ -97,7 +97,7 @@ Git must be installed on your machine.
 
 ### 1. Install Tools Core
 
-Slot List needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), the shared code that defines the injection interfaces. Unity doesn't install Git dependencies by itself, so add it first:
+UI Scroller needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), the shared code that defines the injection interfaces. Unity doesn't install Git dependencies by itself, so add it first:
 
 1. In Unity, open **Window > Package Manager**.
 2. Select **+ > Add package from git URL**.
@@ -107,18 +107,18 @@ Slot List needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core),
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
 
-### 2. Install Slot List
+### 2. Install UI Scroller
 
 Same steps, with:
 
 ```text
-https://github.com/sgonzalezrozo/unity-recyclable-scroller.git
+https://github.com/sgonzalezrozo/unity-ui-scroller.git
 ```
 
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v1.0.0-preview.1
+https://github.com/sgonzalezrozo/unity-ui-scroller.git#v1.0.0-preview.1
 ```
 
 The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's part of uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
@@ -140,7 +140,7 @@ Import them from the package's page in the Package Manager (**Samples** tab):
 Items are classes. The slot receives its item through `Data`:
 
 ```csharp
-using SlotList;
+using UIScroller;
 using TMPro;
 using UnityEngine;
 
@@ -173,12 +173,12 @@ Save the slot as a prefab, with a `RectTransform` on its root.
 
 ### 2. A list class
 
-`SlotList<T>` is generic, and Unity can't add an open generic component, so create a concrete class:
+`Scroller<T>` is generic, and Unity can't add an open generic component, so create a concrete class:
 
 ```csharp
-using SlotList;
+using UIScroller;
 
-public class InventoryList : SlotList<InventoryItem>
+public class InventoryList : Scroller<InventoryItem>
 {
 }
 ```
@@ -204,7 +204,7 @@ Don't start from Unity's **UI > Scroll View**: it adds scrollbars, a stencil `Ma
 
 ```csharp
 using System.Collections.Generic;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 
 public class InventoryScreen : MonoBehaviour
@@ -328,7 +328,7 @@ list.Initialize(source);
 
 ## Sections and headers
 
-For a list split into sections, each with a header, use `SectionedSlotList<TItem, THeader>` with a `SectionedSource<TItem, THeader>`. Each section is a header plus its own source of items:
+For a list split into sections, each with a header, use `SectionedScroller<TItem, THeader>` with a `SectionedSource<TItem, THeader>`. Each section is a header plus its own source of items:
 
 ```csharp
 public class InventorySection
@@ -356,7 +356,7 @@ public class InventoryHeaderSlot : MonoBehaviour, ISlot<InventorySection>
     }
 }
 
-public class InventorySectionsList : SectionedSlotList<InventoryItem, InventorySection>
+public class InventorySectionsList : SectionedScroller<InventoryItem, InventorySection>
 {
 }
 ```
@@ -395,7 +395,7 @@ public class ExpandableInventorySlot : MonoBehaviour, IExpandableSlot<InventoryI
     private bool isExpanded;
 
     public float DefaultExtent => 80f;
-    public ISlotList Owner { get; set; }
+    public IScroller Owner { get; set; }
     public int ItemIndex { get; set; }
 
     public InventoryItem Data
@@ -517,7 +517,7 @@ list.ReachedEnd += () => Debug.Log("No more pages");
 Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 px past the start of the list:
 
 ```csharp
-public class RefreshingList : SlotList<InventoryItem>
+public class RefreshingList : Scroller<InventoryItem>
 {
     protected override void OnPullToRefreshDetected()
     {
@@ -612,7 +612,7 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 | `SetBentoLayout(layout)`, `GetTile(index)` | Bento: the layout, and an item's tile (counted from its section in a sectioned list) |
 | `Settings`, `SlotPrefab` | Settings and prefab, read before `Initialize` |
 
-`SectionedSlotList<TItem, THeader>` has the same API, plus `SetSource(SectionedSource)`, `SetSource(ISectionedSourceProvider)`, `ScrollToSection(section, duration = 0)`, `Source` and `HeaderPrefab`. It has no `Initialize`: `SetSource` starts it.
+`SectionedScroller<TItem, THeader>` has the same API, plus `SetSource(SectionedSource)`, `SetSource(ISectionedSourceProvider)`, `ScrollToSection(section, duration = 0)`, `Source` and `HeaderPrefab`. It has no `Initialize`: `SetSource` starts it.
 
 ### Overridable on your list class
 
@@ -646,11 +646,11 @@ All are read-only notifications.
 
 ## Dependency injection
 
-The list works without a container, using `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. The `SlotList` assembly exposes its internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign the instantiator directly, without reflection, including on subclasses in your project.
+The list works without a container, using `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. The `UIScroller` assembly exposes its internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign the instantiator directly, without reflection, including on subclasses in your project.
 
 ## ScrollRect or ListView?
 
-| | Slot List | [UI Toolkit `ListView`](https://docs.unity3d.com/ScriptReference/UIElements.ListView.html) |
+| | UI Scroller | [UI Toolkit `ListView`](https://docs.unity3d.com/ScriptReference/UIElements.ListView.html) |
 |---|---|---|
 | UI framework | uGUI | UI Toolkit |
 | Recycles rows | Yes | Yes |
@@ -699,7 +699,7 @@ If your UI is in UI Toolkit, start with `ListView`.
 
 ### How do I show thousands of items in Unity UI?
 
-Use a recycling scroll view: subclass `SlotList<T>`, implement `ISlot<T>` on the slot prefab, and call `Initialize(new ListSource<T>(items))`. Only the visible slots exist. See [Quick start](#quick-start).
+Use a recycling scroll view: subclass `Scroller<T>`, implement `ISlot<T>` on the slot prefab, and call `Initialize(new ListSource<T>(items))`. Only the visible slots exist. See [Quick start](#quick-start).
 
 ### Does it allocate while scrolling?
 
@@ -738,11 +738,11 @@ Yes, it's MIT licensed.
 This is a preview, version `1.0.0-preview.1`. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
 - Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
-- Planned work: [Limitations and roadmap](#limitations-and-roadmap), the plans in [`Documentation~`](Documentation~), and the [issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues).
+- Planned work: [Limitations and roadmap](#limitations-and-roadmap), the plans in [`Documentation~`](Documentation~), and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
 
 ### Why I built it
 
-I wrote Slot List after trying to fix other open-source scrollers I found on GitHub. I spent weeks on small issues before deciding to write my own and calculate its boundaries my way. After three very long days of personal time I had a first working version, and it has grown from there. I built and refined it in personal projects. In November 2026 I extracted it into this package, documented it and covered it with tests. Earlier history lives in a private repository.
+I wrote UI Scroller after trying to fix other open-source scrollers I found on GitHub. I spent weeks on small issues before deciding to write my own and calculate its boundaries my way. After three very long days of personal time I had a first working version, and it has grown from there. I built and refined it in personal projects. In November 2026 I extracted it into this package, documented it and covered it with tests. Earlier history lives in a private repository.
 
 ## Contributing
 

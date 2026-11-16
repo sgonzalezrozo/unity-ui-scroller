@@ -1,5 +1,7 @@
 # Recyclable Scroller 0.3.0 → Slot List 1.0.0-preview.1: feature by feature
 
+> **Renamed:** Slot List is now **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`, `SlotList<T>` → `Scroller<T>`, `SectionedSlotList` → `SectionedScroller`, `SlotListBase` → `ScrollerBase`). This document keeps the old names as a record of how the work was done.
+
 A guide to the refactor for the owner: for every feature of the original, what's the same, what changed in the implementation, what changed only in name, what's new and what was dropped. Then a mental model of the tool as it is now.
 
 - **Compared:** `main` (Recyclable Scroller `0.3.0`, tag `v0.3.0-baseline`) and `refactor/p10-performance` (`dd61297`, 2026-11-13).

@@ -1,8 +1,8 @@
 {
-    "name": "SlotList.Editor",
+    "name": "UIScroller.Editor",
     "rootNamespace": "",
     "references": [
-        "SlotList",
+        "UIScroller",
         "UnityEngine.UI"
     ],
     "includePlatforms": [

@@ -1,28 +1,28 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using SlotList.Editor;
-using SlotList.Tests.PlayMode;
+using UIScroller.Editor;
+using UIScroller.Tests.PlayMode;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// The curated inspector: what it draws for the current values, in what order, and what the Layout choice writes.
     /// Rows that appear conditionally always come after the control that shows them, so editing that control never
     /// shifts the field being typed in (IMGUI loses focus when a row is inserted above it).
     /// </summary>
-    public class SlotListEditorTests
+    public class ScrollerEditorTests
     {
         private GameObject go;
-        private TestSlotList list;
+        private TestScroller list;
 
         [SetUp]
         public void SetUp()
         {
             go = new GameObject("InspectorTest", typeof(RectTransform));
-            list = go.AddComponent<TestSlotList>();
+            list = go.AddComponent<TestScroller>();
         }
 
         [TearDown]
@@ -33,7 +33,7 @@ namespace SlotList.Tests.Editor
             => new(list);
 
         private IReadOnlyList<string> Drawn()
-            => SlotListEditor.DrawnEntries(Serialized());
+            => ScrollerEditor.DrawnEntries(Serialized());
 
         private static int IndexOf(IReadOnlyList<string> entries, string entry)
         {
@@ -55,7 +55,7 @@ namespace SlotList.Tests.Editor
 
             CollectionAssert.IsSubsetOf(new[]
             {
-                "slotPrefab", "settings.direction", SlotListEditor.LAYOUT_MODE,
+                "slotPrefab", "settings.direction", ScrollerEditor.LAYOUT_MODE,
                 "settings.lineSpacing", "settings.paddingStart", "settings.paddingEnd",
                 "settings.allowMultipleExpanded", "settings.resetScrollOnEnable", "settings.overridePoolBuffer"
             }, drawn);
@@ -91,7 +91,7 @@ namespace SlotList.Tests.Editor
             try
             {
                 TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
-                CollectionAssert.DoesNotContain(SlotListEditor.DrawnEntries(new SerializedObject(sectioned)), "settings.loop");
+                CollectionAssert.DoesNotContain(ScrollerEditor.DrawnEntries(new SerializedObject(sectioned)), "settings.loop");
             }
             finally
             {
@@ -108,7 +108,7 @@ namespace SlotList.Tests.Editor
             try
             {
                 TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
-                IReadOnlyList<string> drawn = SlotListEditor.DrawnEntries(new SerializedObject(sectioned));
+                IReadOnlyList<string> drawn = ScrollerEditor.DrawnEntries(new SerializedObject(sectioned));
                 Assert.AreEqual(IndexOf(drawn, "slotPrefab") + 1, IndexOf(drawn, "headerPrefab"));
             }
             finally
@@ -131,17 +131,17 @@ namespace SlotList.Tests.Editor
                 CollectionAssert.DoesNotContain(drawn, hidden);
         }
 
-        [TestCase(SlotListDirection.TopToBottom, "Padding Top", "Padding Bottom", "Row Spacing", "Columns", "Column Spacing")]
-        [TestCase(SlotListDirection.BottomToTop, "Padding Bottom", "Padding Top", "Row Spacing", "Columns", "Column Spacing")]
-        [TestCase(SlotListDirection.LeftToRight, "Padding Left", "Padding Right", "Column Spacing", "Rows", "Row Spacing")]
-        [TestCase(SlotListDirection.RightToLeft, "Padding Right", "Padding Left", "Column Spacing", "Rows", "Row Spacing")]
-        public void Labels_FollowTheDirection(SlotListDirection direction, string start, string end, string lineSpacing, string slotsPerLine, string slotSpacing)
+        [TestCase(ScrollerDirection.TopToBottom, "Padding Top", "Padding Bottom", "Row Spacing", "Columns", "Column Spacing")]
+        [TestCase(ScrollerDirection.BottomToTop, "Padding Bottom", "Padding Top", "Row Spacing", "Columns", "Column Spacing")]
+        [TestCase(ScrollerDirection.LeftToRight, "Padding Left", "Padding Right", "Column Spacing", "Rows", "Row Spacing")]
+        [TestCase(ScrollerDirection.RightToLeft, "Padding Right", "Padding Left", "Column Spacing", "Rows", "Row Spacing")]
+        public void Labels_FollowTheDirection(ScrollerDirection direction, string start, string end, string lineSpacing, string slotsPerLine, string slotSpacing)
         {
-            Assert.AreEqual(start, SlotListEditor.LabelFor("settings.paddingStart", direction));
-            Assert.AreEqual(end, SlotListEditor.LabelFor("settings.paddingEnd", direction));
-            Assert.AreEqual(lineSpacing, SlotListEditor.LabelFor("settings.lineSpacing", direction));
-            Assert.AreEqual(slotsPerLine, SlotListEditor.LabelFor("settings.slotsPerLine", direction));
-            Assert.AreEqual(slotSpacing, SlotListEditor.LabelFor("settings.slotSpacing", direction));
+            Assert.AreEqual(start, ScrollerEditor.LabelFor("settings.paddingStart", direction));
+            Assert.AreEqual(end, ScrollerEditor.LabelFor("settings.paddingEnd", direction));
+            Assert.AreEqual(lineSpacing, ScrollerEditor.LabelFor("settings.lineSpacing", direction));
+            Assert.AreEqual(slotsPerLine, ScrollerEditor.LabelFor("settings.slotsPerLine", direction));
+            Assert.AreEqual(slotSpacing, ScrollerEditor.LabelFor("settings.slotSpacing", direction));
         }
 
         // ---------- Layout ----------
@@ -149,13 +149,13 @@ namespace SlotList.Tests.Editor
         [Test]
         public void LayoutMode_IsReadFromTheValues()
         {
-            Assert.AreEqual(SlotListLayoutMode.List, SlotListEditor.GetLayoutMode(Serialized()));
+            Assert.AreEqual(ScrollerLayoutMode.List, ScrollerEditor.GetLayoutMode(Serialized()));
 
             list.Settings.slotsPerLine = 3;
-            Assert.AreEqual(SlotListLayoutMode.Grid, SlotListEditor.GetLayoutMode(Serialized()));
+            Assert.AreEqual(ScrollerLayoutMode.Grid, ScrollerEditor.GetLayoutMode(Serialized()));
 
             list.Settings.autoSlotsPerLine = true;
-            Assert.AreEqual(SlotListLayoutMode.AutoGrid, SlotListEditor.GetLayoutMode(Serialized()));
+            Assert.AreEqual(ScrollerLayoutMode.AutoGrid, ScrollerEditor.GetLayoutMode(Serialized()));
         }
 
         [Test]
@@ -163,14 +163,14 @@ namespace SlotList.Tests.Editor
         {
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Grid);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.Grid);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             IReadOnlyList<string> drawn = Drawn();
 
             Assert.AreEqual(2u, list.Settings.slotsPerLine);
             Assert.IsFalse(list.Settings.autoSlotsPerLine);
-            Assert.Greater(IndexOf(drawn, "settings.slotsPerLine"), IndexOf(drawn, SlotListEditor.LAYOUT_MODE));
-            Assert.Greater(IndexOf(drawn, "settings.slotSpacing"), IndexOf(drawn, SlotListEditor.LAYOUT_MODE));
+            Assert.Greater(IndexOf(drawn, "settings.slotsPerLine"), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE));
+            Assert.Greater(IndexOf(drawn, "settings.slotSpacing"), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE));
             CollectionAssert.DoesNotContain(drawn, "settings.targetSlotSize");
         }
 
@@ -179,14 +179,14 @@ namespace SlotList.Tests.Editor
         {
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.AutoGrid);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.AutoGrid);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             IReadOnlyList<string> drawn = Drawn();
 
             Assert.IsTrue(list.Settings.autoSlotsPerLine);
             Assert.GreaterOrEqual(list.Settings.slotsPerLine, 2u, "automatic grids need a grid count above 1 to be active");
             foreach (string field in new[] { "settings.targetSlotSize", "settings.minSlotsPerLine", "settings.maxSlotsPerLine", "settings.slotSpacing" })
-                Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, SlotListEditor.LAYOUT_MODE), field);
+                Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE), field);
             CollectionAssert.DoesNotContain(drawn, "settings.slotsPerLine");
         }
 
@@ -201,10 +201,10 @@ namespace SlotList.Tests.Editor
             try
             {
                 TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
-                IReadOnlyList<string> drawn = SlotListEditor.DrawnEntries(new SerializedObject(sectioned));
+                IReadOnlyList<string> drawn = ScrollerEditor.DrawnEntries(new SerializedObject(sectioned));
 
                 Assert.AreEqual(IndexOf(drawn, "settings.lineSpacing") + 1, IndexOf(drawn, "settings.sectionSpacing"));
-                Assert.AreEqual("Section Spacing", SlotListEditor.LabelFor("settings.sectionSpacing", SlotListDirection.TopToBottom));
+                Assert.AreEqual("Section Spacing", ScrollerEditor.LabelFor("settings.sectionSpacing", ScrollerDirection.TopToBottom));
             }
             finally
             {
@@ -218,11 +218,11 @@ namespace SlotList.Tests.Editor
         public void LayoutMode_IsBento_WheneverBentoIsOn()
         {
             list.Settings.bento = true;
-            Assert.AreEqual(SlotListLayoutMode.Bento, SlotListEditor.GetLayoutMode(Serialized()));
+            Assert.AreEqual(ScrollerLayoutMode.Bento, ScrollerEditor.GetLayoutMode(Serialized()));
 
             list.Settings.slotsPerLine = 3;
             list.Settings.autoSlotsPerLine = true;
-            Assert.AreEqual(SlotListLayoutMode.Bento, SlotListEditor.GetLayoutMode(Serialized()));
+            Assert.AreEqual(ScrollerLayoutMode.Bento, ScrollerEditor.GetLayoutMode(Serialized()));
         }
 
         [Test]
@@ -231,14 +231,14 @@ namespace SlotList.Tests.Editor
             list.Settings.autoSlotsPerLine = true;
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Bento);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.Bento);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             IReadOnlyList<string> drawn = Drawn();
 
             Assert.IsTrue(list.Settings.bento);
             Assert.IsFalse(list.Settings.autoSlotsPerLine);
-            foreach (string field in new[] { SlotListEditor.BENTO_JSON, "settings.cellAspect", "settings.slotSpacing" })
-                Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, SlotListEditor.LAYOUT_MODE), field);
+            foreach (string field in new[] { ScrollerEditor.BENTO_JSON, "settings.cellAspect", "settings.slotSpacing" })
+                Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE), field);
             foreach (string hidden in new[] { "settings.slotsPerLine", "settings.targetSlotSize", "settings.loop", "settings.allowMultipleExpanded" })
                 CollectionAssert.DoesNotContain(drawn, hidden);
         }
@@ -249,11 +249,11 @@ namespace SlotList.Tests.Editor
             list.Settings.bento = true;
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Grid);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.Grid);
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             Assert.IsFalse(list.Settings.bento);
-            CollectionAssert.DoesNotContain(Drawn(), SlotListEditor.BENTO_JSON);
+            CollectionAssert.DoesNotContain(Drawn(), ScrollerEditor.BENTO_JSON);
             CollectionAssert.DoesNotContain(Drawn(), "settings.cellAspect");
         }
 
@@ -264,12 +264,12 @@ namespace SlotList.Tests.Editor
             try
             {
                 SerializedObject serialized = Serialized();
-                serialized.FindProperty(SlotListEditor.BENTO_JSON).objectReferenceValue = json;
+                serialized.FindProperty(ScrollerEditor.BENTO_JSON).objectReferenceValue = json;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
-                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()), "not in bento");
+                CollectionAssert.IsEmpty(ScrollerEditor.BentoProblems(Serialized()), "not in bento");
 
                 list.Settings.bento = true;
-                IReadOnlyList<string> problems = SlotListEditor.BentoProblems(Serialized());
+                IReadOnlyList<string> problems = ScrollerEditor.BentoProblems(Serialized());
 
                 Assert.AreEqual(1, problems.Count);
                 StringAssert.Contains("columns", problems[0]);
@@ -284,16 +284,16 @@ namespace SlotList.Tests.Editor
         public void BentoProblems_AreEmpty_ForAValidLayout_OrNone()
         {
             list.Settings.bento = true;
-            CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()), "no JSON: 1x1 tiles");
+            CollectionAssert.IsEmpty(ScrollerEditor.BentoProblems(Serialized()), "no JSON: 1x1 tiles");
 
             TextAsset json = new("{ \"columns\": 2, \"spans\": [ {\"w\":2,\"h\":1}, {\"w\":1,\"h\":1} ] }");
             try
             {
                 SerializedObject serialized = Serialized();
-                serialized.FindProperty(SlotListEditor.BENTO_JSON).objectReferenceValue = json;
+                serialized.FindProperty(ScrollerEditor.BENTO_JSON).objectReferenceValue = json;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
 
-                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(Serialized()));
+                CollectionAssert.IsEmpty(ScrollerEditor.BentoProblems(Serialized()));
             }
             finally
             {
@@ -310,7 +310,7 @@ namespace SlotList.Tests.Editor
                 TestSectionedList sectioned = sectionedGo.AddComponent<TestSectionedList>();
                 sectioned.Settings.bento = true;
 
-                CollectionAssert.IsEmpty(SlotListEditor.BentoProblems(new SerializedObject(sectioned)));
+                CollectionAssert.IsEmpty(ScrollerEditor.BentoProblems(new SerializedObject(sectioned)));
             }
             finally
             {
@@ -325,7 +325,7 @@ namespace SlotList.Tests.Editor
             list.Settings.autoSlotsPerLine = true;
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.List);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.List);
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             Assert.AreEqual(1u, list.Settings.slotsPerLine);
@@ -339,7 +339,7 @@ namespace SlotList.Tests.Editor
             list.Settings.autoSlotsPerLine = true;
             SerializedObject serialized = Serialized();
 
-            SlotListEditor.ApplyLayoutMode(serialized, SlotListLayoutMode.Grid);
+            ScrollerEditor.ApplyLayoutMode(serialized, ScrollerLayoutMode.Grid);
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             Assert.AreEqual(4u, list.Settings.slotsPerLine);
@@ -357,8 +357,8 @@ namespace SlotList.Tests.Editor
             IReadOnlyList<string> drawn = Drawn();
 
             Assert.Greater(IndexOf(drawn, "settings.poolBuffer"), IndexOf(drawn, "settings.overridePoolBuffer"));
-            Assert.Greater(IndexOf(drawn, "settings.slotSpacing"), IndexOf(drawn, SlotListEditor.LAYOUT_MODE));
-            Assert.Less(IndexOf(drawn, SlotListEditor.LAYOUT_MODE), IndexOf(drawn, "settings.lineSpacing"));
+            Assert.Greater(IndexOf(drawn, "settings.slotSpacing"), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE));
+            Assert.Less(IndexOf(drawn, ScrollerEditor.LAYOUT_MODE), IndexOf(drawn, "settings.lineSpacing"));
         }
 
         [Test]
@@ -378,7 +378,7 @@ namespace SlotList.Tests.Editor
             list.Settings.slotsPerLine = 1;
 
             Drawn();
-            SlotListEditor.GetLayoutMode(Serialized());
+            ScrollerEditor.GetLayoutMode(Serialized());
 
             Assert.AreEqual(7f, list.Settings.lineSpacing);
             Assert.AreEqual(1u, list.Settings.slotsPerLine);

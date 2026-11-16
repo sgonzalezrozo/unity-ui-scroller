@@ -8,7 +8,7 @@ using UnityEngine.Profiling;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Heap bench for the performance plan (P5, candidate C7). [Explicit]: run it with -testFilter HeapBench.
@@ -30,7 +30,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Bench([Values(Case.List, Case.Grid4, Case.Bento)] Case benchCase, [Values(100_000, 1_000_000)] int count)
         {
-            List<TestItem> items = SlotListRig.MakeItems(count);
+            List<TestItem> items = ScrollerRig.MakeItems(count);
             ListSource<TestItem> source = new(items);
             yield return null;
 
@@ -46,9 +46,9 @@ namespace SlotList.Tests.PlayMode
                 options.BentoLayout = BentoLayout.FromSpans(4, new[] { new BentoSpan(2, 2), BentoSpan.One }, repeatFrom: 1);
             }
 
-            SlotListRig rig = SlotListRig.Create(options);
+            ScrollerRig rig = ScrollerRig.Create(options);
             yield return rig.Initialize(source);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             long heapWithList = SettledHeap();
             double collectWithList = MedianCollectMs();
@@ -63,9 +63,9 @@ namespace SlotList.Tests.PlayMode
             Assert.Pass();
         }
 
-        private static int LineCount(SlotListRig rig)
+        private static int LineCount(ScrollerRig rig)
         {
-            System.Reflection.FieldInfo engineField = typeof(SlotListBase).GetField("engine", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            System.Reflection.FieldInfo engineField = typeof(ScrollerBase).GetField("engine", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             object engine = engineField.GetValue(rig.List);
             System.Reflection.FieldInfo layoutField = engine.GetType().GetField("layout", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             LayoutModel layout = (LayoutModel)layoutField.GetValue(engine);

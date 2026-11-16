@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     public class Item
     {

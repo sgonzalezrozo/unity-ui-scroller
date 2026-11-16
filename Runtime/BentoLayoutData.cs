@@ -1,6 +1,6 @@
 using System;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// The JSON form of a bento layout, as Unity's JsonUtility reads it. Give it either <see cref="spans"/> or

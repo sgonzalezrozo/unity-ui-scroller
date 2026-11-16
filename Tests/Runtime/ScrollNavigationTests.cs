@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// ScrollToItem with alignment and animation, and snapping after a drag. Rig: 400 x 800 viewport, 100 px items,
@@ -15,7 +15,7 @@ namespace SlotList.Tests.PlayMode
     {
         private const float FRAME = 0.1f;
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private readonly List<int> snapped = new();
 
         [TearDown]
@@ -28,7 +28,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(RigOptions options = null, SnapMode snap = SnapMode.None, SnapAlign align = SnapAlign.Start)
         {
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             rig.List.frameDeltaTime = () => FRAME;
             rig.List.Settings.snap = snap;
             rig.List.Settings.snapAlign = align;
@@ -107,7 +107,7 @@ namespace SlotList.Tests.PlayMode
             Assert.Greater(afterOneFrame, 0f);
             Assert.Less(afterOneFrame, 3000f);
 
-            yield return SlotListRig.Frames(6);
+            yield return ScrollerRig.Frames(6);
             Assert.AreEqual(3000f, rig.ScrollDistance, 0.01f);
             Assert.IsFalse(rig.List.IsScrolling);
             Assert.IsTrue(rig.List.IsItemVisible(30));
@@ -119,12 +119,12 @@ namespace SlotList.Tests.PlayMode
             yield return Start();
 
             rig.List.ScrollToEnd(0.3f);
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
             Assert.AreEqual(4200f, rig.ScrollDistance, 0.01f);
             Assert.IsTrue(rig.List.IsLastItemVisible);
 
             rig.List.ScrollToStart(0.3f);
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
             Assert.AreEqual(0f, rig.ScrollDistance, 0.01f);
         }
 
@@ -138,7 +138,7 @@ namespace SlotList.Tests.PlayMode
             PointerEventData pointer = Pointer();
             rig.List.OnBeginDrag(pointer);
             float whenDragged = rig.ScrollDistance;
-            yield return SlotListRig.Frames(12);
+            yield return ScrollerRig.Frames(12);
 
             Assert.AreEqual(whenDragged, rig.ScrollDistance, 0.01f);
             rig.List.OnEndDrag(pointer);
@@ -153,7 +153,7 @@ namespace SlotList.Tests.PlayMode
 
             rig.List.ForceStopScrolling();
             float whenStopped = rig.ScrollDistance;
-            yield return SlotListRig.Frames(12);
+            yield return ScrollerRig.Frames(12);
 
             Assert.AreEqual(whenStopped, rig.ScrollDistance, 0.01f);
             Assert.IsFalse(rig.List.IsScrolling);
@@ -168,7 +168,7 @@ namespace SlotList.Tests.PlayMode
             yield return rig.ScrollToOffset(1240f);
 
             DragAndRelease();
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(1200f, rig.ScrollDistance, 0.01f);
             CollectionAssert.AreEqual(new[] { 12 }, snapped);
@@ -181,7 +181,7 @@ namespace SlotList.Tests.PlayMode
             yield return rig.ScrollToOffset(1290f);
 
             DragAndRelease();
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(1250f, rig.ScrollDistance, 0.01f);
             CollectionAssert.AreEqual(new[] { 16 }, snapped);
@@ -215,7 +215,7 @@ namespace SlotList.Tests.PlayMode
             float giveUpAt = Time.unscaledTime + 5f;
             while (snapped.Count == 0 && Time.unscaledTime < giveUpAt)
                 yield return null;
-            yield return SlotListRig.Frames(30);
+            yield return ScrollerRig.Frames(30);
 
             Assert.AreEqual(1, snapped.Count);
             Assert.Greater(rig.ScrollDistance, 1000f);
@@ -229,7 +229,7 @@ namespace SlotList.Tests.PlayMode
             yield return rig.ScrollToOffset(1000f);
 
             DragAndRelease();
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(800f, rig.ScrollDistance, 0.01f);
             CollectionAssert.AreEqual(new[] { 8 }, snapped);
@@ -242,7 +242,7 @@ namespace SlotList.Tests.PlayMode
             yield return rig.ScrollToOffset(1000f);
 
             DragAndRelease(new Vector2(0f, 1000f));
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(1600f, rig.ScrollDistance, 0.01f);
             CollectionAssert.AreEqual(new[] { 16 }, snapped);
@@ -255,7 +255,7 @@ namespace SlotList.Tests.PlayMode
             yield return rig.ScrollToOffset(1240f);
 
             DragAndRelease();
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(1240f, rig.ScrollDistance, 0.01f);
             Assert.IsEmpty(snapped);

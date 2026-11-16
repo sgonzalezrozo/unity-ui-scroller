@@ -1,5 +1,7 @@
 # Refactor plan: from Recyclable Scroller to Slot List
 
+> **Renamed:** Slot List is now **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`, `SlotList<T>` → `Scroller<T>`, `SectionedSlotList` → `SectionedScroller`, `SlotListBase` → `ScrollerBase`). This document keeps the old names as a record of how the work was done.
+
 A step-by-step plan for turning `com.sgonzalezrozo.recyclable-scroller` (0.3.0) into a new, renamed, uGUI-only recycling scroller. Work through the phases in order, and tick the boxes as you go.
 
 **Progress:** see [`refactor-status.md`](refactor-status.md) for what each phase did, what changed from this plan, what was skipped and what's left. The checkboxes below were only ticked from Phase 8 on.

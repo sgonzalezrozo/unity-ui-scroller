@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using SlotList;
+using UIScroller;
 using ToolsCore;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     public enum RigDirection
     {
@@ -19,7 +19,7 @@ namespace SlotList.Tests.PlayMode
         RightToLeft
     }
 
-    /// <summary>Settings for a <see cref="SlotListRig"/>. Defaults: vertical list, 400 x 800 viewport, 100 px slots.</summary>
+    /// <summary>Settings for a <see cref="ScrollerRig"/>. Defaults: vertical list, 400 x 800 viewport, 100 px slots.</summary>
     public class RigOptions
     {
         public RigDirection Direction = RigDirection.TopToBottom;
@@ -32,7 +32,7 @@ namespace SlotList.Tests.PlayMode
         public float PaddingStart;
         public float PaddingEnd;
         public bool AllowMultipleExpanded;
-        /// <summary>Builds a TestSectionedList (rig.Sectioned) with a header template, instead of a TestSlotList.</summary>
+        /// <summary>Builds a TestSectionedList (rig.Sectioned) with a header template, instead of a TestScroller.</summary>
         public bool Sectioned;
 
         /// <summary>The header template's DefaultExtent. 0 or less measures it with layout: a 60 px body.</summary>
@@ -58,7 +58,7 @@ namespace SlotList.Tests.PlayMode
     /// Builds a scroller in code on a world-space Canvas, with no scene or prefab assets.
     /// Inertia is off and movement is clamped, so results repeat. Dispose destroys everything.
     /// </summary>
-    public sealed class SlotListRig : IDisposable
+    public sealed class ScrollerRig : IDisposable
     {
         private const int MAX_WAIT_FRAMES = 30;
 
@@ -67,10 +67,10 @@ namespace SlotList.Tests.PlayMode
         public const float DETAILS_HEIGHT = 200f;
 
         /// <summary>The list, whatever its kind.</summary>
-        public readonly SlotListBase List;
+        public readonly ScrollerBase List;
 
         /// <summary>The plain list, or null when Options.Sectioned.</summary>
-        public readonly TestSlotList Scroller;
+        public readonly TestScroller Scroller;
 
         /// <summary>The sectioned list, or null unless Options.Sectioned.</summary>
         public readonly TestSectionedList Sectioned;
@@ -88,7 +88,7 @@ namespace SlotList.Tests.PlayMode
 
         public bool IsVertical => Options.Direction is RigDirection.TopToBottom or RigDirection.BottomToTop;
 
-        private SlotListRig(RigOptions options)
+        private ScrollerRig(RigOptions options)
         {
             Options = options;
             ToolInjectionServices.PrefabInstantiator = null;
@@ -105,7 +105,7 @@ namespace SlotList.Tests.PlayMode
             if (options.Sectioned)
                 HeaderTemplate = CreateHeaderTemplate(options.HeaderSize);
 
-            GameObject scrollerGo = new("TestSlotList", typeof(RectTransform));
+            GameObject scrollerGo = new("TestScroller", typeof(RectTransform));
             ScrollerRect = (RectTransform)scrollerGo.transform;
             ScrollerRect.SetParent(canvasRoot.transform, false);
             ScrollerRect.sizeDelta = options.ViewportSize;
@@ -127,7 +127,7 @@ namespace SlotList.Tests.PlayMode
             }
             else
             {
-                Scroller = scrollerGo.AddComponent<TestSlotList>();
+                Scroller = scrollerGo.AddComponent<TestScroller>();
                 List = Scroller;
             }
 
@@ -138,13 +138,13 @@ namespace SlotList.Tests.PlayMode
             List.OnInitialized += () => initializedFired = true;
 
             List.SlotPrefab = SlotTemplate;
-            SlotListSettings settings = List.Settings;
+            ScrollerSettings settings = List.Settings;
             settings.direction = options.Direction switch
             {
-                RigDirection.BottomToTop => SlotListDirection.BottomToTop,
-                RigDirection.LeftToRight => SlotListDirection.LeftToRight,
-                RigDirection.RightToLeft => SlotListDirection.RightToLeft,
-                _ => SlotListDirection.TopToBottom
+                RigDirection.BottomToTop => ScrollerDirection.BottomToTop,
+                RigDirection.LeftToRight => ScrollerDirection.LeftToRight,
+                RigDirection.RightToLeft => ScrollerDirection.RightToLeft,
+                _ => ScrollerDirection.TopToBottom
             };
             settings.slotsPerLine = options.SlotsPerLine;
             settings.lineSpacing = options.LineSpacing;
@@ -159,7 +159,7 @@ namespace SlotList.Tests.PlayMode
                 List.SetBentoLayout(options.BentoLayout);
         }
 
-        public static SlotListRig Create(RigOptions options = null)
+        public static ScrollerRig Create(RigOptions options = null)
             => new(options ?? new RigOptions());
 
         public static List<TestItem> MakeItems(int count, int firstId = 0)

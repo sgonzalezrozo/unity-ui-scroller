@@ -1,7 +1,7 @@
-namespace SlotList
+namespace UIScroller
 {
-    /// <summary>What SlotListBase calls on its engine, whatever the engine's entry type.</summary>
-    internal interface ISlotListEngine
+    /// <summary>What ScrollerBase calls on its engine, whatever the engine's entry type.</summary>
+    internal interface IScrollerEngine
     {
         bool IsInitialized { get; }
         bool IsScrolling { get; }

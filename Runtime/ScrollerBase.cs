@@ -3,19 +3,19 @@ using ToolsCore;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-#if SLOTLIST_LOCALIZATION
+#if UISCROLLER_LOCALIZATION
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 #endif
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// What every list shares: settings, slot prefab, events, the API and Unity callbacks. The work happens in an internal
-    /// engine. Derive from <see cref="SlotList{T}"/> for a plain list or <see cref="SectionedSlotList{TItem, THeader}"/>
+    /// engine. Derive from <see cref="Scroller{T}"/> for a plain list or <see cref="SectionedScroller{TItem, THeader}"/>
     /// for sections with headers, not from this class.
     /// </summary>
-    public abstract partial class SlotListBase : ScrollRect, ISlotList, ISlotListHooks
+    public abstract partial class ScrollerBase : ScrollRect, IScroller, IScrollerHooks
     {
         /// <summary>Runs when initialization finishes.</summary>
         public Action OnInitialized;
@@ -51,7 +51,7 @@ namespace SlotList
         public event Action<int> SnappedTo;
 
         [SerializeField] protected GameObject slotPrefab;
-        [SerializeField] private SlotListSettings settings = new();
+        [SerializeField] private ScrollerSettings settings = new();
         [SerializeField] private TextAsset bentoLayoutJson;
 
         private BentoLayout bentoLayout;
@@ -61,7 +61,7 @@ namespace SlotList
         /// <summary>Seconds per frame for scroll animations. Tests replace it; null uses unscaled time, like ScrollRect.</summary>
         internal Func<float> frameDeltaTime;
 
-        private protected ISlotListEngine engine;
+        private protected IScrollerEngine engine;
 
         /// <summary>The engine's work counters, for tests. Null before initialization.</summary>
         internal WorkCounters Work => engine?.Work;
@@ -70,14 +70,14 @@ namespace SlotList
         // restart that isn't the left button: the drag would keep its old start, one loop copy away.
         private PointerEventData dragRestart;
         private bool isLeftDragging;
-#if SLOTLIST_LOCALIZATION
+#if UISCROLLER_LOCALIZATION
         private bool isListeningToLocale;
         private Action<Locale> localeChangedHandler;
         private bool localeChangedWhileDisabled;
 #endif
 
-        // Only SlotList<T> and SectionedSlotList in this assembly can derive from it.
-        private protected SlotListBase()
+        // Only Scroller<T> and SectionedScroller in this assembly can derive from it.
+        private protected ScrollerBase()
         {
         }
 
@@ -104,7 +104,7 @@ namespace SlotList
         }
 
         /// <summary>The list's layout and behaviour settings. Changes apply on the next Initialize.</summary>
-        public SlotListSettings Settings => settings;
+        public ScrollerSettings Settings => settings;
 
         /// <summary>True once a paged source has no more pages. Set it to true to stop the list asking for more.</summary>
         protected bool HasReachedLastPage
@@ -145,10 +145,10 @@ namespace SlotList
         private protected abstract void BindEntry(SlotHandle slot, int index);
 
         /// <summary>A new engine for entries of type <typeparamref name="TEntry"/>, with this list's settings and prefabs.</summary>
-        private protected SlotListEngine<TEntry> CreateEngine<TEntry>(GameObject headerPrefab)
+        private protected ScrollerEngine<TEntry> CreateEngine<TEntry>(GameObject headerPrefab)
             where TEntry : class
         {
-            SlotListEngine<TEntry> created = new(this, this, this, settings, slotPrefab, headerPrefab, injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator);
+            ScrollerEngine<TEntry> created = new(this, this, this, settings, slotPrefab, headerPrefab, injectedInstantiator ?? ToolInjectionServices.PrefabInstantiator);
             created.BentoSource = ResolveBentoLayout();
             return created;
         }
@@ -173,41 +173,41 @@ namespace SlotList
         /// <summary>An item's tile in a bento list: its first column and row, and its span. A 0x0 tile outside bento.</summary>
         public BentoTile GetTile(int index) => engine?.QueryTile(index) ?? default;
 
-        bool ISlotListHooks.IsHeader(int index) => IsHeaderEntry(index);
-        void ISlotListHooks.BindItem(SlotHandle slot, int index) => BindEntry(slot, index);
-        bool ISlotListHooks.SupportsPaging() => SupportsPagingEntries();
-        bool ISlotListHooks.SupportsLooping() => SupportsLooping();
-        void ISlotListHooks.OnPageRequested()
+        bool IScrollerHooks.IsHeader(int index) => IsHeaderEntry(index);
+        void IScrollerHooks.BindItem(SlotHandle slot, int index) => BindEntry(slot, index);
+        bool IScrollerHooks.SupportsPaging() => SupportsPagingEntries();
+        bool IScrollerHooks.SupportsLooping() => SupportsLooping();
+        void IScrollerHooks.OnPageRequested()
         {
             OnPaginationThresholdReached();
             PageRequested?.Invoke();
         }
 
-        void ISlotListHooks.OnPageLoaded(int itemCount) => PageLoaded?.Invoke(itemCount);
-        void ISlotListHooks.OnReachedEnd() => ReachedEnd?.Invoke();
+        void IScrollerHooks.OnPageLoaded(int itemCount) => PageLoaded?.Invoke(itemCount);
+        void IScrollerHooks.OnReachedEnd() => ReachedEnd?.Invoke();
 
-        void ISlotListHooks.OnPageFailed(Exception exception)
+        void IScrollerHooks.OnPageFailed(Exception exception)
         {
             if (PageFailed == null)
-                Debug.LogWarning($"[SlotList] A page failed to load: {exception.Message}");
+                Debug.LogWarning($"[UIScroller] A page failed to load: {exception.Message}");
 
             PageFailed?.Invoke(exception);
         }
 
-        void ISlotListHooks.OnPullRefreshRequested() => OnPullToRefreshDetected();
-        void ISlotListHooks.OnReady() => OnInitialized?.Invoke();
-        void ISlotListHooks.OnItemExpanded(int index) => ItemExpanded?.Invoke(index);
-        void ISlotListHooks.OnItemCollapsed(int index) => ItemCollapsed?.Invoke(index);
-        void ISlotListHooks.OnRebuilt() => Rebuilt?.Invoke();
-        void ISlotListHooks.OnContentSizeChanged(float size) => ContentSizeChanged?.Invoke(size);
-        void ISlotListHooks.OnSnapped(int index) => SnappedTo?.Invoke(index);
+        void IScrollerHooks.OnPullRefreshRequested() => OnPullToRefreshDetected();
+        void IScrollerHooks.OnReady() => OnInitialized?.Invoke();
+        void IScrollerHooks.OnItemExpanded(int index) => ItemExpanded?.Invoke(index);
+        void IScrollerHooks.OnItemCollapsed(int index) => ItemCollapsed?.Invoke(index);
+        void IScrollerHooks.OnRebuilt() => Rebuilt?.Invoke();
+        void IScrollerHooks.OnContentSizeChanged(float size) => ContentSizeChanged?.Invoke(size);
+        void IScrollerHooks.OnSnapped(int index) => SnappedTo?.Invoke(index);
 
         /// <summary>
         /// The engine moved the content to keep the shown items still. ScrollRect remembers where a drag started and
         /// reads speed from the last position, so restart the drag from the pointer's current position and take the
         /// new position as the last one: no jump on the next drag event, and no speed from our shift.
         /// </summary>
-        void ISlotListHooks.OnContentShifted()
+        void IScrollerHooks.OnContentShifted()
         {
             if (isLeftDragging && IsActive())
                 base.OnBeginDrag(dragRestart);
@@ -249,7 +249,7 @@ namespace SlotList
         {
             if (engine == null)
             {
-                Debug.LogWarning("[SlotList] Refresh aborted - not initialized");
+                Debug.LogWarning("[UIScroller] Refresh aborted - not initialized");
                 return;
             }
 
@@ -358,7 +358,7 @@ namespace SlotList
         /// </summary>
         private void ListenToLocale()
         {
-#if SLOTLIST_LOCALIZATION
+#if UISCROLLER_LOCALIZATION
             if (localeChangedWhileDisabled)
             {
                 localeChangedWhileDisabled = false;
@@ -376,7 +376,7 @@ namespace SlotList
 
         private void StopListeningToLocale()
         {
-#if SLOTLIST_LOCALIZATION
+#if UISCROLLER_LOCALIZATION
             if (!isListeningToLocale)
                 return;
 
@@ -385,7 +385,7 @@ namespace SlotList
 #endif
         }
 
-#if SLOTLIST_LOCALIZATION
+#if UISCROLLER_LOCALIZATION
         private void OnLocaleChanged(Locale locale)
         {
             if (isActiveAndEnabled)

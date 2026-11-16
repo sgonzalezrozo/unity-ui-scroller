@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Shows the visible lines: returns slots of lines that left the screen, takes slots for lines that entered,
@@ -15,7 +15,7 @@ namespace SlotList
         private readonly LayoutModel layout;
         private readonly ExpansionState expansion;
         private readonly ISlotCallbacks callbacks;
-        private readonly SlotListSettings settings;
+        private readonly ScrollerSettings settings;
         private readonly WorkCounters work;
 
         // The placements holding a slot. Checking these, not every line, keeps recycling proportional to the screen (P2).
@@ -32,7 +32,7 @@ namespace SlotList
         /// <summary>Decides which newly shown slots play their appear animation.</summary>
         public AppearAnimationPolicy AppearPolicy { get; } = new();
 
-        public SlotRecycler(SlotPool slotPool, ScrollRectBinding binding, LayoutModel layout, ExpansionState expansion, ISlotCallbacks callbacks, SlotListSettings settings, WorkCounters work)
+        public SlotRecycler(SlotPool slotPool, ScrollRectBinding binding, LayoutModel layout, ExpansionState expansion, ISlotCallbacks callbacks, ScrollerSettings settings, WorkCounters work)
         {
             // The corner slots hang from: top-left, except bottom-left (bottom to top) and top-right (right to left).
             slotAnchor = settings.IsVertical
@@ -53,7 +53,7 @@ namespace SlotList
         /// <summary>Returns the slots of every line outside [first, last] to the pool. Only shown slots are checked.</summary>
         public void RecycleOutOfViewLines(int firstLine, int lastLine)
         {
-            using var _ = SlotListMarkers.Recycle.Auto();
+            using var _ = ScrollerMarkers.Recycle.Auto();
             int itemCount = callbacks.ItemCount;
 
             for (int i = shown.Count - 1; i >= 0; i--)
@@ -188,7 +188,7 @@ namespace SlotList
             }
 
             placement.NeedsBind = false;
-            using (SlotListMarkers.Bind.Auto())
+            using (ScrollerMarkers.Bind.Auto())
             {
                 AppearPolicy.Mark(handle, lineIndex, firstVisibleLine, lastVisibleLine);
                 callbacks.SetupExpandable(handle, itemIndex);
@@ -248,7 +248,7 @@ namespace SlotList
         /// </summary>
         private bool TakeMissingSlots(Line line)
         {
-            using var _ = SlotListMarkers.Acquire.Auto();
+            using var _ = ScrollerMarkers.Acquire.Auto();
             int itemCount = callbacks.ItemCount;
 
             for (int i = 0; i < line.SlotCount; i++)

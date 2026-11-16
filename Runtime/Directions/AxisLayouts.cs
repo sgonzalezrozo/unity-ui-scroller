@@ -1,4 +1,4 @@
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Factory for creating scroll direction implementations.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     public class LeftToRightLayout : AxisLayoutBase
     {

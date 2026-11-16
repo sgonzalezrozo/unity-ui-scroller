@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// The looping list (Settings.loop). Layout and slots use virtual entries; the public API uses real items.
@@ -9,7 +9,7 @@ namespace SlotList
     /// of entries instead, mapped to real items through an index offset. Near either end of the window it moves the
     /// view back to the middle and shifts the offset by as many entries, so the same items stay on screen.
     /// </summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         // Four copies longer than this use a window instead, so scroll positions stay small.
         private const float MAX_COPIES_EXTENT = 20_000f;
@@ -32,7 +32,7 @@ namespace SlotList
 
         private int RealCount => Source?.ItemCount ?? 0;
 
-        int ISlotListEngine.ItemCount => RealCount;
+        int IScrollerEngine.ItemCount => RealCount;
 
         /// <summary>Works out whether this list loops, with copies or a window, and how many entries it lays out.</summary>
         private void UpdateLooping()
@@ -84,7 +84,7 @@ namespace SlotList
             if (!hasWarnedAboutLoop)
             {
                 hasWarnedAboutLoop = true;
-                Debug.LogError($"[SlotList] {host.gameObject.name}: Loop doesn't work with {reason}. The list won't loop.", host);
+                Debug.LogError($"[UIScroller] {host.gameObject.name}: Loop doesn't work with {reason}. The list won't loop.", host);
             }
 
             return false;
@@ -120,7 +120,7 @@ namespace SlotList
             if (!isLooping)
                 return false;
 
-            Debug.LogWarning($"[SlotList] {host.gameObject.name}: a looping list doesn't expand items.", host);
+            Debug.LogWarning($"[UIScroller] {host.gameObject.name}: a looping list doesn't expand items.", host);
             return true;
         }
 

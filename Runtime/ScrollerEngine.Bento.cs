@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// The bento layout (Settings.bento): tiles of different sizes on a grid of cells. A BentoLayout hands out each
@@ -10,7 +10,7 @@ namespace SlotList
     /// Cell Aspect. Tiles never expand and item slots are never measured. With sections, each header takes a whole
     /// row as tall as the header (fixed or measured, like any header), and the layout starts again in each section.
     /// </summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         private readonly List<BentoTile> bentoTiles = new();
         private bool isBento;
@@ -46,7 +46,7 @@ namespace SlotList
             if (isLayoutSized && !hasWarnedAboutBentoMeasuring)
             {
                 hasWarnedAboutBentoMeasuring = true;
-                Debug.LogWarning($"[SlotList] {host.gameObject.name}: a bento tile's size comes from its cells, so '{slotPrefab.name}' isn't measured.", host);
+                Debug.LogWarning($"[UIScroller] {host.gameObject.name}: a bento tile's size comes from its cells, so '{slotPrefab.name}' isn't measured.", host);
             }
 
             isLayoutSized = false;
@@ -58,7 +58,7 @@ namespace SlotList
                 return;
 
             hasReportedBentoErrors = true;
-            Debug.LogError($"[SlotList] {host.gameObject.name}: the bento layout has errors, so items are placed as 1x1 tiles:\n- {string.Join("\n- ", layout.Errors)}", host);
+            Debug.LogError($"[UIScroller] {host.gameObject.name}: the bento layout has errors, so items are placed as 1x1 tiles:\n- {string.Join("\n- ", layout.Errors)}", host);
         }
 
         /// <summary>Uses another layout: tiles are worked out again and the list rebuilt, at the same scroll position.</summary>
@@ -153,7 +153,7 @@ namespace SlotList
             if (!hasWarnedAboutBentoExpand)
             {
                 hasWarnedAboutBentoExpand = true;
-                Debug.LogWarning($"[SlotList] {host.gameObject.name}: bento tiles don't expand.", host);
+                Debug.LogWarning($"[UIScroller] {host.gameObject.name}: bento tiles don't expand.", host);
             }
 
             return true;

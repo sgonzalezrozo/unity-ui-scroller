@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>Scrolling to items and ends, with or without an animation, and snapping after a drag.</summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         private const float SNAP_DURATION = 0.25f;
         private const float SNAP_MAX_SPEED = 600f;

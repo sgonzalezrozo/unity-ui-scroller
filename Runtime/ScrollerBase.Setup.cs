@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>The settings drive the ScrollRect, and in the editor the Scroll View structure is built when the component is added.</summary>
-    public abstract partial class SlotListBase
+    public abstract partial class ScrollerBase
     {
         // ---------- Settings drive the ScrollRect ----------
 

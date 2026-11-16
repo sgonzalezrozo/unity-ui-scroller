@@ -1,16 +1,16 @@
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
-    /// <summary>Design tests for SlotListSettings (Phase 5, step 1). Defaults match the old serialized field defaults.</summary>
-    public class SlotListSettingsTests
+    /// <summary>Design tests for ScrollerSettings (Phase 5, step 1). Defaults match the old serialized field defaults.</summary>
+    public class ScrollerSettingsTests
     {
         [Test]
         public void Defaults_MatchTheOldFieldDefaults()
         {
-            SlotListSettings settings = new();
+            ScrollerSettings settings = new();
 
-            Assert.AreEqual(SlotListDirection.TopToBottom, settings.direction);
+            Assert.AreEqual(ScrollerDirection.TopToBottom, settings.direction);
             Assert.AreEqual(0f, settings.lineSpacing);
             Assert.AreEqual(0f, settings.slotSpacing);
             Assert.AreEqual(0f, settings.paddingStart);
@@ -26,13 +26,13 @@ namespace SlotList.Tests.Editor
             Assert.AreEqual(1.4f, settings.poolBuffer);
         }
 
-        [TestCase(SlotListDirection.TopToBottom, true, false)]
-        [TestCase(SlotListDirection.BottomToTop, true, true)]
-        [TestCase(SlotListDirection.LeftToRight, false, false)]
-        [TestCase(SlotListDirection.RightToLeft, false, true)]
-        public void Direction_GivesAxisAndReverse(SlotListDirection direction, bool vertical, bool reversed)
+        [TestCase(ScrollerDirection.TopToBottom, true, false)]
+        [TestCase(ScrollerDirection.BottomToTop, true, true)]
+        [TestCase(ScrollerDirection.LeftToRight, false, false)]
+        [TestCase(ScrollerDirection.RightToLeft, false, true)]
+        public void Direction_GivesAxisAndReverse(ScrollerDirection direction, bool vertical, bool reversed)
         {
-            SlotListSettings settings = new() { direction = direction };
+            ScrollerSettings settings = new() { direction = direction };
 
             Assert.AreEqual(vertical, settings.IsVertical);
             Assert.AreEqual(reversed, settings.IsReversed);
@@ -41,7 +41,7 @@ namespace SlotList.Tests.Editor
         [Test]
         public void EffectivePoolBuffer_IsTheDefaultUnlessOverridden()
         {
-            SlotListSettings settings = new() { poolBuffer = 2.5f };
+            ScrollerSettings settings = new() { poolBuffer = 2.5f };
             Assert.AreEqual(1.4f, settings.EffectivePoolBuffer);
 
             settings.overridePoolBuffer = true;

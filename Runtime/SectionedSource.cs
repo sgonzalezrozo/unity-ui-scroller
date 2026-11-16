@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>What an entry of a <see cref="SectionedSource{TItem, THeader}"/> is.</summary>
     public enum EntryKind
@@ -11,7 +11,7 @@ namespace SlotList
     }
 
     /// <summary>
-    /// A list made of sections, each a header followed by the items of its own source. A SectionedSlotList shows it as
+    /// A list made of sections, each a header followed by the items of its own source. A SectionedScroller shows it as
     /// one flat list of entries: header, items, header, items...
     /// Empty sections are skipped unless <see cref="SkipEmptySections"/> is false. Inner sources don't announce their
     /// changes: after changing one, call the list's Refresh (or <see cref="Recount"/>).

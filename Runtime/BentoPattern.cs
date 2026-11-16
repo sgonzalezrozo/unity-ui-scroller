@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A block of a bento layout: <see cref="Rows"/> rows of cells and the tiles drawn in them, with rows and columns

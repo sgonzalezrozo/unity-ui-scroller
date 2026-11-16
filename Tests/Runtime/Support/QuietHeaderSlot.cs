@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>A header slot that allocates nothing when bound. Used by the allocation tests (RigOptions.QuietSlots).</summary>
     public class QuietHeaderSlot : MonoBehaviour, ISlot<TestHeader>

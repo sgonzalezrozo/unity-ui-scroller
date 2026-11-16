@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// Where ScrollToItem puts the list for each alignment, as a scroll distance from the start, clamped to the content.

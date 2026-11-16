@@ -1,4 +1,4 @@
-using SlotList;
+using UIScroller;
 using TMPro;
 using UnityEngine;
 

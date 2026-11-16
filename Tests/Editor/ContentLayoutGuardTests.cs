@@ -1,25 +1,25 @@
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using SlotList.Editor;
-using SlotList.Tests.PlayMode;
+using UIScroller.Editor;
+using UIScroller.Tests.PlayMode;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>Adding a layout component to a list's Content in the editor is undone straight away, with a warning.</summary>
     public class ContentLayoutGuardTests
     {
         private GameObject go;
-        private TestSlotList list;
+        private TestScroller list;
 
         [SetUp]
         public void SetUp()
         {
             go = new GameObject("GuardedList", typeof(RectTransform));
-            list = go.AddComponent<TestSlotList>();
+            list = go.AddComponent<TestScroller>();
             RectTransform viewport = (RectTransform)new GameObject("Viewport", typeof(RectTransform)).transform;
             viewport.SetParent(go.transform, false);
             RectTransform content = (RectTransform)new GameObject("Content", typeof(RectTransform)).transform;

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>A test slot that can expand. It records binds and the expanded state the scroller gives it.</summary>
     public class ExpandableRecordingSlot : MonoBehaviour, IExpandableSlot<TestItem>
@@ -28,7 +28,7 @@ namespace SlotList.Tests.PlayMode
         private bool isExpanded;
 
         public float DefaultExtent => Size;
-        public ISlotList Owner { get; set; }
+        public IScroller Owner { get; set; }
         public int ItemIndex { get; set; }
         public bool IsExpanded
         {

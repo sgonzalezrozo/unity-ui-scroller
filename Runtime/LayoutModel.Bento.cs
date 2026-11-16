@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// The bento layout's lines: each row of cells is a line, every line is one row tall, and a line holds the items

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>Makes up pages of items after a short delay, as a server would: 5 pages of 30, the last with 3.</summary>
     public class ExamplePageLoader : IPageLoader<ExampleItem>

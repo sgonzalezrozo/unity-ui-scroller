@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     public class ScrollRectBinding
     {
@@ -17,7 +17,7 @@ namespace SlotList
 
             if (ScrollRect == null)
             {
-                Debug.LogWarning("[SlotList] ScrollRect component not found");
+                Debug.LogWarning("[UIScroller] ScrollRect component not found");
                 return false;
             }
 
@@ -26,20 +26,20 @@ namespace SlotList
 
             if (Content == null)
             {
-                Debug.LogError($"[SlotList] The ScrollRect on {host.gameObject.name} has no Content assigned.");
+                Debug.LogError($"[UIScroller] The ScrollRect on {host.gameObject.name} has no Content assigned.");
                 return false;
             }
 
             List<Component> forbidden = ContentLayoutRules.FindForbidden(Content, Viewport);
             if (forbidden.Count > 0)
             {
-                Debug.LogError($"[SlotList] {host.gameObject.name}: {ContentLayoutRules.Describe(forbidden)}", host);
+                Debug.LogError($"[UIScroller] {host.gameObject.name}: {ContentLayoutRules.Describe(forbidden)}", host);
                 return false;
             }
 
             if (slotPrefab == null)
             {
-                Debug.LogError($"[SlotList] No Slot Prefab is assigned on {host.gameObject.name}.");
+                Debug.LogError($"[UIScroller] No Slot Prefab is assigned on {host.gameObject.name}.");
                 return false;
             }
 

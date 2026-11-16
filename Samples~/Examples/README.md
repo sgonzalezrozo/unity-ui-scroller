@@ -7,7 +7,7 @@ To run one, create an empty scene, add an empty GameObject, add one of these com
 | Component | Shows |
 |---|---|
 | `GridExample` | 1,000 tiles in an **Auto Grid** that fits as many columns as the width allows |
-| `SectionsExample` | A `SectionedSlotList` with headers; an empty section is skipped |
+| `SectionsExample` | A `SectionedScroller` with headers; an empty section is skipped |
 | `ExpandableExample` | Rows that open to a fixed taller size when tapped, closing the others |
 | `CarouselExample` | A horizontal carousel of 20 tiles that **loops** both ways and **snaps** to the centre |
 | `BentoExample` | A **bento** list: tiles of different sizes on 4 columns, placed by a layout written in JSON. The button switches between a pattern layout and a span layout |

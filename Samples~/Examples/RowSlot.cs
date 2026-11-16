@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>A fixed-height row: a colour swatch and a title. Used by the Sections and Paging examples.</summary>
     public class RowSlot : MonoBehaviour, ISlot<ExampleItem>

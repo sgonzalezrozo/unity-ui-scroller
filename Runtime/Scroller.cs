@@ -1,17 +1,17 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A ScrollRect that recycles slots, showing one item type. Create a concrete subclass to add it to a GameObject.
-    /// For sections with headers, use <see cref="SectionedSlotList{TItem, THeader}"/>.
+    /// For sections with headers, use <see cref="SectionedScroller{TItem, THeader}"/>.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(1)]
-    public abstract class SlotList<T> : SlotListBase
+    public abstract class Scroller<T> : ScrollerBase
         where T : class
     {
-        private SlotListEngine<T> typedEngine;
+        private ScrollerEngine<T> typedEngine;
 
         /// <summary>The current data source, or null before Initialize.</summary>
         protected IItemSource<T> DataSource => typedEngine?.Source;

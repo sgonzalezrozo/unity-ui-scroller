@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>The scroll distance that shows an item with an alignment, clamped to the content. Distances count from the list's start.</summary>
     internal static class ScrollTargets

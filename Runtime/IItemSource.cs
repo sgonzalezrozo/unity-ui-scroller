@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SlotList
+namespace UIScroller
 {
     public interface IItemSource<T> where T : class
     {

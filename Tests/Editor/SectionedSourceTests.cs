@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using SlotList.Tests.PlayMode;
+using UIScroller.Tests.PlayMode;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// Phase 9, step 1: SectionedSource flattens sections into one list of entries, each section a header followed by
@@ -19,7 +19,7 @@ namespace SlotList.Tests.Editor
         }
 
         private static ListSource<TestItem> Items(int count, int firstId = 0)
-            => new(SlotListRig.MakeItems(count, firstId));
+            => new(ScrollerRig.MakeItems(count, firstId));
 
         /// <summary>Sections named A, B, C... with these item counts. Item ids start at 100 × section.</summary>
         private static SectionedSource<TestItem, Header> Build(params int[] counts)

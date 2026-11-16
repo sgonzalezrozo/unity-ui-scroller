@@ -1,8 +1,8 @@
 using NUnit.Framework;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>Pins how each direction places slots and converts positions. Grid slots are scaled to fill the row.</summary>
     public class DirectionCharacterizationTests

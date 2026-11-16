@@ -1,8 +1,8 @@
 using System;
 using NUnit.Framework;
-using SlotList;
+using UIScroller;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>Characterization tests for the layout classes that remain. LineBuilder, LineOffsets and ContentExtentCalculator cases moved to LayoutModelTests.</summary>
     public class SlotsPerLineResolverTests

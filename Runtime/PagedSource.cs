@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A source that loads its items page by page through an <see cref="IPageLoader{T}"/>. Pages only load when
-    /// <see cref="LoadNextAsync"/> is called; a SlotList does that by itself near the end of the list.
+    /// <see cref="LoadNextAsync"/> is called; a scroller does that by itself near the end of the list.
     /// </summary>
     public sealed class PagedSource<T> : IPagedSource<T> where T : class
     {

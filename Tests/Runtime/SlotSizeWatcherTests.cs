@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 8, step 4: a measured slot that changes size after it was bound (a late localized string, an image
@@ -13,7 +13,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class SlotSizeWatcherTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -24,8 +24,8 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator StartLayoutSized(float height)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true });
-            List<TestItem> items = SlotListRig.MakeItems(20);
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true });
+            List<TestItem> items = ScrollerRig.MakeItems(20);
             foreach (TestItem item in items)
                 item.Height = height;
             yield return rig.Initialize(new ListSource<TestItem>(items));
@@ -50,7 +50,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator AFixedSizeSlot_GetsNoWatcher()
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true });
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = 100f, LayoutContent = true });
             yield return rig.Initialize(20);
 
             Assert.IsNull(rig.ItemFor(0).GetComponent<SlotSizeWatcher>());

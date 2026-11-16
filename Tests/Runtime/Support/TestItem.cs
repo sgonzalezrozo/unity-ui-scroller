@@ -1,4 +1,4 @@
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>The data item used by the PlayMode tests. Id equals the item's index unless a test says otherwise.</summary>
     public class TestItem

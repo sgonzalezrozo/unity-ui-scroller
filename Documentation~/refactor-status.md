@@ -1,5 +1,7 @@
 # Refactor status: Recyclable Scroller → Slot List
 
+> **Renamed:** Slot List is now **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`, `SlotList<T>` → `Scroller<T>`, `SectionedSlotList` → `SectionedScroller`, `SlotListBase` → `ScrollerBase`). This document keeps the old names as a record of how the work was done.
+
 Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what each phase did, what changed from the plan, what was skipped, and what's left. Updated 2026-11-13, after Phase 9 step 2.
 
 ## Summary

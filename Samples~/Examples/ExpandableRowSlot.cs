@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// A row with a fixed height that opens to a fixed taller size, showing its description. The whole row is a
@@ -20,7 +20,7 @@ namespace SlotList.Samples
         private bool isExpanded;
 
         public float DefaultExtent => HEIGHT;
-        public ISlotList Owner { get; set; }
+        public IScroller Owner { get; set; }
         public int ItemIndex { get; set; }
 
         public ExampleItem Data

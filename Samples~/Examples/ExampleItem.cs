@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>The item every example shows: a number, a title, a description and a colour.</summary>
     public class ExampleItem

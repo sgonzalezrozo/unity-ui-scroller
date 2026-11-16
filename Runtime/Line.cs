@@ -1,6 +1,6 @@
 using System;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A row (vertical list) or column (horizontal list) of slots. A line with room for one slot, every line of a plain

@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.TestTools.Constraints;
 using Is = UnityEngine.TestTools.Constraints.Is;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// The zero-GC matrix (performance plan, P1): every layout × every operation a running screen repeats, checked to
@@ -40,9 +40,9 @@ namespace SlotList.Tests.PlayMode
         private const int WARM_UPS = 2;
 
         private static readonly BentoSpan Big = new(2, 2);
-        private static readonly MethodInfo LateUpdateMethod = typeof(SlotListBase).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo LateUpdateMethod = typeof(ScrollerBase).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private Action lateUpdate;
         private ListSource<TestItem> source;
         private SectionedSource<TestItem, TestHeader> sections;
@@ -87,11 +87,11 @@ namespace SlotList.Tests.PlayMode
                     break;
             }
 
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             rig.List.frameDeltaTime = FixedFrame;
             rig.List.inertia = true;
             rig.List.movementType = ScrollRect.MovementType.Elastic;
-            SlotListSettings settings = rig.List.Settings;
+            ScrollerSettings settings = rig.List.Settings;
             if (kind == Kind.AutoGrid)
             {
                 settings.autoSlotsPerLine = true;
@@ -105,7 +105,7 @@ namespace SlotList.Tests.PlayMode
                 sections = new SectionedSource<TestItem, TestHeader>();
                 for (int s = 0; s < 50; s++)
                 {
-                    ListSource<TestItem> items = new(SlotListRig.MakeItems(COUNT / 50, 1000 * s));
+                    ListSource<TestItem> items = new(ScrollerRig.MakeItems(COUNT / 50, 1000 * s));
                     firstSection ??= items;
                     sections.AddSection(new TestHeader("S" + s), items);
                 }
@@ -113,13 +113,13 @@ namespace SlotList.Tests.PlayMode
             }
             else
             {
-                source = new ListSource<TestItem>(SlotListRig.MakeItems(kind == Kind.LoopShort ? 20 : COUNT));
+                source = new ListSource<TestItem>(ScrollerRig.MakeItems(kind == Kind.LoopShort ? 20 : COUNT));
                 yield return rig.Initialize(source);
             }
 
             lateUpdate = (Action)Delegate.CreateDelegate(typeof(Action), rig.List, LateUpdateMethod);
             pointer = new PointerEventData(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 400f) };
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
         }
 
         private static float FixedFrame() => FRAME;
@@ -344,8 +344,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator FilterChange()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
-            ListSource<TestItem> all = new(SlotListRig.MakeItems(COUNT));
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
+            ListSource<TestItem> all = new(ScrollerRig.MakeItems(COUNT));
             Func<TestItem, bool> even = IsEven;
             Func<TestItem, bool> odd = IsOdd;
             FilteredSource<TestItem> filtered = new(all, even);
@@ -368,7 +368,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator GetAllItems_FromEverySource()
         {
-            ListSource<TestItem> list = new(SlotListRig.MakeItems(10));
+            ListSource<TestItem> list = new(ScrollerRig.MakeItems(10));
             FilteredSource<TestItem> filtered = new(list);
             Func<TestItem, bool> all = IsEven;
             filtered.SetPredicate(all);

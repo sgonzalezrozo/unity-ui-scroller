@@ -1,6 +1,6 @@
-namespace SlotList
+namespace UIScroller
 {
-    public interface ISlotList
+    public interface IScroller
     {
         bool IsInitialized { get; }
         bool IsExpanded(int index);

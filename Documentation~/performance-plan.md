@@ -1,6 +1,6 @@
 # Performance and adoption plan
 
-Two goals, from the point of view of a senior developer at a studio that needs a recycling scroll view and finds Slot List:
+Two goals, from the point of view of a senior developer at a studio that needs a recycling scroll view and finds UI Scroller:
 
 1. **An honest assessment:** what fits, what doesn't, which features are missing and what the risks of adopting it are.
 2. **Performance that's zero GC and as cheap as it can be, and proven:** a baseline, measured improvements, and numbers anyone can reproduce.
@@ -9,7 +9,7 @@ Status: in progress. Branch: `perf/zero-gc-baseline`. Order: README rewrite firs
 
 ## Decisions (P0, 2026-11-16)
 
-1. **Our own measurements, no extra packages.** The timing bench uses `ProfilerRecorder`, the `Slot List.*` markers and its own statistics (median, p95, max). No Performance Testing package.
+1. **Our own measurements, no extra packages.** The timing bench uses `ProfilerRecorder`, the `UI Scroller.*` markers and its own statistics (median, p95, max). No Performance Testing package.
 2. **Fully automated runs on devices**, for the baseline (P2) and the final result (P7) only:
    - Samsung Galaxy A02s and Google Pixel 5 (Android, IL2CPP);
    - iPhone 13 mini and iPhone 17 Air (iOS, IL2CPP);
@@ -145,7 +145,7 @@ A plain list also has one heap object less per item (2 instead of 3). The GC tim
 
 ### Zero GC
 
-**Slot List's own code allocates 0 bytes of managed memory in steady state**, for every operation a running screen does over and over:
+**UI Scroller's own code allocates 0 bytes of managed memory in steady state**, for every operation a running screen does over and over:
 - scrolling, flinging and recycling;
 - binding (the list's side; what the slot's `Data` setter does is the game's);
 - `Refresh()` with the same item count;
@@ -169,7 +169,7 @@ A plain list also has one heap object less per item (2 instead of 3). The GC tim
 
 ### Very cheap
 
-- **Per scrolled frame**, the list's own CPU time (`Slot List.*` markers, excluding the game's `Data` setter) stays flat whatever the item count (1,000 to 1,000,000) and under **0.05 ms on a Pixel 5**.
+- **Per scrolled frame**, the list's own CPU time (`UI Scroller.*` markers, excluding the game's `Data` setter) stays flat whatever the item count (1,000 to 1,000,000) and under **0.05 ms on a Pixel 5**.
 - **Native calls per recycled slot** (RectTransform writes, `SetActive`) are kept to the minimum that moves the slot.
 - **Memory per item** is known and small, and so is the work the game's GC does because of the list (see *Heap objects*).
 
@@ -216,7 +216,7 @@ The written assessment comes last, so it can quote the measurements. These are t
 |---|---|---|
 | **Allocation tests**: `Is.Not.AllocatingGCMemory()` around each operation | Zero GC, as a pass or fail that never drifts | `verify.sh`, every run |
 | **Work counts** (`WorkCounters`): slots checked, placed, bound and measured, native writes | The list does work in proportion to the screen, not to the item count | `verify.sh`, every run |
-| **Timing**: `ProfilerRecorder` on the `Slot List.*` markers, `PlayerUpdateCanvases` and `Canvas.BuildBatch`, plus GC bytes and count per frame | How fast it is | Opt-in (timing is noisy): the bench in the Editor, and automated builds on the A02s, Pixel 5, iPhone 13 mini, iPhone 17 Air and WebGL |
+| **Timing**: `ProfilerRecorder` on the `UI Scroller.*` markers, `PlayerUpdateCanvases` and `Canvas.BuildBatch`, plus GC bytes and count per frame | How fast it is | Opt-in (timing is noisy): the bench in the Editor, and automated builds on the A02s, Pixel 5, iPhone 13 mini, iPhone 17 Air and WebGL |
 
 Timing stays out of the pass-or-fail tests. Times are recorded and compared, never asserted.
 
@@ -244,7 +244,7 @@ Each layout is run with the operations that apply to it, at 1,000 and 100,000 it
 
 - One table per run in `benchmarks.md`, with the machine, Unity version, build type and commit.
 - Medians and p95 over at least 3 runs after a warm-up. An improvement counts only if it beats the spread between runs.
-- The raw results stay in the bench output (`SlotListBench.md`), so a run can be checked later.
+- The raw results stay in the bench output (`ScrollerBench.md`), so a run can be checked later.
 
 ## 4. Allocation audit: candidates found by reading the code
 

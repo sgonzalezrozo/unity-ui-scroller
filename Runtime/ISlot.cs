@@ -1,6 +1,6 @@
 using ToolsCore;
 
-namespace SlotList
+namespace UIScroller
 {
     public interface ISlot
     {
@@ -20,7 +20,7 @@ namespace SlotList
 
     public interface IExpandableSlot : ISlot
     {
-        ISlotList Owner { get; set; }
+        IScroller Owner { get; set; }
         int ItemIndex { get; set; }
         void OnCollapsed();
     }

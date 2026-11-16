@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>An expandable slot that allocates nothing when bound or opened. Used by the allocation tests.</summary>
     public class QuietExpandableSlot : MonoBehaviour, IExpandableSlot<TestItem>
@@ -11,7 +11,7 @@ namespace SlotList.Tests.PlayMode
         private TestItem data;
 
         public float DefaultExtent => Size;
-        public ISlotList Owner { get; set; }
+        public IScroller Owner { get; set; }
         public int ItemIndex { get; set; }
         public bool IsExpanded { get; set; }
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>A bento tile's size in cells: how many columns wide and how many rows tall.</summary>
     public readonly struct BentoSpan : IEquatable<BentoSpan>

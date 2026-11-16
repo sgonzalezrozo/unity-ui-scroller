@@ -5,16 +5,16 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
-    /// Phase 9, step 2: SectionedSlotList shows a SectionedSource. Headers come from the header prefab and bind with
+    /// Phase 9, step 2: SectionedScroller shows a SectionedSource. Headers come from the header prefab and bind with
     /// ISlot&lt;THeader&gt;, items with ISlot&lt;TItem&gt;; a header takes a whole row in a grid.
     /// Rig: 400 x 800 viewport, 100 px items, 50 px headers. Sections are S0, S1...; items of section s have ids 100 × s + i.
     /// </summary>
-    public class SectionedSlotListTests
+    public class SectionedScrollerTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -27,7 +27,7 @@ namespace SlotList.Tests.PlayMode
         {
             options ??= new RigOptions();
             options.Sectioned = true;
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             yield return rig.InitializeSections(source);
         }
 
@@ -36,7 +36,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator HeadersAndItems_BindWithTheirOwnSlots_InOrder()
         {
-            yield return Start(SlotListRig.MakeSections(3, 3));
+            yield return Start(ScrollerRig.MakeSections(3, 3));
 
             RectTransform headerA = rig.HeaderFor("S0");
             RectTransform headerB = rig.HeaderFor("S1");
@@ -52,11 +52,11 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator NewSource_SameEntryCount_HeaderMoved_ShowsEachEntryWithTheRightSlot()
         {
-            yield return Start(SlotListRig.MakeSections(3, 3));
+            yield return Start(ScrollerRig.MakeSections(3, 3));
 
             // Still 8 entries, so slots are kept through the refresh, but S1's header moves from entry 4 to entry 2.
-            rig.Sectioned.SetSource(SlotListRig.MakeSections(1, 5));
-            yield return SlotListRig.Frames(2);
+            rig.Sectioned.SetSource(ScrollerRig.MakeSections(1, 5));
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(150f, Top(rig.HeaderFor("S1")), 0.01f);
             Assert.AreEqual(200f, Top(rig.ItemFor(100)), 0.01f);
@@ -68,7 +68,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator EmptySections_AreSkipped()
         {
-            yield return Start(SlotListRig.MakeSections(2, 0, 1));
+            yield return Start(ScrollerRig.MakeSections(2, 0, 1));
 
             Assert.IsNull(rig.HeaderFor("S1"));
             Assert.AreEqual(250f, Top(rig.HeaderFor("S2")), 0.01f);
@@ -77,7 +77,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator InAGrid_AHeaderTakesAWholeRow_AndASectionStartsANewRow()
         {
-            yield return Start(SlotListRig.MakeSections(4, 2), new RigOptions { SlotsPerLine = 3 });
+            yield return Start(ScrollerRig.MakeSections(4, 2), new RigOptions { SlotsPerLine = 3 });
 
             RectTransform headerA = rig.HeaderFor("S0");
             Assert.AreEqual(400f, headerA.sizeDelta.x, 0.01f);
@@ -95,7 +95,7 @@ namespace SlotList.Tests.PlayMode
             int[] counts = new int[50];
             for (int i = 0; i < counts.Length; i++)
                 counts[i] = 5;
-            yield return Start(SlotListRig.MakeSections(counts));
+            yield return Start(ScrollerRig.MakeSections(counts));
 
             for (int offset = 0; offset <= 20000; offset += 700)
                 yield return rig.ScrollToOffset(offset);
@@ -120,10 +120,10 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator SetSource_AfterInitialization_ReplacesTheSections()
         {
-            yield return Start(SlotListRig.MakeSections(3));
+            yield return Start(ScrollerRig.MakeSections(3));
 
             SectionedSource<TestItem, TestHeader> other = new();
-            other.AddSection(new TestHeader("Other"), new ListSource<TestItem>(SlotListRig.MakeItems(2, 900)));
+            other.AddSection(new TestHeader("Other"), new ListSource<TestItem>(ScrollerRig.MakeItems(2, 900)));
             rig.Sectioned.SetSource(other);
             yield return null;
 
@@ -135,10 +135,10 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Refresh_PicksUpAChangeInASection()
         {
-            ListSource<TestItem> first = new(SlotListRig.MakeItems(2));
+            ListSource<TestItem> first = new(ScrollerRig.MakeItems(2));
             SectionedSource<TestItem, TestHeader> source = new();
             source.AddSection(new TestHeader("A"), first);
-            source.AddSection(new TestHeader("B"), new ListSource<TestItem>(SlotListRig.MakeItems(1, 100)));
+            source.AddSection(new TestHeader("B"), new ListSource<TestItem>(ScrollerRig.MakeItems(1, 100)));
             yield return Start(source);
 
             first.AddItem(new TestItem(2));
@@ -155,23 +155,23 @@ namespace SlotList.Tests.PlayMode
             int[] counts = new int[50];
             for (int i = 0; i < counts.Length; i++)
                 counts[i] = i == 10 ? 0 : 5;
-            yield return Start(SlotListRig.MakeSections(counts));
+            yield return Start(ScrollerRig.MakeSections(counts));
 
             rig.Sectioned.ScrollToSection(20);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
             RectTransform header = rig.HeaderFor("S20");
             Assert.IsNotNull(header);
             Assert.AreEqual(0f, Top(header) - rig.Content.anchoredPosition.y, 0.5f);
 
             rig.Sectioned.ScrollToSection(10);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
             Assert.AreEqual(0f, Top(rig.HeaderFor("S11")) - rig.Content.anchoredPosition.y, 0.5f, "S10 is empty and skipped");
         }
 
         [UnityTest]
         public IEnumerator ItemsInSections_CanExpand()
         {
-            yield return Start(SlotListRig.MakeSections(3, 3), new RigOptions { Expandable = true });
+            yield return Start(ScrollerRig.MakeSections(3, 3), new RigOptions { Expandable = true });
 
             rig.Sectioned.Expand(2, 300f);
             yield return null;
@@ -184,11 +184,11 @@ namespace SlotList.Tests.PlayMode
         public IEnumerator MeasuredHeaders_UseTheirOwnLayout_AndDontChangeTheItemAverage()
         {
             int[] counts = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
-            yield return Start(SlotListRig.MakeSections(counts), new RigOptions { ItemSize = -1f, LayoutContent = true, HeaderSize = -1f });
+            yield return Start(ScrollerRig.MakeSections(counts), new RigOptions { ItemSize = -1f, LayoutContent = true, HeaderSize = -1f });
             yield return null;
 
-            Assert.AreEqual(SlotListRig.HEADER_BODY_HEIGHT, rig.HeaderFor("S0").sizeDelta.y, 0.01f);
-            Assert.AreEqual(SlotListRig.HEADER_BODY_HEIGHT, Top(rig.ItemFor(0)), 0.01f);
+            Assert.AreEqual(ScrollerRig.HEADER_BODY_HEIGHT, rig.HeaderFor("S0").sizeDelta.y, 0.01f);
+            Assert.AreEqual(ScrollerRig.HEADER_BODY_HEIGHT, Top(rig.ItemFor(0)), 0.01f);
             Assert.AreEqual(100f, rig.ItemFor(4).sizeDelta.y, 0.01f);
 
             // Unmeasured items take the items' average (100), never a header's size.
@@ -200,12 +200,12 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator WithoutAHeaderPrefab_SetSource_LogsAnError_AndDoesNotStart()
         {
-            rig = SlotListRig.Create(new RigOptions { Sectioned = true });
+            rig = ScrollerRig.Create(new RigOptions { Sectioned = true });
             rig.Sectioned.HeaderPrefab = null;
             LogAssert.Expect(LogType.Error, new Regex("Header Prefab"));
 
-            rig.Sectioned.SetSource(SlotListRig.MakeSections(2));
-            yield return SlotListRig.Frames(2);
+            rig.Sectioned.SetSource(ScrollerRig.MakeSections(2));
+            yield return ScrollerRig.Frames(2);
 
             Assert.IsFalse(rig.Sectioned.IsInitialized);
         }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>Counts how often any slot changes parent. Moving a UI element to another parent rebuilds its graphics.</summary>
     public class ParentWatch : MonoBehaviour

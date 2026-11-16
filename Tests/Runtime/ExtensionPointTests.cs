@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Read-only extension points: events for expand, collapse and rebuild, and queries for where an item is and how
@@ -11,7 +11,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class ExtensionPointTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private readonly List<string> events = new();
 
         [TearDown]
@@ -24,7 +24,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(int count = 50)
         {
-            rig = SlotListRig.Create(new RigOptions { Expandable = true });
+            rig = ScrollerRig.Create(new RigOptions { Expandable = true });
             rig.List.ItemExpanded += index => events.Add("expanded " + index);
             rig.List.ItemCollapsed += index => events.Add("collapsed " + index);
             rig.List.Rebuilt += () => events.Add("rebuilt");
@@ -114,7 +114,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Queries_ForABadIndex_OrBeforeInitialize_ReturnMinusOne()
         {
-            rig = SlotListRig.Create();
+            rig = ScrollerRig.Create();
             Assert.AreEqual(-1f, rig.List.GetItemOffset(0));
             Assert.AreEqual(-1f, rig.List.GetItemSize(0));
 

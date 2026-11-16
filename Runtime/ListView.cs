@@ -1,6 +1,6 @@
 using System;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A read-only window on the first <see cref="Length"/> entries of a buffer that may be larger. Lets the layout

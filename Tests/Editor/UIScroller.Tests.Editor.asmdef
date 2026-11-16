@@ -1,13 +1,18 @@
 {
-    "name": "SlotList.Tests.PlayMode",
-    "rootNamespace": "SlotList.Tests.PlayMode",
+    "name": "UIScroller.Tests.Editor",
+    "rootNamespace": "UIScroller.Tests.Editor",
     "references": [
-        "SlotList",
-        "ToolsCore",
+        "UIScroller",
+        "UIScroller.Editor",
         "UnityEngine.UI",
-        "UnityEngine.TestRunner"
+        "UIScroller.Tests.PlayMode",
+        "ToolsCore",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

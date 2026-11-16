@@ -1,4 +1,4 @@
-namespace SlotList
+namespace UIScroller
 {
     public interface IItemSourceProvider<T> where T : class
     {

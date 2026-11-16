@@ -1,4 +1,4 @@
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Counts the list's work, so tests can check it stays proportional to what's on screen, not to the item count.

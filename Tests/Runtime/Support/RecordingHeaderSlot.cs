@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using SlotList;
+using UIScroller;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>A header slot that records every header bound to it.</summary>
     public class RecordingHeaderSlot : MonoBehaviour, ISlot<TestHeader>

@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>Rebuilds after data or size changes, deferred work (first build, re-enable, grid resize, pool warm-up) and lifecycle.</summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         private const float DYNAMIC_GRID_MIN_DELTA = 5f;
         private const float RESIZE_MIN_DELTA = 0.5f;
@@ -23,7 +23,7 @@ namespace SlotList
         {
             if (!isInitialized)
             {
-                Debug.LogWarning("[SlotList] Refresh aborted - not initialized");
+                Debug.LogWarning("[UIScroller] Refresh aborted - not initialized");
                 return;
             }
 
@@ -81,7 +81,7 @@ namespace SlotList
 
         private void RebuildStructures()
         {
-            using var _ = SlotListMarkers.Rebuild.Auto();
+            using var _ = ScrollerMarkers.Rebuild.Auto();
             recycler.CleanupActiveLines();
             expansion.ClearAll();
 
@@ -99,7 +99,7 @@ namespace SlotList
 
         private void RebuildForSameStructure(bool cleanDataIndices)
         {
-            using var _ = SlotListMarkers.Rebuild.Auto();
+            using var _ = ScrollerMarkers.Rebuild.Auto();
             bool hasExpanded = expansion.HasAny;
 
             visibleRange.ResetState();

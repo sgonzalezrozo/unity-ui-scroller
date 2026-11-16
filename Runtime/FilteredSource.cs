@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Shows the items of another source that match a filter. The matching positions are worked out once and cached;

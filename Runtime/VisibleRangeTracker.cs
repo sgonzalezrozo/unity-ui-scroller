@@ -1,4 +1,4 @@
-namespace SlotList
+namespace UIScroller
 {
     public class VisibleRangeTracker
     {

@@ -3,14 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Paging: when the source is an IPagedSource, the engine asks for the next page once fewer than
     /// PAGING_THRESHOLD_ITEMS items are left after the last visible one, appends pages without a rebuild,
     /// and cancels a load in flight when the source changes or the list is destroyed.
     /// </summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         private const int PAGING_THRESHOLD_ITEMS = 10;
 

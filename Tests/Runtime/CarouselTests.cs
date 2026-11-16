@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// The looping list (Settings.loop). Rig: 400 x 800 viewport, 100 px items, 5 items by default, so one copy is
@@ -17,7 +17,7 @@ namespace SlotList.Tests.PlayMode
         private const int COUNT = 5;
         private const float ITEM = 100f;
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private readonly List<int> snapped = new();
 
         [TearDown]
@@ -30,7 +30,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(int count = COUNT, RigOptions options = null, SnapMode snap = SnapMode.None, SnapAlign align = SnapAlign.Start)
         {
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             rig.List.frameDeltaTime = () => 0.1f;
             rig.List.Settings.loop = true;
             rig.List.Settings.snap = snap;
@@ -103,7 +103,7 @@ namespace SlotList.Tests.PlayMode
 
             Assert.AreEqual(4, rig.List.VisibleStartIndex);
 
-            yield return SlotListRig.Frames(6);
+            yield return ScrollerRig.Frames(6);
             Assert.AreEqual(4, rig.List.VisibleStartIndex);
             Assert.AreEqual(0f, Mathf.Repeat(rig.ScrollDistance, ITEM), 0.01f);
             Assert.IsTrue(rig.List.IsItemVisible(4));
@@ -131,7 +131,7 @@ namespace SlotList.Tests.PlayMode
             PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 400f) };
             rig.List.OnBeginDrag(pointer);
             rig.List.OnEndDrag(pointer);
-            yield return SlotListRig.Frames(5);
+            yield return ScrollerRig.Frames(5);
 
             Assert.AreEqual(1, snapped.Count);
             Assert.That(snapped[0], Is.InRange(0, COUNT - 1));
@@ -141,12 +141,12 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Refresh_WithMoreItems_KeepsLooping()
         {
-            ListSource<TestItem> source = new(SlotListRig.MakeItems(COUNT));
-            rig = SlotListRig.Create();
+            ListSource<TestItem> source = new(ScrollerRig.MakeItems(COUNT));
+            rig = ScrollerRig.Create();
             rig.List.Settings.loop = true;
             yield return rig.Initialize(source);
 
-            source.AddItems(SlotListRig.MakeItems(3, COUNT));
+            source.AddItems(ScrollerRig.MakeItems(3, COUNT));
             rig.List.Refresh();
             yield return null;
 
@@ -184,11 +184,11 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Sections_AreRejected_WithAnError()
         {
-            rig = SlotListRig.Create(new RigOptions { Sectioned = true });
+            rig = ScrollerRig.Create(new RigOptions { Sectioned = true });
             rig.List.Settings.loop = true;
 
             LogAssert.Expect(LogType.Error, new Regex("Loop doesn't work with sections"));
-            yield return rig.InitializeSections(SlotListRig.MakeSections(3, 3));
+            yield return rig.InitializeSections(ScrollerRig.MakeSections(3, 3));
 
             Assert.IsTrue(rig.List.IsFirstItemVisible);
         }
@@ -199,7 +199,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator StartTwentyWithSevenVisible()
         {
-            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f) });
+            rig = ScrollerRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f) });
             rig.List.inertia = false;
             rig.List.Settings.loop = true;
             yield return rig.Initialize(TWENTY);
@@ -295,7 +295,7 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator StartTenThousandWithInertia()
         {
-            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), LineSpacing = 20f });
+            rig = ScrollerRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), LineSpacing = 20f });
             rig.List.inertia = true;
             rig.List.movementType = UnityEngine.UI.ScrollRect.MovementType.Elastic;
             rig.List.Settings.loop = true;
@@ -571,7 +571,7 @@ namespace SlotList.Tests.PlayMode
             yield return StartTenThousandWithInertia();
 
             rig.List.ScrollToItem(5000);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(5000, rig.List.VisibleStartIndex);
             Assert.IsTrue(rig.List.IsItemVisible(5000));
@@ -581,20 +581,20 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator TenThousandMeasured_SizesFollowTheRealItems_AcrossRecentres()
         {
-            List<TestItem> items = SlotListRig.MakeItems(TEN_THOUSAND);
+            List<TestItem> items = ScrollerRig.MakeItems(TEN_THOUSAND);
             for (int i = 0; i < items.Count; i++)
                 items[i].Height = i % 3 == 0 ? 200f : 100f;
-            rig = SlotListRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), ItemSize = -1f, LayoutContent = true });
+            rig = ScrollerRig.Create(new RigOptions { ViewportSize = new Vector2(400f, 700f), ItemSize = -1f, LayoutContent = true });
             rig.List.inertia = false;
             rig.List.Settings.loop = true;
             yield return rig.Initialize(new ListSource<TestItem>(items));
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             for (int i = 0; i < 200; i++)
                 yield return rig.ScrollToOffset(rig.ScrollDistance + 90f);
             for (int i = 0; i < 260; i++)
                 yield return rig.ScrollToOffset(rig.ScrollDistance - 90f);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             foreach (int id in rig.BoundIds())
                 Assert.AreEqual(id % 3 == 0 ? 200f : 100f, rig.ItemFor(id).sizeDelta.y, 0.5f, $"item {id} has its own size");

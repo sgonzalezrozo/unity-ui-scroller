@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// The list sets Content's size itself, and changes it at runtime (items measured, expanded or collapsed), so no

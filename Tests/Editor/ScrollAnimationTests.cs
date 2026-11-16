@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>The scroll animation's progress: eased, finished after its duration, cancellable.</summary>
     public class ScrollAnimationTests

@@ -1,10 +1,10 @@
 using System.Reflection;
 using NUnit.Framework;
-using SlotList.Tests.PlayMode;
+using UIScroller.Tests.PlayMode;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>
     /// Adding a list to a GameObject builds what it needs: a stretched Viewport with a RectMask2D, a stretched Content
@@ -14,13 +14,13 @@ namespace SlotList.Tests.Editor
     public class AddComponentSetupTests
     {
         private GameObject go;
-        private TestSlotList list;
+        private TestScroller list;
 
         [SetUp]
         public void SetUp()
         {
             go = new GameObject("AddComponentSetup", typeof(RectTransform));
-            list = go.AddComponent<TestSlotList>();
+            list = go.AddComponent<TestScroller>();
         }
 
         [TearDown]
@@ -30,8 +30,8 @@ namespace SlotList.Tests.Editor
         /// <summary>What Unity runs when the component is added in the editor.</summary>
         private void RunAddComponentSetup()
         {
-            MethodInfo reset = typeof(SlotListBase).GetMethod("Reset", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(reset, "SlotListBase.Reset not found");
+            MethodInfo reset = typeof(ScrollerBase).GetMethod("Reset", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(reset, "ScrollerBase.Reset not found");
             reset.Invoke(list, null);
         }
 
@@ -86,7 +86,7 @@ namespace SlotList.Tests.Editor
         [Test]
         public void ScrollAxis_ComesFromTheSettings()
         {
-            list.Settings.direction = SlotListDirection.LeftToRight;
+            list.Settings.direction = ScrollerDirection.LeftToRight;
 
             RunAddComponentSetup();
 

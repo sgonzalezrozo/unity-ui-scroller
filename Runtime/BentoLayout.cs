@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// How a bento list places its items: a sequence of spans packed in order, or a sequence of patterns, over a fixed

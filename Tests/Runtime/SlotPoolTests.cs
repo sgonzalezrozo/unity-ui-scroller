@@ -2,7 +2,7 @@ using NUnit.Framework;
 using ToolsCore;
 using UnityEngine;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>Design tests for SlotPool and SlotHandle (Phase 5, step 4): one queue per slot kind, components cached once.</summary>
     public class SlotPoolTests

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// CPU bench for the performance plan (P4). Not a pass or fail test: it's [Explicit], so verify skips it; run it with
@@ -48,12 +48,12 @@ namespace SlotList.Tests.PlayMode
                 }, repeatFrom: 1);
             }
 
-            SlotListRig rig = SlotListRig.Create(options);
+            ScrollerRig rig = ScrollerRig.Create(options);
             if (benchCase == Case.Sections)
             {
                 SectionedSource<TestItem, TestHeader> sections = new();
                 for (int s = 0; s < 100; s++)
-                    sections.AddSection(new TestHeader("S" + s), new ListSource<TestItem>(SlotListRig.MakeItems(COUNT / 100, 1000 * s)));
+                    sections.AddSection(new TestHeader("S" + s), new ListSource<TestItem>(ScrollerRig.MakeItems(COUNT / 100, 1000 * s)));
                 yield return rig.InitializeSections(sections);
             }
             else
@@ -61,7 +61,7 @@ namespace SlotList.Tests.PlayMode
                 yield return rig.Initialize(COUNT);
             }
 
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             Run(rig, out _, out _);
             List<double> listTimes = new();
@@ -79,7 +79,7 @@ namespace SlotList.Tests.PlayMode
             Assert.Pass();
         }
 
-        private static void Run(SlotListRig rig, out double listUs, out double canvasUs)
+        private static void Run(ScrollerRig rig, out double listUs, out double canvasUs)
         {
             Stopwatch list = new();
             Stopwatch canvas = new();

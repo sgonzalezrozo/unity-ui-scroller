@@ -4,7 +4,7 @@ Thanks for helping out. Bug reports, documentation fixes and pull requests are w
 
 ## Before you start
 
-- Search the [existing issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues) first.
+- Search the [existing issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues) first.
 - Open an issue before starting a large change, so we can agree on the approach.
 - Keep each pull request focused on one change.
 

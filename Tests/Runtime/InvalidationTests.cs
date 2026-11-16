@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 8, step 7: InvalidateSize and InvalidateAllSizes remeasure the items on screen at once and the others when
@@ -13,7 +13,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class InvalidationTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
         private List<TestItem> items;
 
         [TearDown]
@@ -25,8 +25,8 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(float height, int count = 100, float itemSize = -1f)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = itemSize, LayoutContent = true });
-            items = SlotListRig.MakeItems(count);
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = itemSize, LayoutContent = true });
+            items = ScrollerRig.MakeItems(count);
             foreach (TestItem item in items)
                 item.Height = height;
             yield return rig.Initialize(new ListSource<TestItem>(items));
@@ -116,7 +116,7 @@ namespace SlotList.Tests.PlayMode
 
             rig.Scroller.InvalidateAllSizes();
             rig.Scroller.ScrollToItem(60);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(250f, rig.ItemFor(60).sizeDelta.y, 0.01f);
         }
@@ -128,7 +128,7 @@ namespace SlotList.Tests.PlayMode
             ChangeAllContent(120f);
 
             rig.ScrollerRect.sizeDelta = new Vector2(300f, 800f);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             Assert.AreEqual(300f, rig.ItemFor(0).sizeDelta.x, 0.01f);
             Assert.AreEqual(120f, rig.ItemFor(0).sizeDelta.y, 0.01f);

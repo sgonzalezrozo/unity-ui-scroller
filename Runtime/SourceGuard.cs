@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     public static class SourceGuard<T> where T : class
     {
@@ -9,25 +9,25 @@ namespace SlotList
         {
             if (gameObject == null)
             {
-                Debug.LogWarning("[SlotList] GameObject is null or destroyed");
+                Debug.LogWarning("[UIScroller] GameObject is null or destroyed");
                 return false;
             }
 
             if (source == null)
             {
-                Debug.LogError("[SlotList] Data source is null");
+                Debug.LogError("[UIScroller] Data source is null");
                 return false;
             }
 
             if (gameObject.GetComponent<ScrollRect>() == null)
             {
-                Debug.LogError("[SlotList] ScrollRect component not found on " + gameObject.name);
+                Debug.LogError("[UIScroller] ScrollRect component not found on " + gameObject.name);
                 return false;
             }
 
             if (!gameObject.activeInHierarchy)
             {
-                Debug.LogWarning("[SlotList] Cannot initialize inactive GameObject: " + gameObject.name);
+                Debug.LogWarning("[UIScroller] Cannot initialize inactive GameObject: " + gameObject.name);
                 return false;
             }
 
@@ -38,19 +38,19 @@ namespace SlotList
         {
             if (gameObject == null)
             {
-                Debug.LogWarning("[SlotList] GameObject is null or destroyed");
+                Debug.LogWarning("[UIScroller] GameObject is null or destroyed");
                 return false;
             }
 
             if (newSource == null)
             {
-                Debug.LogError("[SlotList] Cannot set null data source");
+                Debug.LogError("[UIScroller] Cannot set null data source");
                 return false;
             }
 
             if (!isInitialized)
             {
-                Debug.LogWarning("[SlotList] Scroller not initialized, call Initialize() first");
+                Debug.LogWarning("[UIScroller] Scroller not initialized, call Initialize() first");
                 return false;
             }
 

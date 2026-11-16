@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Pages of TestItems with ids 0, 1, 2… Pages can be held open (Hold, then Release) to test loads in flight,
@@ -46,7 +46,7 @@ namespace SlotList.Tests.PlayMode
         {
             int start = page * PageSize;
             int count = Math.Max(0, Math.Min(PageSize, Total - start));
-            return new PageResult<TestItem>(SlotListRig.MakeItems(count, start), start + PageSize < Total);
+            return new PageResult<TestItem>(ScrollerRig.MakeItems(count, start), start + PageSize < Total);
         }
     }
 }

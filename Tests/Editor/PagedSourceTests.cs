@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using SlotList.Tests.PlayMode;
+using UIScroller.Tests.PlayMode;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>Design tests for the Phase 7 PagedSource: pages are loaded on request only, with events and cancellation.</summary>
     public class PagedSourceTests

@@ -1,7 +1,7 @@
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>The Carousel example's list.</summary>
-    public class CarouselExampleList : SlotList<ExampleItem>
+    public class CarouselExampleList : Scroller<ExampleItem>
     {
     }
 }

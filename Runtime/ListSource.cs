@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace SlotList
+namespace UIScroller
 {
     public class ListSource<T> : IItemSource<T> where T : class
     {

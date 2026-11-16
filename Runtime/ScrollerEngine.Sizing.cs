@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>Item and header sizes: fixed or measured with layout, placeholders, invalidation, watcher reports and anchoring.</summary>
-    internal sealed partial class SlotListEngine<T>
+    internal sealed partial class ScrollerEngine<T>
     {
         // ---------- Sizes ----------
 
@@ -35,7 +35,7 @@ namespace SlotList
                 return;
 
             hasWarnedAboutMissingLayout = true;
-            Debug.LogWarning($"[SlotList] '{slotPrefab.name}' returns a DefaultExtent of 0 or less (measure with layout), " +
+            Debug.LogWarning($"[UIScroller] '{slotPrefab.name}' returns a DefaultExtent of 0 or less (measure with layout), " +
                              "but its root reports no preferred size, so its slots keep the prefab's size. " +
                              "Add a VerticalLayoutGroup (Control Child Size > Height) or a LayoutElement to the root, " +
                              "or return a positive DefaultExtent for a fixed size.");
@@ -140,7 +140,7 @@ namespace SlotList
 
             float size;
             Work.Measurements++;
-            using (SlotListMarkers.Measure.Auto())
+            using (ScrollerMarkers.Measure.Auto())
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(slot.Rect);
                 size = LayoutUtility.GetPreferredSize(slot.Rect, settings.IsVertical ? 1 : 0);
@@ -269,14 +269,14 @@ namespace SlotList
 
         /// <summary>
         /// Resizes the slots whose watchers reported a new size since the last call, and moves the items after them.
-        /// Runs after Unity's layout pass (SlotList.LateUpdate), never inside it.
+        /// Runs after Unity's layout pass (ScrollerBase.LateUpdate), never inside it.
         /// </summary>
         public void ApplyPendingResizes()
         {
             if (pendingResizes.Count == 0)
                 return;
 
-            using var _ = SlotListMarkers.ApplySizes.Auto();
+            using var _ = ScrollerMarkers.ApplySizes.Auto();
 
             // A re-measured item keeps its start: anchor on the first shown line, measured before any change.
             layout.RecomputeOffsets();

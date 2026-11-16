@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Editor
+namespace UIScroller.Editor
 {
     /// <summary>
     /// Removes a layout component (ContentSizeFitter, LayoutGroup, LayoutElement, AspectRatioFitter) the moment it's
@@ -15,7 +15,7 @@ namespace SlotList.Editor
         static ContentLayoutGuard()
             => ObjectFactory.componentWasAdded += OnComponentAdded;
 
-        internal static bool IsForbiddenOn(Component component, SlotListBase list)
+        internal static bool IsForbiddenOn(Component component, ScrollerBase list)
         {
             if (component == null || list == null)
                 return false;
@@ -29,13 +29,13 @@ namespace SlotList.Editor
 
         private static void OnComponentAdded(Component component)
         {
-            SlotListBase list = component != null ? component.GetComponentInParent<SlotListBase>(true) : null;
+            ScrollerBase list = component != null ? component.GetComponentInParent<ScrollerBase>(true) : null;
             if (!IsForbiddenOn(component, list))
                 return;
 
             string name = component.GetType().Name;
             string where = component.gameObject.name;
-            Debug.LogWarning($"[SlotList] Removed {name} from {where}: the list sets Content's size itself and changes it at runtime, so Content can't have layout components.", list);
+            Debug.LogWarning($"[UIScroller] Removed {name} from {where}: the list sets Content's size itself and changes it at runtime, so Content can't have layout components.", list);
 
             // Removing a component inside the callback that added it isn't safe; do it right after.
             EditorApplication.delayCall += () =>

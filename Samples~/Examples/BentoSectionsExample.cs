@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// Bento with sections: each section's header takes a whole row, as tall as its own text, and the bento layout
@@ -57,7 +57,7 @@ namespace SlotList.Samples
 
             BentoSectionsExampleList list = ExampleUI.CreateList<BentoSectionsExampleList>(body, tile.gameObject);
             list.HeaderPrefab = header.gameObject;
-            SlotListSettings settings = list.Settings;
+            ScrollerSettings settings = list.Settings;
             settings.bento = true;
             settings.lineSpacing = SPACING;
             settings.slotSpacing = SPACING;

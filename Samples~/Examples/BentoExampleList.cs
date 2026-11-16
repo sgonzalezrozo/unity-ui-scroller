@@ -1,7 +1,7 @@
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>The Bento example's list.</summary>
-    public class BentoExampleList : SlotList<ExampleItem>
+    public class BentoExampleList : Scroller<ExampleItem>
     {
     }
 }

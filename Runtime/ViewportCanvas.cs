@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Makes the Viewport a nested Canvas (P18). Unity rebuilds the batches of the whole Canvas a moved graphic belongs

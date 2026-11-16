@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 using UnityEngine.TestTools.Constraints;
 using Is = UnityEngine.TestTools.Constraints.Is;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 10 regression tests: they hold the performance the list reaches. They check work that can be counted
@@ -14,7 +14,7 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class PerformanceTests
     {
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -26,9 +26,9 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator CreateQuietList(int count)
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
             yield return rig.Initialize(count);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
         }
 
         /// <summary>Moves the content and runs the list's scroll handler at once, in this frame.</summary>
@@ -70,7 +70,7 @@ namespace SlotList.Tests.PlayMode
             ParentWatch.Changes = 0;
 
             rig.List.Refresh();
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(0, ParentWatch.Changes, "Refresh moved slots out of Content and back.");
             CollectionAssert.AreEqual(shown, rig.BoundIds());
@@ -159,11 +159,11 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Initialize_BindsTheFirstScreen_InTheSameFrame()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
             bool ready = false;
             rig.List.OnInitialized += () => ready = true;
 
-            rig.Scroller.Initialize(new ListSource<TestItem>(SlotListRig.MakeItems(50)));
+            rig.Scroller.Initialize(new ListSource<TestItem>(ScrollerRig.MakeItems(50)));
 
             Assert.IsTrue(ready, "OnInitialized must fire inside Initialize.");
             CollectionAssert.AreEqual(new[] { 0, 1, 2, 3, 4, 5, 6, 7 }, rig.BoundIds(), "No blank first frame.");
@@ -173,8 +173,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator PoolWarmUp_CreatesAtMostTwoSlotsPerFrame()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
-            rig.Scroller.Initialize(new ListSource<TestItem>(SlotListRig.MakeItems(500)));
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
+            rig.Scroller.Initialize(new ListSource<TestItem>(ScrollerRig.MakeItems(500)));
             int count = rig.CountItemInstances();
 
             for (int frame = 0; frame < 30; frame++)
@@ -203,7 +203,7 @@ namespace SlotList.Tests.PlayMode
             rig.List.gameObject.SetActive(false);
             yield return null;
             rig.List.gameObject.SetActive(true);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             CollectionAssert.AreEqual(shown, rig.BoundIds());
             foreach (int id in shown)
@@ -274,12 +274,12 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator AddingItems_To10000_CreatesOnlyTheNewPlacementsAndLines()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
-            ListSource<TestItem> source = new(SlotListRig.MakeItems(10_000));
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
+            ListSource<TestItem> source = new(ScrollerRig.MakeItems(10_000));
             yield return rig.Initialize(source);
             Work.Reset();
 
-            source.AddItems(SlotListRig.MakeItems(20, 10_000));
+            source.AddItems(ScrollerRig.MakeItems(20, 10_000));
             rig.List.Refresh();
 
             Assert.AreEqual(20, Work.PlacementsCreated);
@@ -291,14 +291,14 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator AppendingAPage_To10000_CreatesOnlyTheNewPlacementsAndLines()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
             FakePageLoader loader = new() { PageSize = 10_000, Total = 10_020 };
             PagedSource<TestItem> source = new(loader);
             yield return rig.Initialize(source);
             Work.Reset();
 
             ScrollNow(10_000 * 100f - 800f);
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() == 10_020, "The second page never arrived");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() == 10_020, "The second page never arrived");
 
             Assert.AreEqual(20, Work.PlacementsCreated);
             Assert.LessOrEqual(Work.LinesCreated, 21);
@@ -317,8 +317,8 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Refresh_TwiceAfterGrowing_ReusesEveryPlacementAndLine()
         {
-            rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
-            ListSource<TestItem> source = new(SlotListRig.MakeItems(1000));
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
+            ListSource<TestItem> source = new(ScrollerRig.MakeItems(1000));
             yield return rig.Initialize(source);
             source.RemoveItemAt(999);
             rig.List.Refresh();

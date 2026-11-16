@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// The bento layout in a real list: where tiles go in every direction, spacing and cell aspect, tall tiles that
@@ -15,7 +15,7 @@ namespace SlotList.Tests.PlayMode
     public class BentoTests
     {
         private static readonly BentoSpan Big = new(2, 2);
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -32,7 +32,7 @@ namespace SlotList.Tests.PlayMode
             options ??= new RigOptions();
             options.Bento = true;
             options.BentoLayout = layout;
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             yield return rig.Initialize(count);
         }
 
@@ -197,7 +197,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator Loop_IsRefused_AndTheTilesStay()
         {
-            rig = SlotListRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });
+            rig = ScrollerRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });
             rig.List.Settings.loop = true;
 
             LogAssert.Expect(LogType.Error, new Regex("Loop doesn't work with a bento layout"));
@@ -209,7 +209,7 @@ namespace SlotList.Tests.PlayMode
         [UnityTest]
         public IEnumerator ABrokenLayout_LogsItsErrors_AndUsesOneByOneTilesOverSlotsPerLine()
         {
-            rig = SlotListRig.Create(new RigOptions { Bento = true, SlotsPerLine = 4, BentoLayout = BentoLayout.FromJson("{ columns: ") });
+            rig = ScrollerRig.Create(new RigOptions { Bento = true, SlotsPerLine = 4, BentoLayout = BentoLayout.FromJson("{ columns: ") });
 
             LogAssert.Expect(LogType.Error, new Regex("the bento layout has errors"));
             yield return rig.Initialize(20);
@@ -235,16 +235,16 @@ namespace SlotList.Tests.PlayMode
             options.Bento = true;
             options.Sectioned = true;
             options.BentoLayout = layout;
-            rig = SlotListRig.Create(options);
+            rig = ScrollerRig.Create(options);
             yield return rig.InitializeSections(source);
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
         }
 
-        private static SectionedSource<TestItem, TestHeader> TwoSections(int first, int second, float firstHeader = SlotListRig.HEADER_BODY_HEIGHT, float secondHeader = SlotListRig.HEADER_BODY_HEIGHT)
+        private static SectionedSource<TestItem, TestHeader> TwoSections(int first, int second, float firstHeader = ScrollerRig.HEADER_BODY_HEIGHT, float secondHeader = ScrollerRig.HEADER_BODY_HEIGHT)
         {
             SectionedSource<TestItem, TestHeader> source = new();
-            source.AddSection(new TestHeader("S0", firstHeader), new ListSource<TestItem>(SlotListRig.MakeItems(first, 0)));
-            source.AddSection(new TestHeader("S1", secondHeader), new ListSource<TestItem>(SlotListRig.MakeItems(second, 100)));
+            source.AddSection(new TestHeader("S0", firstHeader), new ListSource<TestItem>(ScrollerRig.MakeItems(first, 0)));
+            source.AddSection(new TestHeader("S1", secondHeader), new ListSource<TestItem>(ScrollerRig.MakeItems(second, 100)));
             return source;
         }
 
@@ -335,7 +335,7 @@ namespace SlotList.Tests.PlayMode
         }
 
         private static SectionedSource<TestItem, TestHeader> RigSections(params int[] counts)
-            => SlotListRig.MakeSections(counts);
+            => ScrollerRig.MakeSections(counts);
 
         // ---------- Changes ----------
 
@@ -357,7 +357,7 @@ namespace SlotList.Tests.PlayMode
             yield return Start(BentoLayout.Uniform(4));
 
             rig.ScrollerRect.sizeDelta = new Vector2(800f, 800f);
-            yield return SlotListRig.Frames(3);
+            yield return ScrollerRig.Frames(3);
 
             AssertTile(5, 200f, -200f, 200f, 200f);
         }
@@ -366,35 +366,35 @@ namespace SlotList.Tests.PlayMode
         public IEnumerator BottomToTop_Paged_LoadsTheFirstPage_AndMoreNearTheEnd(
             [Values(false, true)] bool bento)
         {
-            rig = SlotListRig.Create(new RigOptions
+            rig = ScrollerRig.Create(new RigOptions
             {
                 Direction = RigDirection.BottomToTop, Bento = bento, BentoLayout = bento ? BigFirst(2) : null, CellAspect = 0.5f, LineSpacing = 20f
             });
             FakePageLoader loader = new() { PageSize = 30, Total = 153 };
             yield return rig.Initialize(new PagedSource<TestItem>(loader));
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 30, "first page");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() >= 30, "first page");
             yield return null;
 
             Assert.IsNotNull(rig.ItemFor(0), "the first item is shown");
             Assert.Greater(rig.BoundIds().Count, 2);
 
             yield return rig.ScrollToOffset(rig.List.ContentSize - 800f);
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 60, "second page");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() >= 60, "second page");
         }
 
         [UnityTest]
         public IEnumerator AnAppendedPage_ContinuesTheLayout_WithoutMovingTheTilesAbove()
         {
-            rig = SlotListRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });
+            rig = ScrollerRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });
             FakePageLoader loader = new() { PageSize = 10, Total = 30 };
             yield return rig.Initialize(new PagedSource<TestItem>(loader));
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 10, "first page");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() >= 10, "first page");
 
             RectTransform first = rig.ItemFor(0);
             Vector2 before = first.anchoredPosition;
 
             // Ten items fill under 800 px, so the list asks for the next page by itself.
-            yield return SlotListRig.WaitUntil(() => rig.List.GetItemCount() >= 20, "second page");
+            yield return ScrollerRig.WaitUntil(() => rig.List.GetItemCount() >= 20, "second page");
             yield return null;
 
             // Items 5 to 8 fill row 2, item 9 starts row 3, and the page goes on from there.

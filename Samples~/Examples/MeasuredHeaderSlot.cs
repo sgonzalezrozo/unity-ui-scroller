@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples
+namespace UIScroller.Samples
 {
     /// <summary>
     /// A header measured with layout (DefaultExtent of 0 or less): a title and a wrapping description, stacked by a

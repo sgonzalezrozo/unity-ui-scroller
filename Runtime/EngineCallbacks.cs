@@ -1,7 +1,7 @@
-namespace SlotList
+namespace UIScroller
 {
-    /// <summary>The overridable parts of a SlotList that its engine calls.</summary>
-    internal interface ISlotListHooks
+    /// <summary>The overridable parts of a scroller that its engine calls.</summary>
+    internal interface IScrollerHooks
     {
         bool IsHeader(int index);
         void BindItem(SlotHandle slot, int index);

@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>
     /// Phase 8, step 8: expanding a slot measured with layout only sets IsExpanded. The slot shows its details and is
@@ -15,9 +15,9 @@ namespace SlotList.Tests.PlayMode
     /// </summary>
     public class LayoutExpansionTests
     {
-        private const float EXPANDED = 100f + SlotListRig.DETAILS_HEIGHT;
+        private const float EXPANDED = 100f + ScrollerRig.DETAILS_HEIGHT;
 
-        private SlotListRig rig;
+        private ScrollerRig rig;
 
         [TearDown]
         public void TearDown()
@@ -28,8 +28,8 @@ namespace SlotList.Tests.PlayMode
 
         private IEnumerator Start(bool allowMultiple = false)
         {
-            rig = SlotListRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, Expandable = true, AllowMultipleExpanded = allowMultiple });
-            List<TestItem> items = SlotListRig.MakeItems(100);
+            rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = true, Expandable = true, AllowMultipleExpanded = allowMultiple });
+            List<TestItem> items = ScrollerRig.MakeItems(100);
             foreach (TestItem item in items)
                 item.Height = 100f;
             yield return rig.Initialize(new ListSource<TestItem>(items));
@@ -111,7 +111,7 @@ namespace SlotList.Tests.PlayMode
 
             rig.ItemFor(2).GetComponent<ExpandableRecordingSlot>().Details.preferredHeight = 400f;
             Canvas.ForceUpdateCanvases();
-            yield return SlotListRig.Frames(2);
+            yield return ScrollerRig.Frames(2);
 
             Assert.AreEqual(500f, rig.ItemFor(2).sizeDelta.y, 0.01f);
             Assert.AreEqual(-700f, rig.ItemFor(3).anchoredPosition.y, 0.01f);

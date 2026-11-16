@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SlotList.Samples.Extras
+namespace UIScroller.Samples.Extras
 {
     public enum PullIndicatorState
     {

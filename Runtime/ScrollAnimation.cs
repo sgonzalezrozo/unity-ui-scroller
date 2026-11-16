@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// An eased (ease-out cubic) move from a start distance to a target the caller gives each frame, so the target can

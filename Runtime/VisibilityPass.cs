@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     internal class VisibilityPass
     {
@@ -39,7 +39,7 @@ namespace SlotList
 
         public void RebuildVisibleItems(ref bool needsPositionRecalculation, bool forceRebindAll)
         {
-            using var _ = SlotListMarkers.UpdateVisible.Auto();
+            using var _ = ScrollerMarkers.UpdateVisible.Auto();
             ListView<Line> lines = layout.Lines;
             if (lines.Length == 0 || recycler == null)
                 return;

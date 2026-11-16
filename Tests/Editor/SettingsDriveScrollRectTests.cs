@@ -1,21 +1,21 @@
 using NUnit.Framework;
-using SlotList.Tests.PlayMode;
+using UIScroller.Tests.PlayMode;
 using UnityEngine;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>The list's settings set up its ScrollRect in the editor too, so nobody edits the ScrollRect by hand.</summary>
     public class SettingsDriveScrollRectTests
     {
         private GameObject go;
-        private TestSlotList list;
+        private TestScroller list;
         private RectTransform content;
 
         [SetUp]
         public void SetUp()
         {
             go = new GameObject("SettingsDriveScrollRect", typeof(RectTransform));
-            list = go.AddComponent<TestSlotList>();
+            list = go.AddComponent<TestScroller>();
             content = (RectTransform)new GameObject("Content", typeof(RectTransform)).transform;
             content.SetParent(go.transform, false);
             list.content = content;
@@ -30,7 +30,7 @@ namespace SlotList.Tests.Editor
         {
             list.horizontal = true;
             list.vertical = false;
-            list.Settings.direction = SlotListDirection.TopToBottom;
+            list.Settings.direction = ScrollerDirection.TopToBottom;
 
             list.ApplySettingsToScrollRect();
 
@@ -42,7 +42,7 @@ namespace SlotList.Tests.Editor
         [Test]
         public void BottomToTop_AnchorsContentAtTheBottom()
         {
-            list.Settings.direction = SlotListDirection.BottomToTop;
+            list.Settings.direction = ScrollerDirection.BottomToTop;
 
             list.ApplySettingsToScrollRect();
 
@@ -53,7 +53,7 @@ namespace SlotList.Tests.Editor
         [Test]
         public void Horizontal_ScrollsHorizontally_WithContentAnchoredAtTheLeft()
         {
-            list.Settings.direction = SlotListDirection.LeftToRight;
+            list.Settings.direction = ScrollerDirection.LeftToRight;
 
             list.ApplySettingsToScrollRect();
 
@@ -65,7 +65,7 @@ namespace SlotList.Tests.Editor
         [Test]
         public void RightToLeft_AnchorsContentAtTheRight()
         {
-            list.Settings.direction = SlotListDirection.RightToLeft;
+            list.Settings.direction = ScrollerDirection.RightToLeft;
 
             list.ApplySettingsToScrollRect();
 
@@ -77,7 +77,7 @@ namespace SlotList.Tests.Editor
         public void WithoutContent_OnlySetsTheAxis()
         {
             list.content = null;
-            list.Settings.direction = SlotListDirection.LeftToRight;
+            list.Settings.direction = ScrollerDirection.LeftToRight;
 
             Assert.DoesNotThrow(() => list.ApplySettingsToScrollRect());
             Assert.IsTrue(list.horizontal);

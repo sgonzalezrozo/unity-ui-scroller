@@ -1,6 +1,6 @@
 # Bento layout plan
 
-A new **Bento** layout for Slot List: an asymmetric grid where each item is a tile covering one or more cells (1×1, 2×1, 1×2, 2×2, and so on), and only the tiles on screen have slots.
+A new **Bento** layout for UI Scroller: an asymmetric grid where each item is a tile covering one or more cells (1×1, 2×1, 1×2, 2×2, and so on), and only the tiles on screen have slots.
 
 Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 release.
 
@@ -12,7 +12,7 @@ Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 r
 - **Inspector done:** **Layout: Bento** with **Layout JSON** (a TextAsset), **Cell Aspect** and the column spacing underneath; Allow Multiple Expanded and Loop hidden; JSON errors and sections shown as an error box. 6 EditMode tests.
 - **Fix found while testing:** a page that lands during the bounce at the end no longer drifts the list back towards the start (both directions; it showed most bottom to top). 459 tests pass.
 - **Merged into `main`** (2026-11-14).
-- **Sections done:** bento in a `SectionedSlotList`. A header is a line of its own across every column, as tall as the header (fixed, or measured per header); each section's rows start below it and the layout starts again (decision: restart per section, one layout for all sections). A section ends after its last row, so a tall tile never crosses a header. `BentoSectionsExample` with measured headers of different heights. Also confirmed by tests: headers of different heights in a sectioned list and grid (no bento) already worked.
+- **Sections done:** bento in a `SectionedScroller`. A header is a line of its own across every column, as tall as the header (fixed, or measured per header); each section's rows start below it and the layout starts again (decision: restart per section, one layout for all sections). A section ends after its last row, so a tall tile never crosses a header. `BentoSectionsExample` with measured headers of different heights. Also confirmed by tests: headers of different heights in a sectioned list and grid (no bento) already worked.
 - **Left:** item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, the pattern asset with a grid editor, README and agent rules.
 
 ## Decisions (B0, 2026-11-14)
@@ -21,7 +21,7 @@ Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 r
 2. **Ordered packing.**
 3. **Row height from Cell Aspect** (a list setting, so the JSON only describes the distribution).
 4. **Incomplete patterns leave their cells empty.**
-5. **A Layout mode on `SlotList<T>`**, not a new class.
+5. **A Layout mode on `Scroller<T>`**, not a new class.
 6. Slot types (alternative E): not decided; not part of this work.
 
 ## Ground rules
@@ -29,7 +29,7 @@ Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 r
 1. **It's a separate feature.** List, Grid and Auto Grid keep working exactly as today. Their code paths don't change, except where the engine picks a layout, and all existing tests must pass untouched at every step.
 2. **No expanding.** As in Grid, opening one tile would change how every other tile in the same rows looks. `Expand` on a bento list logs a warning once and does nothing, as Grid does today.
 3. **Fixed sizes.** A tile's size comes from its cells, never from measuring. A measured slot (`DefaultExtent` of 0 or less) isn't measured in a bento list; that logs a warning once.
-4. **Test-first**, as in the rest of the refactor. Pure logic is covered by EditMode tests, the list by PlayMode tests through `SlotListRig`.
+4. **Test-first**, as in the rest of the refactor. Pure logic is covered by EditMode tests, the list by PlayMode tests through `ScrollerRig`.
 
 ## Vocabulary
 
@@ -58,7 +58,7 @@ public class ShopItem : IBentoItem
 }
 
 // ...or on the list, without touching the item type.
-public class ShopList : SlotList<ShopItem>
+public class ShopList : Scroller<ShopItem>
 {
     protected override BentoSpan GetTileSpan(int index)
         => DataSource.GetItem(index).IsFeatured ? new BentoSpan(2, 2) : BentoSpan.One;
@@ -177,7 +177,7 @@ What stays out of bento mode, each with a clear message:
 |---|---|
 | Expand | Warning once, ignored (as in Grid) |
 | Loop | Error once, doesn't loop (as with Grid) |
-| Sections (`SectionedSlotList`) | Supported: a header takes a full-width row as tall as the header, and the layout starts again in each section. |
+| Sections (`SectionedScroller`) | Supported: a header takes a full-width row as tall as the header, and the layout starts again in each section. |
 | Measured slots | Warning once, the tile size is used |
 | Auto Grid columns | The first version has a fixed column count. Later, possibly: patterns per column count, chosen by width. |
 
@@ -203,7 +203,7 @@ public readonly struct BentoTile { public readonly int Column, Row, Columns, Row
 
 public interface IBentoItem { BentoSpan Span { get; } }
 
-// SlotList<T>
+// Scroller<T>
 protected virtual BentoSpan GetTileSpan(int index);    // default: IBentoItem's span, or 1×1
 public void SetBentoPatterns(BentoPatternSequence patterns);
 public BentoTile GetTile(int index);                    // read-only, for UI and tests
@@ -250,5 +250,5 @@ At every step: the existing 400 tests pass, and Grid and List behaviour don't ch
 2. **Packing order:** ordered (recommended) or dense.
 3. **Row height:** Cell Aspect (recommended; rows follow the width, so tiles keep their shape on every screen) or a fixed row height in pixels.
 4. **Incomplete patterns:** leave empty (recommended), fill with 1×1, or a tail pattern.
-5. **A Layout mode on `SlotList<T>` (recommended) or a new `BentoSlotList<T>` class?** A mode matches how Grid works and needs no new component. A separate class isolates the code even more, but means another component to learn.
+5. **A Layout mode on `Scroller<T>` (recommended) or a new `BentoScroller<T>` class?** A mode matches how Grid works and needs no new component. A separate class isolates the code even more, but means another component to learn.
 6. **Slot types** (alternative E, several prefabs per list): plan them as the next feature after bento, or not at all?

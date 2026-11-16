@@ -1,15 +1,15 @@
-# Slot List benchmarks
+# UI Scroller benchmarks
 
-How the list performs, measured with the bench runner in MyTools (`Assets/SlotListTests/Bench`).
+How the list performs, measured with the bench runner in MyTools (`Assets/ScrollerTests/Bench`).
 
 ## Method
 
-- **Run it:** in MyTools, **Tools > Slot List > Run Benchmarks**. It opens a new empty scene, enters Play mode, runs every case, writes the results to `Logs/SlotListBench.md` and the console, and leaves Play mode.
-- **On a phone:** add `BenchRunner` to an empty scene with a camera, make an IL2CPP development build, and read the table from the device log (it's also written to `Application.persistentDataPath/SlotListBench.md`).
+- **Run it:** in MyTools, **Tools > UI Scroller > Run Benchmarks**. It opens a new empty scene, enters Play mode, runs every case, writes the results to `Logs/ScrollerBench.md` and the console, and leaves Play mode.
+- **On a phone:** add `BenchRunner` to an empty scene with a camera, make an IL2CPP development build, and read the table from the device log (it's also written to `Application.persistentDataPath/ScrollerBench.md`).
 - **Every case:** a Screen Space Overlay canvas (1080 × 1920 reference) with 200 static images around the list, so rebatching the whole screen would show. The list scrolls at 4,000 px/s for 5 s after 30 frames to settle.
 - **Recorded per frame:**
   - frame time;
-  - the markers `Slot List.OnScroll`, `Slot List.Bind` and `Slot List.Measure`;
+  - the markers `UI Scroller.OnScroll`, `UI Scroller.Bind` and `UI Scroller.Measure`;
   - `PostLateUpdate.PlayerUpdateCanvases` (layout and graphic rebuilds);
   - `Canvas.BuildBatch`;
   - GC bytes allocated in the frame.

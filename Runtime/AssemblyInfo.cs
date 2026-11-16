@@ -5,8 +5,8 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Assembly-CSharp")]
 
 // The tests reach the engine's internal pieces.
-[assembly: InternalsVisibleTo("SlotList.Tests.Editor")]
-[assembly: InternalsVisibleTo("SlotList.Tests.PlayMode")]
+[assembly: InternalsVisibleTo("UIScroller.Tests.Editor")]
+[assembly: InternalsVisibleTo("UIScroller.Tests.PlayMode")]
 
 // The inspector uses the same Content layout check as the runtime.
-[assembly: InternalsVisibleTo("SlotList.Editor")]
+[assembly: InternalsVisibleTo("UIScroller.Editor")]

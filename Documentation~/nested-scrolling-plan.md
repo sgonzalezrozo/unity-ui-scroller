@@ -1,6 +1,6 @@
 # Nested scrolling plan
 
-Native nested scrolling for Slot List: a horizontal carousel inside a vertical list (or the other way round) where a drag across the inner list's axis moves the outer list instead. Today the inner list takes every drag that starts on it, so the outer list can't be scrolled from there. MyTools works around it with a third-party MIT plugin.
+Native nested scrolling for UI Scroller: a horizontal carousel inside a vertical list (or the other way round) where a drag across the inner list's axis moves the outer list instead. Today the inner list takes every drag that starts on it, so the outer list can't be scrolled from there. MyTools works around it with a third-party MIT plugin.
 
 Status: proposal, not started. Target: **1.0.0** (it's the one gap that shows up in every F2P store and lobby).
 
@@ -21,7 +21,7 @@ Its limits, read from the code:
 
 ## Ground rules
 
-1. **Built into `SlotListBase`**, not a separate component: every Slot List can be the inner list, and any parent that handles drags can be the outer one (a Slot List, a plain `ScrollRect`, or a custom handler).
+1. **Built into `ScrollerBase`**, not a separate component: every UI Scroller can be the inner list, and any parent that handles drags can be the outer one (a UI Scroller, a plain `ScrollRect`, or a custom handler).
 2. **On by default and invisible** when there's nothing to hand to: a list without a scrollable parent behaves exactly as today. The inspector gets at most one toggle (see *Inspector*).
 3. **The list's own features keep working.** The loop drag restart, snapping, pull to refresh, the drag state and scroll animations must ignore gestures that went to the parent.
 4. **Test-first**, with the rig: synthetic drags on an inner list inside a spy parent and inside a real outer list.
@@ -57,7 +57,7 @@ From then on, the input module sends that gesture's `OnDrag` and `OnEndDrag` **s
 **Why hand over instead of relaying every event** (the plugin's way):
 - **Cost:** one hierarchy walk and one call per gesture, then nothing. Relaying adds a call per drag event and a "this gesture is the parent's" flag on the inner list. Either is cheap next to what moving the outer list costs, but handing over is the minimum.
 - **Pooled slots:** while the outer list scrolls, it recycles the slot that holds the carousel the finger started on. The carousel gets parked or rebound to another row mid-gesture. A relay keeps depending on that carousel for the rest of the gesture; after a hand-over, the carousel no longer takes part.
-- **Several levels:** the parent's `OnBeginDrag` runs normally. If the parent is another Slot List, it makes the same decision and can hand the gesture further up.
+- **Several levels:** the parent's `OnBeginDrag` runs normally. If the parent is another UI Scroller, it makes the same decision and can hand the gesture further up.
 - **Nothing to clean up:** the inner list keeps no per-gesture state. The input module drops `pointerDrag` when the finger lifts.
 
 To check in N1: a test that drives a real EventSystem with both input modules (or, if that can't run in batch mode, a hand check on a phone with the Input System module) to confirm `OnEndDrag` reaches the parent after the hand-over.
@@ -103,7 +103,7 @@ If N3 is done, a second toggle comes with it: **Chain At Edges**, off by default
 | # | Step | Tests | Done when |
 |---|---|---|---|
 | N0 | Settle the open decisions below | — | Written down here |
-| N1 | Cross-axis hand-over: decision at begin, parent lookup, hand-over through `pointerDrag`, potential drag passed on, features ignore handed-over gestures | PlayMode: an inner horizontal list in a spy parent hands over a vertical drag and keeps a horizontal one; same in all four directions; no parent keeps every drag; diagonal stays; loop, snap and pull to refresh don't react to a handed-over drag; the next drag events reach the parent through `pointerDrag`; a real outer Slot List moves; two levels; touching the inner list stops the outer fling | A carousel inside a vertical list scrolls both ways |
+| N1 | Cross-axis hand-over: decision at begin, parent lookup, hand-over through `pointerDrag`, potential drag passed on, features ignore handed-over gestures | PlayMode: an inner horizontal list in a spy parent hands over a vertical drag and keeps a horizontal one; same in all four directions; no parent keeps every drag; diagonal stays; loop, snap and pull to refresh don't react to a handed-over drag; the next drag events reach the parent through `pointerDrag`; a real outer UI Scroller moves; two levels; touching the inner list stops the outer fling | A carousel inside a vertical list scrolls both ways |
 | N2 | Mouse-wheel routing | PlayMode: a vertical wheel over a horizontal inner list scrolls the parent; a horizontal wheel scrolls the inner list; no parent keeps Unity's behaviour | Desktop and WebGL feel right |
 | N3 | (Optional) Same-axis chaining at the edges, and non-scrollable inner lists | PlayMode: drag past the inner list's end moves the parent; a fitting inner list hands everything over | Only if a screen needs it |
 | N4 | `NestedExample` in the Examples sample (a vertical list of rows, each a horizontal carousel with snapping), README section, CHANGELOG, agent rules; replace the plugin in MyTools | Smoke test of the sample; full verify | Released |

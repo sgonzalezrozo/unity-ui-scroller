@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// A ScrollRect that recycles slots and shows a <see cref="SectionedSource{TItem, THeader}"/>: each section is a header
@@ -12,13 +12,13 @@ namespace SlotList
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(1)]
-    public abstract class SectionedSlotList<TItem, THeader> : SlotListBase
+    public abstract class SectionedScroller<TItem, THeader> : ScrollerBase
         where TItem : class
         where THeader : class
     {
         [SerializeField] protected GameObject headerPrefab;
 
-        private SlotListEngine<object> typedEngine;
+        private ScrollerEngine<object> typedEngine;
         private SectionedSource<TItem, THeader> source;
 
         /// <summary>The prefab used for headers. Setting it only has an effect before the first SetSource.</summary>
@@ -36,13 +36,13 @@ namespace SlotList
         {
             if (newSource == null)
             {
-                Debug.LogError("[SlotList] Cannot set a null sectioned source");
+                Debug.LogError("[UIScroller] Cannot set a null sectioned source");
                 return;
             }
 
             if (headerPrefab == null)
             {
-                Debug.LogError($"[SlotList] Header Prefab is not assigned to {name}. A sectioned list needs a header prefab implementing ISlot<{typeof(THeader).Name}>.");
+                Debug.LogError($"[UIScroller] Header Prefab is not assigned to {name}. A sectioned list needs a header prefab implementing ISlot<{typeof(THeader).Name}>.");
                 return;
             }
 
@@ -102,7 +102,7 @@ namespace SlotList
                 if (slot.Slot is ISlot<THeader> header)
                     header.Data = source.HeaderAt(index);
                 else
-                    Debug.LogError($"[SlotList] Entry {index} is a header, but the header slot does not implement ISlot<{typeof(THeader).Name}>");
+                    Debug.LogError($"[UIScroller] Entry {index} is a header, but the header slot does not implement ISlot<{typeof(THeader).Name}>");
                 return;
             }
 
@@ -126,7 +126,7 @@ namespace SlotList
                 return;
             }
 
-            Debug.LogError($"[SlotList] Entry {index} - the slot does not implement ISlot<{typeof(TItem).Name}> or IExpandableSlot<{typeof(TItem).Name}>");
+            Debug.LogError($"[UIScroller] Entry {index} - the slot does not implement ISlot<{typeof(TItem).Name}> or IExpandableSlot<{typeof(TItem).Name}>");
         }
 
         private protected override bool IsHeaderEntry(int index)

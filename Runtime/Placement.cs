@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// One item's place in a line: its index, cached size, expansion flag and the slot showing it (if any). Kept small,

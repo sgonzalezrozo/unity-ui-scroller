@@ -1,10 +1,10 @@
 using System;
-using SlotList;
+using UIScroller;
 
-namespace SlotList.Tests.PlayMode
+namespace UIScroller.Tests.PlayMode
 {
     /// <summary>The concrete scroller used by the PlayMode tests. Counts the overridable hooks.</summary>
-    public class TestSlotList : SlotList<TestItem>
+    public class TestScroller : Scroller<TestItem>
     {
         public int PaginationCalls;
         public int PullCalls;

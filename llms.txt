@@ -1,12 +1,12 @@
-# Slot List
+# UI Scroller
 
-> Virtualized (recycling) ScrollRect for Unity 6 uGUI: lists and grids of thousands of items that create only visible slots and reuse them. Subclass `SlotList<T>`, implement `ISlot<T>`, initialize with `ListSource<T>`. Slot sizes measured with Unity's layout, expandable slots, sections with headers (`SectionedSlotList<TItem, THeader>` + `SectionedSource`), reversed lists, filtering, pull to refresh and pagination, with optional dependency injection. Requires Tools Core. MIT licensed, pre-release (0.x), single author, no other users yet.
+> Virtualized (recycling) ScrollRect for Unity 6 uGUI: lists and grids of thousands of items that create only visible slots and reuse them. Subclass `Scroller<T>`, implement `ISlot<T>`, initialize with `ListSource<T>`. Slot sizes measured with Unity's layout, expandable slots, sections with headers (`SectionedScroller<TItem, THeader>` + `SectionedSource`), reversed lists, filtering, pull to refresh and pagination, with optional dependency injection. Requires Tools Core. MIT licensed, pre-release (0.x), single author, no other users yet.
 
 ## Docs
 
-- [README](https://github.com/sgonzalezrozo/unity-recyclable-scroller/blob/main/README.md): installation, quick start, API, troubleshooting, FAQ
-- [Rules for AI coding agents](https://github.com/sgonzalezrozo/unity-recyclable-scroller/blob/main/Documentation~/agent-rules.md): copy into AGENTS.md, CLAUDE.md or Cursor rules
-- [Changelog](https://github.com/sgonzalezrozo/unity-recyclable-scroller/blob/main/CHANGELOG.md)
+- [README](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/README.md): installation, quick start, API, troubleshooting, FAQ
+- [Rules for AI coding agents](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/agent-rules.md): copy into AGENTS.md, CLAUDE.md or Cursor rules
+- [Changelog](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/CHANGELOG.md)
 
 ## Optional
 

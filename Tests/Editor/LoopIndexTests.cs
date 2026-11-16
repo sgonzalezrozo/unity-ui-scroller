@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace SlotList.Tests.Editor
+namespace UIScroller.Tests.Editor
 {
     /// <summary>The looping list's index and re-centring maths.</summary>
     public class LoopIndexTests

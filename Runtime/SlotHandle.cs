@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>The kind of slot a placement needs. Each kind has its own prefab and pool queue.</summary>
     public enum SlotKind

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>
     /// Index and distance maths for a looping list. The engine lays out a few copies of the items one after another

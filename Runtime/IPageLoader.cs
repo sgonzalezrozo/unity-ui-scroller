@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SlotList
+namespace UIScroller
 {
     /// <summary>One page of items, and whether more pages follow.</summary>
     public readonly struct PageResult<T>
@@ -27,7 +27,7 @@ namespace SlotList
         Task<PageResult<T>> LoadAsync(int page, CancellationToken cancellation);
     }
 
-    /// <summary>A source that grows one page at a time. A SlotList asks for the next page when the user gets near the end.</summary>
+    /// <summary>A source that grows one page at a time. A scroller asks for the next page when the user gets near the end.</summary>
     public interface IPagedSource<T> : IItemSource<T> where T : class
     {
         bool HasMore { get; }
