@@ -382,7 +382,9 @@ namespace SlotList.Tests.PlayMode
             float templateSize = size > 0f ? size : 100f;
             ((RectTransform)template.transform).sizeDelta = new Vector2(templateSize, templateSize);
 
-            if (expandable)
+            if (expandable && Options.QuietSlots)
+                template.AddComponent<QuietExpandableSlot>().Size = size;
+            else if (expandable)
                 template.AddComponent<ExpandableRecordingSlot>().Size = size;
             else if (Options.QuietSlots)
                 template.AddComponent<QuietSlot>().Size = size;
@@ -400,7 +402,10 @@ namespace SlotList.Tests.PlayMode
             template.transform.SetParent(templateRoot.transform, false);
             float templateSize = size > 0f ? size : 100f;
             ((RectTransform)template.transform).sizeDelta = new Vector2(templateSize, templateSize);
-            template.AddComponent<RecordingHeaderSlot>().Size = size;
+            if (Options.QuietSlots)
+                template.AddComponent<QuietHeaderSlot>().Size = size;
+            else
+                template.AddComponent<RecordingHeaderSlot>().Size = size;
 
             if (size <= 0f)
             {

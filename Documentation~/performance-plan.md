@@ -21,6 +21,30 @@ Status: in progress. Branch: `perf/zero-gc-baseline`. Order: README rewrite firs
 5. **The assessment is published** in `Documentation~`.
 6. **A fuller README rewrite** comes first.
 
+## P1 results: allocation baseline (2026-11-16)
+
+`Tests/Runtime/AllocationTests.cs`: 54 layout × operation cases on `main` at `87c4f0b`, Editor (Unity 6000.3.6f1), quiet slots, two warm-up runs before each check. **43 allocate nothing, 11 allocate.** The 11 are marked `Ignore("P3: …")` until P3 fixes them.
+
+**Zero today, in every layout tried** (list, grid, auto grid, bento spans and patterns, sections in list, grid and bento, short and long loops, expandable):
+- scroll, fling (40 frames each way), `ScrollToItem` at once and animated, `ScrollToSection`;
+- snap (item and page);
+- `Refresh()` with the same count;
+- `Refresh()` after adding and removing an item (list and grid);
+- expand and collapse.
+
+**Allocates today:**
+
+| Case | Layouts | Cause (from the code; P3 confirms) |
+|---|---|---|
+| Disable and enable | List, bento, sections | Under investigation. Suspected: the locale listener subscribes a new delegate on every enable (Unity Localization is installed in MyTools) |
+| Width change | List, auto grid, bento | `OnViewportResized` starts a coroutine |
+| `Refresh()` after a section grows | Sections, sections bento | `SectionedSource.Recount` allocates two arrays |
+| `Refresh()` after adding and removing an item | Bento | A bento row creates a new `Line` when the number of items starting in it changes (grid lines always have room for every column) |
+| Filter change | — | `FilteredSource` allocates its match array |
+| `GetAllItems()` | `ListSource`, `FilteredSource` | An `AsReadOnly` wrapper per call |
+
+Not covered yet: paging (an async page load, P2 measures it across frames), measured slots (their first measurement goes through Unity's layout), and section insert or remove (they also go through `Recount`).
+
 ## 1. Definitions
 
 ### Zero GC
