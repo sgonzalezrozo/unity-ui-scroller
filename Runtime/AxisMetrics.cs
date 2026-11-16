@@ -8,6 +8,7 @@ namespace SlotList
         private readonly RectTransform viewportTransform;
         private readonly RectTransform contentTransform;
         private readonly bool isVertical;
+        private readonly bool isReversed;
 
         // Content moves +y (top to bottom), -y (bottom to top), -x (left to right) or +x (right to left) as the list scrolls on.
         private readonly float scrollSign;
@@ -19,6 +20,7 @@ namespace SlotList
             this.viewportTransform = viewportTransform;
             this.contentTransform = contentTransform;
             this.isVertical = isVertical;
+            this.isReversed = isReversed;
         }
 
         public float GetViewportSize()
@@ -41,6 +43,14 @@ namespace SlotList
 
         public float GetScrollPosition()
             => direction.GetScrollPosition(contentTransform);
+
+        /// <summary>The scroll position for a content position already read, as the direction's GetScrollPosition gives it.</summary>
+        public float ScrollPositionOf(Vector2 contentAnchoredPosition)
+        {
+            if (isVertical)
+                return -contentAnchoredPosition.y;
+            return isReversed ? -contentAnchoredPosition.x : contentAnchoredPosition.x;
+        }
 
         /// <summary>How far the list is scrolled from its start, in pixels (0 at the start).</summary>
         public float GetScrollDistance()

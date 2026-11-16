@@ -11,6 +11,7 @@ All notable changes to this package are documented in this file.
   - a width change no longer starts a coroutine: the re-placement and the pool warm-up run from `LateUpdate`;
   - `Refresh()` in sectioned lists, bento and sectioned grids reuses its buffers and lines;
   - `FilteredSource` keeps its matches in a reused list.
+- **Scrolling costs 20 to 32 % less CPU** (the list's own work, Editor, 100,000 items): list −20 %, 4-column grid −28 %, bento −32 %, sections −20 %. A slot already on screen and unchanged is no longer walked on every range change, and slots are placed with fewer RectTransform writes (pivot and anchors once, size only when it changed, no viewport read per slot). Details in `Documentation~/performance-plan.md`.
 - `GetAllItems()` on `ListSource`, `PagedSource` and `FilteredSource` returns the same read-only view on every call. `FilteredSource`'s view is updated in place after the filter or the source changes.
 
 ### Added

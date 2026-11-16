@@ -49,6 +49,9 @@ namespace SlotList.Tests.PlayMode
 
         /// <summary>The slot is a QuietSlot (allocates nothing when bound) instead of a RecordingSlot. Every slot also gets a ParentWatch.</summary>
         public bool QuietSlots;
+
+        /// <summary>The slot template gets an Image, so canvas rebuilds have graphics to rebuild (the CPU bench).</summary>
+        public bool SlotImage;
     }
 
     /// <summary>
@@ -392,6 +395,8 @@ namespace SlotList.Tests.PlayMode
                 template.AddComponent<RecordingSlot>().Size = size;
 
             template.AddComponent<ParentWatch>();
+            if (Options.SlotImage)
+                template.AddComponent<Image>().raycastTarget = false;
 
             return template;
         }

@@ -10,7 +10,6 @@ namespace SlotList
     internal class SlotRecycler
     {
         private readonly SlotPool slotPool;
-        private readonly IAxisLayout direction;
         private readonly RectTransform viewport;
         private readonly RectTransform content;
         private readonly LayoutModel layout;
@@ -22,6 +21,7 @@ namespace SlotList
         // The placements holding a slot. Checking these, not every line, keeps recycling proportional to the screen (P2).
         private readonly List<Placement> shown = new();
         private float crossSize;
+        private readonly Vector2 slotAnchor;
 
         /// <summary>The columns of a bento layout, or 0. In bento, a slot is placed from its tile instead of its index in the line.</summary>
         public int BentoColumns { get; set; }
@@ -31,9 +31,12 @@ namespace SlotList
 
         public SlotRecycler(SlotPool slotPool, ScrollRectBinding binding, LayoutModel layout, ExpansionState expansion, ISlotCallbacks callbacks, SlotListSettings settings, WorkCounters work)
         {
+            // The corner slots hang from: top-left, except bottom-left (bottom to top) and top-right (right to left).
+            slotAnchor = settings.IsVertical
+                ? new Vector2(0f, settings.IsReversed ? 0f : 1f)
+                : new Vector2(settings.IsReversed ? 1f : 0f, 1f);
             this.work = work;
             this.slotPool = slotPool;
-            direction = binding.Direction;
             viewport = binding.Viewport;
             content = binding.Content;
             this.layout = layout;
@@ -144,11 +147,10 @@ namespace SlotList
             int slotsInLine = isBento ? BentoColumns : line.StartsSection ? 1 : line.Placements.Length;
 
             // P3: a slot that already sits there keeps its RectTransform untouched (each write can dirty the canvas).
-            if (forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize))
+            bool moved = forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize);
+            if (moved)
             {
-                direction.PositionInLine(handle.Rect, lineOffset, mainSize, indexInLine, slotsInLine, viewport, content, settings.slotSpacing);
-                if (isBento)
-                    StretchAcrossColumns(handle.Rect, placement.Tile.Columns);
+                Place(handle, lineOffset, mainSize, indexInLine, slotsInLine, isBento ? placement.Tile.Columns : 1);
                 placement.MarkPlaced(lineOffset, mainSize, slotsInLine, crossSize);
                 work.SlotsPlaced++;
             }
@@ -166,7 +168,14 @@ namespace SlotList
 
             if (!placement.NeedsBind && !expansionChanged && !forceRebindAll)
             {
-                handle.GameObject.SetActive(true);
+                // C9: a slot that was already on screen, in the same place, showing the same item, needs nothing: it's
+                // active, and its size is fixed or known and watched. One that moved, or still needs measuring (never
+                // measured, or invalidated), is reported as shown again.
+                if (!moved && !callbacks.NeedsMeasuring(itemIndex))
+                    return;
+
+                if (!handle.GameObject.activeSelf)
+                    handle.GameObject.SetActive(true);
                 callbacks.OnSlotShown(handle, itemIndex, false);
                 return;
             }
@@ -177,21 +186,53 @@ namespace SlotList
                 AppearPolicy.Mark(handle, lineIndex, firstVisibleLine, lastVisibleLine);
                 callbacks.SetupExpandable(handle, itemIndex);
                 callbacks.BindItem(handle, itemIndex);
-                handle.GameObject.SetActive(true);
+                if (!handle.GameObject.activeSelf)
+                    handle.GameObject.SetActive(true);
             }
             callbacks.OnSlotShown(handle, itemIndex, true);
         }
 
-        private void StretchAcrossColumns(RectTransform slot, int span)
+        /// <summary>
+        /// Places a slot at <paramref name="index"/> of <paramref name="slots"/> cells across the line, <paramref name="span"/>
+        /// cells wide (a bento tile spans several). The same positions as IAxisLayout.PositionInLine, with fewer native
+        /// calls: the cross size comes from the pass, not from the viewport per slot (C1); pivot and anchors are set once per
+        /// slot and the size only when it changed (C2).
+        /// </summary>
+        private void Place(SlotHandle handle, float linePosition, float mainSize, int index, int slots, int span)
         {
-            float cell = (crossSize - settings.slotSpacing * (BentoColumns - 1)) / BentoColumns;
-            float size = span * cell + (span - 1) * settings.slotSpacing;
-            Vector2 sizeDelta = slot.sizeDelta;
+            RectTransform rect = handle.Rect;
+            if (!handle.IsAnchored)
+            {
+                rect.pivot = slotAnchor;
+                rect.anchorMin = slotAnchor;
+                rect.anchorMax = slotAnchor;
+                handle.IsAnchored = true;
+            }
+
+            float spacing = settings.slotSpacing;
+            float cell = (crossSize - spacing * (slots - 1)) / slots;
+            float crossPosition = index * (cell + spacing);
+            float crossLength = span * cell + (span - 1) * spacing;
+
+            Vector2 position;
+            Vector2 size;
             if (settings.IsVertical)
-                sizeDelta.x = size;
+            {
+                position = new Vector2(crossPosition, settings.IsReversed ? linePosition : -linePosition);
+                size = new Vector2(crossLength, mainSize);
+            }
             else
-                sizeDelta.y = size;
-            slot.sizeDelta = sizeDelta;
+            {
+                position = new Vector2(settings.IsReversed ? -linePosition : linePosition, -crossPosition);
+                size = new Vector2(mainSize, crossLength);
+            }
+
+            rect.anchoredPosition = position;
+            if (handle.PlacedSize != size)
+            {
+                rect.sizeDelta = size;
+                handle.PlacedSize = size;
+            }
         }
 
         /// <summary>

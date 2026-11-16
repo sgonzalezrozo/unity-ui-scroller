@@ -21,7 +21,14 @@ namespace SlotList
         public IExpandableSlot Expandable { get; }
         public IAppearAnimation Appear { get; }
 
-        public GameObject GameObject => Rect.gameObject;
+        /// <summary>The slot's GameObject, looked up once (reading Rect.gameObject is a native call).</summary>
+        public GameObject GameObject { get; }
+
+        /// <summary>True once the list gave the slot its pivot and anchors, which never change for a list.</summary>
+        internal bool IsAnchored;
+
+        /// <summary>The sizeDelta the list last gave the slot; NaN until it's placed. Unchanged sizes aren't written again.</summary>
+        internal Vector2 PlacedSize = new(float.NaN, float.NaN);
 
         /// <summary>The size watcher of a slot measured with layout, added the first time it's shown. Null for fixed sizes.</summary>
         internal SlotSizeWatcher SizeWatcher { get; set; }
@@ -29,6 +36,7 @@ namespace SlotList
         public SlotHandle(RectTransform rect, SlotKind kind)
         {
             Rect = rect;
+            GameObject = rect.gameObject;
             Kind = kind;
             Slot = rect.GetComponent<ISlot>();
             Expandable = Slot as IExpandableSlot;

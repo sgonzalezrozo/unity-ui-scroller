@@ -52,7 +52,9 @@ namespace SlotList
                 needsPositionRecalculation = false;
             }
 
-            float scrollPosition = viewportMetrics.GetScrollPosition();
+            // C10: the content's position is read once, for both the scroll position and the at-start check.
+            Vector2 contentAnchoredPosition = viewportMetrics.GetContentAnchoredPosition();
+            float scrollPosition = viewportMetrics.ScrollPositionOf(contentAnchoredPosition);
 
             // P4: a scroll under half a pixel since the last check can't change what's visible. A reset range (a rebuild)
             // always checks. Measured from the last check, not the last event, so small steps still add up.
@@ -62,7 +64,6 @@ namespace SlotList
 
             lastCheckedScroll = scrollPosition;
             work.RangeChecks++;
-            Vector2 contentAnchoredPosition = viewportMetrics.GetContentAnchoredPosition();
 
             int newStartLine = lineFinder.FindFirstLine(scrollPosition, contentAnchoredPosition, layout);
             int newEndLine = lineFinder.FindLastLine(scrollPosition, lastViewportSize, newStartLine, layout);

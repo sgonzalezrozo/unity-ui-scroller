@@ -95,6 +95,9 @@ namespace SlotList
             layout.SetUnmeasuredSize(average, headerPrefab != null ? isHeaderEntryFunc : null);
         }
 
+        bool ISlotCallbacks.NeedsMeasuring(int index)
+            => (IsLayoutSizedEntry(index) || expansion.IsMeasuredExpanded(index)) && !layout.IsMeasured(index);
+
         /// <summary>Measures a shown slot with Unity's layout when the prefab is layout-sized and the slot was just bound or never measured.</summary>
         void ISlotCallbacks.OnSlotShown(SlotHandle slot, int index, bool justBound)
         {

@@ -60,6 +60,36 @@ All 56 cases of the matrix now allocate nothing (P1's 54, plus bento patterns wh
 
 **Measuring note:** in the Editor (Mono), `GC.GetAllocatedBytesForCurrentThread()` reports 0 even when something allocates. The enable allocation was invisible to it and only showed in the profiler's `GC.Alloc` samples. The allocation tests use Unity's constraint (built on those samples), and P2's bench must use the `GC.Alloc` recorder too.
 
+## P4 results: CPU (2026-11-16)
+
+Measured with `Tests/Runtime/CpuBench.cs` (`[Explicit]`, run with `-testFilter CpuBench`): 100,000 items, 3,000 steps of 37 px forward and back, the scroll handler timed apart from `Canvas.ForceUpdateCanvases`, slots with an Image. Medians of 9 runs, in microseconds per scroll event, Editor (Unity 6000.3.6f1, MacBookPro16,1). Baseline `de0fe3c` and P4 run alternately, twice each, on the same machine state.
+
+| Case | Baseline | P4 | Change |
+|---|---|---|---|
+| List | 3.30 / 3.58 | 2.70 / 2.80 | **−20 %** |
+| Grid, 4 columns | 7.90 / 8.06 | 5.71 / 5.84 | **−28 %** |
+| Bento patterns | 8.25 / 9.25 | 5.79 / 6.02 | **−32 %** |
+| Sections | 3.82 / 3.96 | 3.06 / 3.21 | **−20 %** |
+| Unity's canvas update (all cases) | 23–62 | the same | — |
+
+**Kept:**
+
+| # | Change | Measured on its own |
+|---|---|---|
+| C9 (new) | A slot already on screen, in the same place, showing the same item, is skipped: no `SetActive`, no shown callback. Before, every range change walked every visible slot (about 32 in a 4-column grid). A slot that still needs measuring (new or invalidated) is still reported | With C3: list −18 %, grid −25 to −30 %, bento −30 % |
+| C3 | `SetActive(true)` only for an inactive slot; the slot's GameObject is cached | (with C9) |
+| C1 | Slots are placed from the pass's cross size, not by reading `viewport.rect` per slot | With C2: grid −11 %, bento −7 %, list −5 % |
+| C2 | Pivot and anchors are set once per slot; `sizeDelta` only when it changed | (with C1) |
+| C10 | The content's position is read once per scroll event, not twice | No measurable change; kept because it's one line and removes a native call |
+
+**Dropped:**
+- **C4** (stepping the visible range from the last result instead of two binary searches): no measurable change. It added code, so it went.
+- **C5 and C6**: covered by C9. The per-event checks are cheap once unchanged slots are skipped.
+
+**Found while measuring:**
+- **Unity's canvas update costs 6 to 9 times the list's own work**, and P4 doesn't change it. Most of it is the `RectMask2D` clipping and culling every child graphic each time the content moves, including the parked pool slots. Taking pooled slots out from under the mask was measured on phones in Phase 10 and lost (re-parenting and re-enabling cost more), so this stays. It's reported, not hidden: the device runs (P2, P7) show the whole frame.
+- Editor timing is very sensitive to machine load: an IL2CPP build in the background tripled every number. The device runs must start from an idle device.
+
 ## 1. Definitions
 
 ### Zero GC

@@ -34,6 +34,9 @@ namespace SlotList
 
         /// <summary>Called after a slot is shown. <paramref name="justBound"/> is true when it was bound in this pass.</summary>
         void OnSlotShown(SlotHandle slot, int index, bool justBound);
+
+        /// <summary>True when a shown entry still needs measuring (never measured, or invalidated): its slot must be reported as shown even if it didn't move.</summary>
+        bool NeedsMeasuring(int index);
     }
 
     /// <summary>Where a SlotSizeWatcher reports a slot whose preferred size changed. Called during Unity's layout pass.</summary>
