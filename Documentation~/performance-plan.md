@@ -90,6 +90,35 @@ Measured with `Tests/Runtime/CpuBench.cs` (`[Explicit]`, run with `-testFilter C
 - **Unity's canvas update costs 6 to 9 times the list's own work**, and P4 doesn't change it. Most of it is the `RectMask2D` clipping and culling every child graphic each time the content moves, including the parked pool slots. Taking pooled slots out from under the mask was measured on phones in Phase 10 and lost (re-parenting and re-enabling cost more), so this stays. It's reported, not hidden: the device runs (P2, P7) show the whole frame.
 - Editor timing is very sensitive to machine load: an IL2CPP build in the background tripled every number. The device runs must start from an idle device.
 
+## P5 results: heap objects, candidate C7 (2026-11-16)
+
+Measured with `Tests/Runtime/HeapBench.cs` (`[Explicit]`, run with `-testFilter HeapBench`). The items stay alive in both measurements, so the numbers are what the list itself adds. Editor, Unity 6000.3.6f1, medians of 15 full collections.
+
+| Case | Memory the list adds | Per item | Heap objects (approx.) | Full GC without → with the list |
+|---|---|---|---|---|
+| List, 100,000 | 12.8 MB | 134 B | 300,000 (a Placement, a Line and its array per item) | 438 → 426 ms (noise) |
+| Grid 4, 100,000 | 6.4 MB | 67 B | 150,000 | 440 → 433 ms (noise) |
+| Bento, 100,000 | 8.3 MB | 88 B | 150,000 | 435 → 449 ms (+14, near noise) |
+| List, 1,000,000 | 182.7 MB | 192 B | 3,000,000 | 465 → 521 ms (+56, +12 %) |
+| Grid 4, 1,000,000 | 117.5 MB | 123 B | 1,500,000 | 471 → 488 ms (+17) |
+| Bento, 1,000,000 | 133.5 MB | 140 B | 1,500,000 | 471 → 506 ms (+35) |
+
+**Reading it:**
+- **The Editor hides most of the GC cost.** A full collection walks the whole Editor heap (about 440 ms), so the list's share only shows at 1,000,000 items. A player's heap is much smaller, so the same objects are a larger share of each collection there. The device runs (P2) should include this bench to give the real figure.
+- **Memory is the clearer number:** 67 to 134 bytes per item up to 100,000 items. That's several times the size of a typical item, almost all of it bookkeeping for items that aren't on screen. A plain list is the heaviest, with three objects per item, because every item is its own line.
+- **At typical sizes it doesn't matter:** 10,000 items is about 1.3 MB and 30,000 objects.
+
+**What C7 would give:** with per-item data in arrays (sizes, line per item, flags, bento tiles) and objects only for the slots on screen, memory would drop to roughly 10 to 25 bytes per item, and the list would add almost nothing for the GC to walk.
+
+**What it costs:** `Placement` and `Line` are public types used throughout the layout model, the recycler, expansion, sizing, loop, bento and sections. It's the largest refactor since Phase 5, and every one of the 650 tests depends on it.
+
+**Recommendation: no-go for 1.0.**
+- Revisit after the device runs (P2) show the GC cost on phones with real heaps.
+- Or revisit when a project needs lists past about 100,000 items.
+- If memory matters before then, a smaller step ("C7-lite") gets part of the gain without touching the public types:
+  - one `Line` object per line only where a line holds several slots (grids, bento), with plain lists keeping their line data in arrays;
+  - the "where it was placed" fields moved from every `Placement` to the slot handle, since only shown items need them.
+
 ## 1. Definitions
 
 ### Zero GC
