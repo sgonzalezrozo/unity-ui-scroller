@@ -33,7 +33,6 @@ All notable changes to this package are documented in this file.
 ### Added
 
 - An **Examples** sample: grid, sections, expandable rows, a looping carousel and paging with pull to refresh. Each builds its UI in code, so it runs from an empty scene, and none needs TextMeshPro.
-- A migration guide from Recyclable Scroller 0.3.0: `Documentation~/migration-from-recyclable-scroller.md`.
 
 ### Fixed
 

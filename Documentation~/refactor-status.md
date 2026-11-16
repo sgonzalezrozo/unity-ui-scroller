@@ -24,7 +24,7 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 | 9 Sections | Code and docs done; scene missing | `refactor/p9-sections` (`c7a184e` + docs) | 243 |
 | 10 Performance | Done, measured on two phones | `refactor/p10-performance` | |
 | 11 New features | Done, except the manual scenes | `feat/p11-features` | 400 (196 + 204) |
-| 12 Tests, samples, docs, release | Samples, migration guide and compatibility done; merged into `main`; the release (1.0.0) left | `feat/p11-features` | 400 |
+| 12 Tests, samples, docs, release | Samples and compatibility done; merged into `main`; the release (1.0.0) left | `feat/p11-features` | 400 |
 | Bento layout (for 1.1.0) | Model, engine, inspector, sections and samples done; snapping and a pattern editor left | `feat/bento-layout`, `feat/bento-sections` | 467 (231 + 236) |
 
 ## Owner decisions along the way
@@ -269,7 +269,7 @@ Not done:
 
 ### Phase 12: Tests, samples, docs, release (in progress)
 - Done: the **Examples** sample (Grid, Sections, Expandable, Carousel, Paging), each building its UI in code, smoke-tested in Play mode; the Quick Start README updated.
-- Done: `Documentation~/migration-from-recyclable-scroller.md`.
+- The migration guide was written, then removed at the owner's request (2026-11-16).
 - Done: the compatibility table (IL2CPP on the A02s and Pixel 5; domain reload off supported by design, not checked by hand).
 - Found while writing the Grid example: Auto Grid set from code with `slotsPerLine` at 1 made a list. Fixed.
 - Done: merged into `main` and pushed (2026-11-14).

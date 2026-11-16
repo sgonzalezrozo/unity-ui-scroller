@@ -183,7 +183,7 @@ The written assessment comes last, so it can quote the measurements. These are t
 - Sizes are fixed or measured with layout, with no size calculator. Measured items stay still while scrolling up, and late text is followed.
 - Lists, grids, auto grids, bento, sections with headers of any height, expandable slots, paging with cancellation, loop with snapping, all four directions.
 - About 474 automated tests (EditMode and PlayMode) that run in batch mode, and a bench measured on two Android phones.
-- MIT licence, a CHANGELOG, a migration guide, agent rules.
+- MIT licence, a CHANGELOG, agent rules.
 
 ### What doesn't fit (the adoption risks a lead would raise)
 

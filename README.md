@@ -1,7 +1,5 @@
 # Slot List
 
-*Formerly Recyclable Scroller (`com.sgonzalezrozo.recyclable-scroller`). Version 1.0 renames every type: see the [migration guide](Documentation~/migration-from-recyclable-scroller.md).*
-
 **A recycling (virtualized) scroll view for Unity uGUI: lists, grids and bento layouts of any length, zero allocations while scrolling, built and measured on low-end phones.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -17,7 +15,7 @@ Slot List extends Unity's `ScrollRect`. You give it a source of items and a slot
 - [At a glance](#at-a-glance) · [Is it right for your project?](#is-it-right-for-your-project) · [Features](#features) · [Compatibility](#compatibility)
 - [Installation](#installation) · [Quick start](#quick-start)
 - **Guide:** [Data and updates](#data-and-updates) · [Item sizes](#item-sizes) · [Layouts](#layouts) · [Sections and headers](#sections-and-headers) · [Expandable slots](#expandable-slots) · [Scrolling](#scrolling) · [Paging and pull to refresh](#paging-and-pull-to-refresh) · [Filtering](#filtering)
-- **Reference:** [Performance](#performance) · [Inspector](#inspector) · [API](#api) · [Dependency injection](#dependency-injection) · [AI coding agents](#ai-coding-agents)
+- **Reference:** [Performance](#performance) · [Inspector](#inspector) · [API](#api) · [Dependency injection](#dependency-injection)
 - [Limitations and roadmap](#limitations-and-roadmap) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Project status](#project-status)
 
 ## At a glance
@@ -650,13 +648,6 @@ All are read-only notifications.
 
 The list works without a container, using `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. The `SlotList` assembly exposes its internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign the instantiator directly, without reflection, including on subclasses in your project.
 
-## AI coding agents
-
-Agents write C# from their training data, and this package is newer than it. Give them its rules so they use the real API:
-
-1. Copy [`Documentation~/agent-rules.md`](Documentation~/agent-rules.md) into your project's agent rules, for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/slot-list.md`.
-2. For a whole Unity architecture with a verify loop, add [Unity Architecture Agents](https://github.com/sgonzalezrozo/unity-architecture-agents).
-
 ## ScrollRect or ListView?
 
 | | Slot List | [UI Toolkit `ListView`](https://docs.unity3d.com/ScriptReference/UIElements.ListView.html) |
@@ -733,6 +724,10 @@ Slots are reused: reset every visual in the `Data` setter, not only the ones tha
 ### Is it production-ready?
 
 Not yet. It's a preview (`1.0.0-preview.1`) by a single author, not yet used in a shipped game, so expect rough edges and possibly API changes before `1.0.0`. Bug reports are very welcome.
+
+### Does it work with AI coding agents?
+
+Yes. Copy [`Documentation~/agent-rules.md`](Documentation~/agent-rules.md) into your project's agent rules (`AGENTS.md`, `CLAUDE.md`, Cursor rules) so agents use the real API instead of guessing.
 
 ### Is it free for commercial use?
 
