@@ -175,7 +175,8 @@ namespace SlotList
             {
                 if (isHeader(item) || item >= placementCount)
                 {
-                    Line headerLine = TakeLine(line, 1);
+                    // As wide as an item line, so a line is reused whether it holds a header or items (no allocation).
+                    Line headerLine = TakeLine(line, slotsPerLine);
                     headerLine.StartsSection = item < placementCount;
                     BuildHeaderLine(headerLine, item, getItemSize);
                     item++;

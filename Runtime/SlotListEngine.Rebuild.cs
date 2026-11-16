@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace SlotList
@@ -11,8 +10,11 @@ namespace SlotList
 
         private bool isRebuildingLayout;
         private float lastCrossAxisSize;
-        private Coroutine gridUpdateRoutine;
-        private Coroutine poolWarmupRoutine;
+        // Deferred work, run from LateUpdate a frame later instead of in coroutines (a coroutine allocates when it starts).
+        private bool gridUpdatePending;
+        private int gridUpdateFrame;
+        private bool poolWarmupPending;
+        private int poolWarmupFrame;
 
         // ---------- Rebuilds ----------
 
@@ -247,9 +249,8 @@ namespace SlotList
 
             lastCrossAxisSize = crossAxisSize;
 
-            if (gridUpdateRoutine != null)
-                host.StopCoroutine(gridUpdateRoutine);
-            gridUpdateRoutine = host.StartCoroutine(DeferredGridUpdate());
+            gridUpdatePending = true;
+            gridUpdateFrame = Time.frameCount;
         }
 
         // ---------- Deferred work ----------
@@ -270,33 +271,49 @@ namespace SlotList
             hooks.OnReady();
         }
 
-        private IEnumerator DeferredGridUpdate()
+        /// <summary>
+        /// Runs the work deferred to a later frame: the re-placement after a width change, and the pool warm-up (a few
+        /// slots per frame). Called from LateUpdate; allocates nothing.
+        /// </summary>
+        public void RunDeferredWork()
         {
-            yield return null;
-
-            if (isInitialized)
+            int frame = Time.frameCount;
+            if (gridUpdatePending && frame > gridUpdateFrame)
             {
-                if (isBento)
-                {
-                    RebuildBentoForNewWidth();
-                }
-                else if (gridResolver.IsDynamic && gridResolver.Calculate(viewportMetrics.GetCrossAxisViewportSize()) != gridResolver.Current)
-                {
-                    RebuildLayout();
-                }
-                else if (MeasuresAny)
-                {
-                    // Text rewraps at the new width, so every measured size is stale.
-                    InvalidateAllSizes();
-                }
-                else
-                {
-                    visibleRange.ResetState();
-                    RebuildVisibleItems();
-                }
+                gridUpdatePending = false;
+                if (isInitialized)
+                    UpdateAfterResize();
             }
 
-            gridUpdateRoutine = null;
+            if (poolWarmupPending && frame > poolWarmupFrame)
+            {
+                poolWarmupFrame = frame;
+                if (isInitialized && slotPool != null)
+                    slotPool.PrewarmSome(WARMUP_PER_FRAME);
+                poolWarmupPending = isInitialized && slotPool != null && !slotPool.IsPrewarmed;
+            }
+        }
+
+        private void UpdateAfterResize()
+        {
+            if (isBento)
+            {
+                RebuildBentoForNewWidth();
+            }
+            else if (gridResolver.IsDynamic && gridResolver.Calculate(viewportMetrics.GetCrossAxisViewportSize()) != gridResolver.Current)
+            {
+                RebuildLayout();
+            }
+            else if (MeasuresAny)
+            {
+                // Text rewraps at the new width, so every measured size is stale.
+                InvalidateAllSizes();
+            }
+            else
+            {
+                visibleRange.ResetState();
+                RebuildVisibleItems();
+            }
         }
 
         private void ScheduleDeferredPoolWarmup()
@@ -304,31 +321,14 @@ namespace SlotList
             if (slotPool == null || slotPool.IsPrewarmed)
                 return;
 
-            if (poolWarmupRoutine != null)
-                host.StopCoroutine(poolWarmupRoutine);
-            poolWarmupRoutine = host.StartCoroutine(DeferredPoolWarmup());
-        }
-
-        /// <summary>Fills the pool a few slots per frame, starting next frame, instead of all at once (P9).</summary>
-        private IEnumerator DeferredPoolWarmup()
-        {
-            while (isInitialized && slotPool != null && !slotPool.IsPrewarmed)
-            {
-                yield return null;
-                if (isInitialized && slotPool != null)
-                    slotPool.PrewarmSome(WARMUP_PER_FRAME);
-            }
-
-            poolWarmupRoutine = null;
+            poolWarmupPending = true;
+            poolWarmupFrame = Time.frameCount;
         }
 
         private void CancelPendingGridUpdate()
         {
-            if (gridUpdateRoutine == null)
-                return;
-
-            host.StopCoroutine(gridUpdateRoutine);
-            gridUpdateRoutine = null;
+            gridUpdatePending = false;
+            poolWarmupPending = false;
         }
     }
 }

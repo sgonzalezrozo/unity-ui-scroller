@@ -140,7 +140,8 @@ namespace SlotList
             bool isBento = BentoColumns > 0;
             float mainSize = isBento ? placement.Size : line.Size;
             int indexInLine = isBento ? placement.Tile.Column : slotIndex;
-            int slotsInLine = isBento ? BentoColumns : line.Placements.Length;
+            // A header's line has room for a whole row of slots, but the header is one slot across it.
+            int slotsInLine = isBento ? BentoColumns : line.StartsSection ? 1 : line.Placements.Length;
 
             // P3: a slot that already sits there keeps its RectTransform untouched (each write can dirty the canvas).
             if (forceRebindAll || placement.NeedsBind || !placement.IsPlacedAt(lineOffset, mainSize, slotsInLine, crossSize))

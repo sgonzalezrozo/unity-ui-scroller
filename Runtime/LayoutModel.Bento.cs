@@ -16,7 +16,7 @@ namespace SlotList
         /// as the bento arrangers give them). With <paramref name="fromItem"/> above 0 (items appended), the rows
         /// before the one where item <paramref name="fromItem"/> - 1 starts are kept.
         /// </summary>
-        public void BuildBentoLines(int itemCount, IReadOnlyList<BentoTile> tiles, float rowSize, int fromItem = 0)
+        public void BuildBentoLines(int itemCount, IReadOnlyList<BentoTile> tiles, float rowSize, int columns, int fromItem = 0)
         {
             int count = Math.Min(itemCount, placementCount);
             int item = 0;
@@ -39,7 +39,8 @@ namespace SlotList
                 while (item < count && tiles[item].Row == row)
                     item++;
 
-                Line line = TakeLine(row, item - first);
+                // Every row has room for every column, so rows are reused whatever starts in them (no allocation).
+                Line line = TakeLine(row, columns);
                 for (int i = first; i < item; i++)
                 {
                     Placement placement = placementBuffer[i];
@@ -66,7 +67,7 @@ namespace SlotList
         /// <paramref name="headerSize"/>, and the next section starts after the last row of the one before, so a tall
         /// tile never reaches into the next section.
         /// </summary>
-        public void BuildBentoSectionLines(int itemCount, IReadOnlyList<BentoTile> tiles, float rowSize, Func<int, bool> isHeader, Func<int, float> headerSize)
+        public void BuildBentoSectionLines(int itemCount, IReadOnlyList<BentoTile> tiles, float rowSize, int columns, Func<int, bool> isHeader, Func<int, float> headerSize)
         {
             int count = Math.Min(itemCount, placementCount);
             int line = 0;
@@ -75,7 +76,7 @@ namespace SlotList
             {
                 if (isHeader(item))
                 {
-                    BuildBentoHeaderLine(TakeLine(line, 1), item, tiles[item], headerSize(item));
+                    BuildBentoHeaderLine(TakeLine(line, columns), item, tiles[item], headerSize(item));
                     line++;
                     item++;
                     continue;
@@ -95,7 +96,7 @@ namespace SlotList
                     while (item < sectionEnd && tiles[item].Row == row)
                         item++;
 
-                    Line rowLine = TakeLine(line + row, item - first);
+                    Line rowLine = TakeLine(line + row, columns);
                     for (int i = first; i < item; i++)
                         PlaceBentoItem(rowLine, i - first, i, tiles[i], rowSize, line + row);
                     rowLine.CacheSize(rowSize);

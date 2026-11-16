@@ -16,7 +16,7 @@ namespace SlotList.Tests.PlayMode
     /// The zero-GC matrix (performance plan, P1): every layout × every operation a running screen repeats, checked to
     /// allocate nothing once warmed up. Slots are quiet (they allocate nothing when bound), so anything caught is the
     /// list's. Operations that span frames (flings, animations, snaps) run the list's LateUpdate several times inside
-    /// one check, with a fixed frame time. Tests ignored with "P3" allocate today and are fixed in P3.
+    /// one check, with a fixed frame time. P1 found 11 cases that allocated; P3 fixed them.
     /// </summary>
     public class AllocationTests
     {
@@ -263,15 +263,7 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator Refresh_AddAndRemoveAnItem([Values(Kind.List, Kind.Grid)] Kind kind)
-            => AddAndRemoveAnItem(kind);
-
-        [UnityTest]
-        [Ignore("P3: a bento row creates a new Line when the number of items starting in it changes")]
-        public IEnumerator Refresh_AddAndRemoveAnItem_Bento()
-            => AddAndRemoveAnItem(Kind.BentoSpans);
-
-        private IEnumerator AddAndRemoveAnItem(Kind kind)
+        public IEnumerator Refresh_AddAndRemoveAnItem([Values(Kind.List, Kind.Grid, Kind.BentoSpans, Kind.BentoPatterns)] Kind kind)
         {
             yield return Build(kind);
             TestItem extra = new(-1);
@@ -288,8 +280,7 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        [Ignore("P3: SectionedSource.Recount allocates two arrays (ToArray) on every Refresh after a section changes")]
-        public IEnumerator Refresh_ASectionGrows([Values(Kind.Sections, Kind.SectionsBento)] Kind kind)
+        public IEnumerator Refresh_ASectionGrows([Values(Kind.Sections, Kind.SectionsGrid, Kind.SectionsBento)] Kind kind)
         {
             yield return Build(kind);
             TestItem extra = new(-1);
@@ -323,7 +314,6 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        [Ignore("P3: OnViewportResized starts a coroutine on every width change")]
         public IEnumerator WidthChange([Values(Kind.List, Kind.AutoGrid, Kind.BentoPatterns)] Kind kind)
         {
             yield return Build(kind);
@@ -338,7 +328,6 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        [Ignore("P3: enabling allocates; suspected: the locale listener's delegate (Unity Localization installed)")]
         public IEnumerator DisableAndEnable([Values(Kind.List, Kind.BentoPatterns, Kind.Sections)] Kind kind)
         {
             yield return Build(kind);
@@ -353,7 +342,6 @@ namespace SlotList.Tests.PlayMode
         }
 
         [UnityTest]
-        [Ignore("P3: FilteredSource allocates its match array (ToArray) on every predicate change")]
         public IEnumerator FilterChange()
         {
             rig = SlotListRig.Create(new RigOptions { QuietSlots = true });
@@ -378,7 +366,6 @@ namespace SlotList.Tests.PlayMode
         private static bool IsOdd(TestItem item) => item.Id % 2 == 1;
 
         [UnityTest]
-        [Ignore("P3: GetAllItems allocates an AsReadOnly wrapper on every call")]
         public IEnumerator GetAllItems_FromEverySource()
         {
             ListSource<TestItem> list = new(SlotListRig.MakeItems(10));

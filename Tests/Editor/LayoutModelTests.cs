@@ -107,11 +107,16 @@ namespace SlotList.Tests.Editor
         {
             LayoutModel layout = Build(7, 3, i => i == 0 || i == 4);
 
+            // A header's line has room for a whole row (so lines are reused whether they hold a header or items),
+            // with the header first, and is marked as starting a section.
             Assert.AreEqual(4, layout.Lines.Length);
-            Assert.AreEqual(new[] { 0 }, ItemsIn(layout.Lines[0]));
+            Assert.AreEqual(new[] { 0, -1, -1 }, ItemsIn(layout.Lines[0]));
             Assert.AreEqual(new[] { 1, 2, 3 }, ItemsIn(layout.Lines[1]));
-            Assert.AreEqual(new[] { 4 }, ItemsIn(layout.Lines[2]));
+            Assert.AreEqual(new[] { 4, -1, -1 }, ItemsIn(layout.Lines[2]));
             Assert.AreEqual(new[] { 5, 6, -1 }, ItemsIn(layout.Lines[3]));
+            Assert.IsTrue(layout.Lines[0].StartsSection);
+            Assert.IsFalse(layout.Lines[1].StartsSection);
+            Assert.IsTrue(layout.Lines[2].StartsSection);
         }
 
         [Test]

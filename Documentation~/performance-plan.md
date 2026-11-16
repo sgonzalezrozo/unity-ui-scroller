@@ -45,6 +45,21 @@ Status: in progress. Branch: `perf/zero-gc-baseline`. Order: README rewrite firs
 
 Not covered yet: paging (an async page load, P2 measures it across frames), measured slots (their first measurement goes through Unity's layout), and section insert or remove (they also go through `Recount`).
 
+## P3 results: zero GC (2026-11-16)
+
+All 56 cases of the matrix now allocate nothing (P1's 54, plus bento patterns when an item is added and removed, and a sectioned grid when a section grows).
+
+| Was allocating | Fix |
+|---|---|
+| Disable and enable | The locale listener subscribed on every enable. Adding to an event combines delegates, which allocates even with a cached handler. The list now subscribes once for its lifetime, unsubscribes in `OnDestroy`, and applies a change made while it was disabled when it's enabled again |
+| Width change | `OnViewportResized` started a coroutine. The re-placement (and the pool warm-up) now run from `LateUpdate` a frame later, through a flag |
+| `Refresh()` after a section grows | `SectionedSource` reuses its buffers instead of allocating arrays |
+| `Refresh()` after an item is added or removed (bento, sectioned grid) | Every bento row, and every header line in a grid, has room for a whole row, so a line is reused whatever it holds. The recycler places a header as one slot across its line |
+| Filter change | `FilteredSource` keeps its matches in a reused list |
+| `GetAllItems()` | `ListSource`, `PagedSource` and `FilteredSource` return the same read-only view every call. `FilteredSource`'s view is updated in place after the filter or the source changes |
+
+**Measuring note:** in the Editor (Mono), `GC.GetAllocatedBytesForCurrentThread()` reports 0 even when something allocates. The enable allocation was invisible to it and only showed in the profiler's `GC.Alloc` samples. The allocation tests use Unity's constraint (built on those samples), and P2's bench must use the `GC.Alloc` recorder too.
+
 ## 1. Definitions
 
 ### Zero GC

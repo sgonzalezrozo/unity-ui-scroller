@@ -34,8 +34,8 @@ namespace SlotList
 
         private readonly List<Section> sections = new();
         private int[] itemCounts = Array.Empty<int>();
-        private int[] shownSections = Array.Empty<int>();
-        private int[] headerIndexes = Array.Empty<int>();
+        private readonly List<int> shownSections = new();
+        private readonly List<int> headerIndexes = new();
         private int[] shownPositionOf = Array.Empty<int>();
         private bool skipEmptySections = true;
 
@@ -127,7 +127,7 @@ namespace SlotList
 
             // The last shown section whose header is at or before the entry.
             int low = 0;
-            int high = headerIndexes.Length - 1;
+            int high = headerIndexes.Count - 1;
             while (low < high)
             {
                 int middle = low + (high - low + 1) / 2;
@@ -163,14 +163,21 @@ namespace SlotList
             Changed?.Invoke();
         }
 
-        /// <summary>Caches each section's item count and the entry of each shown section's header (a prefix sum).</summary>
+        /// <summary>
+        /// Caches each section's item count and the entry of each shown section's header (a prefix sum). The buffers are
+        /// reused, so a Refresh after an item count changed allocates nothing.
+        /// </summary>
         private void Rebuild()
         {
             int count = sections.Count;
-            itemCounts = new int[count];
-            shownPositionOf = new int[count];
-            List<int> shown = new(count);
-            List<int> headers = new(count);
+            if (itemCounts.Length < count)
+            {
+                itemCounts = new int[Math.Max(count, itemCounts.Length * 2)];
+                shownPositionOf = new int[itemCounts.Length];
+            }
+
+            shownSections.Clear();
+            headerIndexes.Clear();
             int flat = 0;
 
             for (int s = 0; s < count; s++)
@@ -182,14 +189,12 @@ namespace SlotList
                     continue;
                 }
 
-                shownPositionOf[s] = shown.Count;
-                shown.Add(s);
-                headers.Add(flat);
+                shownPositionOf[s] = shownSections.Count;
+                shownSections.Add(s);
+                headerIndexes.Add(flat);
                 flat += 1 + itemCounts[s];
             }
 
-            shownSections = shown.ToArray();
-            headerIndexes = headers.ToArray();
             Count = flat;
         }
     }

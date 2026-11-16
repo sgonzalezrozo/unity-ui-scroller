@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace SlotList
     public sealed class PagedSource<T> : IPagedSource<T> where T : class
     {
         private readonly List<T> items = new();
+        private readonly ReadOnlyCollection<T> readOnlyItems;
         private readonly IPageLoader<T> loader;
 
         private int lastLoadedPage = -1;
@@ -30,6 +32,7 @@ namespace SlotList
 
         public PagedSource(IPageLoader<T> loader)
         {
+            readOnlyItems = items.AsReadOnly();
             this.loader = loader ?? throw new ArgumentNullException(nameof(loader));
         }
 
@@ -41,8 +44,9 @@ namespace SlotList
             return items[index];
         }
 
+        /// <summary>A read-only view of the loaded items (the same object every call, so it allocates nothing).</summary>
         public IReadOnlyList<T> GetAllItems()
-            => items.AsReadOnly();
+            => readOnlyItems;
 
         public async Task LoadNextAsync(CancellationToken cancellation = default)
         {

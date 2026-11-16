@@ -72,6 +72,8 @@ namespace SlotList
         private bool isLeftDragging;
 #if SLOTLIST_LOCALIZATION
         private bool isListeningToLocale;
+        private Action<Locale> localeChangedHandler;
+        private bool localeChangedWhileDisabled;
 #endif
 
         // Only SlotList<T> and SectionedSlotList in this assembly can derive from it.
@@ -331,6 +333,7 @@ namespace SlotList
             if (engine == null)
                 return;
 
+            engine.RunDeferredWork();
             engine.ApplyPendingResizes();
             engine.Tick(frameDeltaTime?.Invoke() ?? Time.unscaledDeltaTime);
         }
@@ -339,37 +342,62 @@ namespace SlotList
         {
             base.OnEnable();
             engine?.OnEnabled();
-            ListenToLocale(true);
+            ListenToLocale();
         }
 
         protected override void OnDisable()
         {
-            ListenToLocale(false);
             base.OnDisable();
             engine?.OnDisabled();
         }
 
-        /// <summary>With Unity Localization installed, a language change invalidates every size. Play mode only.</summary>
-        private void ListenToLocale(bool listen)
+        /// <summary>
+        /// With Unity Localization installed, a language change invalidates every size. Play mode only. The list subscribes
+        /// once for its lifetime, not on every enable: adding to an event combines delegates, which allocates. A change
+        /// while the list is disabled is applied when it's enabled again.
+        /// </summary>
+        private void ListenToLocale()
         {
 #if SLOTLIST_LOCALIZATION
-            if (listen == isListeningToLocale || (listen && (!Application.isPlaying || !LocalizationSettings.HasSettings)))
+            if (localeChangedWhileDisabled)
+            {
+                localeChangedWhileDisabled = false;
+                InvalidateAllSizes();
+            }
+
+            if (isListeningToLocale || !Application.isPlaying || !LocalizationSettings.HasSettings)
                 return;
 
-            if (listen)
-                LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
-            else
-                LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
-            isListeningToLocale = listen;
+            localeChangedHandler = OnLocaleChanged;
+            LocalizationSettings.SelectedLocaleChanged += localeChangedHandler;
+            isListeningToLocale = true;
+#endif
+        }
+
+        private void StopListeningToLocale()
+        {
+#if SLOTLIST_LOCALIZATION
+            if (!isListeningToLocale)
+                return;
+
+            LocalizationSettings.SelectedLocaleChanged -= localeChangedHandler;
+            isListeningToLocale = false;
 #endif
         }
 
 #if SLOTLIST_LOCALIZATION
-        private void OnLocaleChanged(Locale locale) => InvalidateAllSizes();
+        private void OnLocaleChanged(Locale locale)
+        {
+            if (isActiveAndEnabled)
+                InvalidateAllSizes();
+            else
+                localeChangedWhileDisabled = true;
+        }
 #endif
 
         protected override void OnDestroy()
         {
+            StopListeningToLocale();
             engine?.Dispose();
             base.OnDestroy();
         }

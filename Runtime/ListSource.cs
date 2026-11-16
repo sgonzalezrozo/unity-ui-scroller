@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SlotList
 {
     public class ListSource<T> : IItemSource<T> where T : class
     {
         private readonly List<T> items;
+        private readonly ReadOnlyCollection<T> readOnlyItems;
 
         public int ItemCount => items.Count;
 
         public ListSource(IEnumerable<T> initialItems = null)
         {
             items = new();
+            readOnlyItems = items.AsReadOnly();
             if (initialItems != null)
                 items.AddRange(initialItems);
         }
@@ -24,8 +27,9 @@ namespace SlotList
             return items[index];
         }
 
+        /// <summary>A read-only view of the items (the same object every call, so it allocates nothing).</summary>
         public IReadOnlyList<T> GetAllItems()
-            => items.AsReadOnly();
+            => readOnlyItems;
 
         public void AddItem(T item)
         {

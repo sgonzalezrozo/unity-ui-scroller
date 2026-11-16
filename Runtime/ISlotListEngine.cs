@@ -39,6 +39,7 @@ namespace SlotList
         void InvalidateSize(int index);
         void InvalidateAllSizes();
         void ApplyPendingResizes();
+        void RunDeferredWork();
 
         void OnDragBegin();
         void OnDragEnd();

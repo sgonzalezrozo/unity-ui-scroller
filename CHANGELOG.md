@@ -4,6 +4,15 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Zero GC in every case tested.** A 56-case test matrix (each layout × scroll, fling, scroll to, snap, refresh, expand, width change, enable and disable, filter) checks that nothing allocates once warmed up. Fixed on the way:
+  - enabling a list no longer allocates: the locale listener subscribes once for the list's lifetime;
+  - a width change no longer starts a coroutine: the re-placement and the pool warm-up run from `LateUpdate`;
+  - `Refresh()` in sectioned lists, bento and sectioned grids reuses its buffers and lines;
+  - `FilteredSource` keeps its matches in a reused list.
+- `GetAllItems()` on `ListSource`, `PagedSource` and `FilteredSource` returns the same read-only view on every call. `FilteredSource`'s view is updated in place after the filter or the source changes.
+
 ### Added
 
 - **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.

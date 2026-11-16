@@ -80,14 +80,14 @@ namespace SlotList
             if (headerPrefab != null)
             {
                 ArrangeSections();
-                layout.BuildBentoSectionLines(ItemCount, bentoTiles, BentoRowSize(), isHeaderFunc, itemSizeFunc);
+                layout.BuildBentoSectionLines(ItemCount, bentoTiles, BentoRowSize(), bentoColumns, isHeaderFunc, itemSizeFunc);
             }
             else
             {
                 while (bentoTiles.Count < ItemCount)
                     bentoTiles.Add(bentoArranger.Next());
 
-                layout.BuildBentoLines(ItemCount, bentoTiles, BentoRowSize(), fromItem);
+                layout.BuildBentoLines(ItemCount, bentoTiles, BentoRowSize(), bentoColumns, fromItem);
             }
 
             if (recycler != null)
