@@ -1,81 +1,86 @@
 # Slot List
 
-*Formerly Recyclable Scroller (`com.sgonzalezrozo.recyclable-scroller`). Version 1.0 renames every type; see the changelog.*
+*Formerly Recyclable Scroller (`com.sgonzalezrozo.recyclable-scroller`). Version 1.0 renames every type: see the [migration guide](Documentation~/migration-from-recyclable-scroller.md).*
 
-**Virtualized scrolling for large uGUI lists and grids, built to keep UI responsive under load.**
+**A recycling (virtualized) scroll view for Unity uGUI: lists, grids and bento layouts of any length, zero allocations while scrolling, built and measured on low-end phones.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
 [![Version 1.0.0-preview.1](https://img.shields.io/badge/version-1.0.0--preview.1-blue.svg)](CHANGELOG.md)
 
-Slot List is a free, open-source recycling (virtualized) scroll view for Unity 6 uGUI, for long lists and grids. It extends Unity's `ScrollRect`, creates only the slots that fit on screen and reuses them as you scroll, instead of one GameObject per item. It supports vertical and horizontal lists, grids, sections with headers, slot sizes measured with Unity's layout, expandable slots, filtering, pull to refresh and infinite scroll with pagination.
+Slot List extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
 
 <!-- Demo GIF: Documentation~/images/demo.gif -->
 
+## Contents
+
+- [At a glance](#at-a-glance) · [Is it right for your project?](#is-it-right-for-your-project) · [Features](#features) · [Compatibility](#compatibility)
+- [Installation](#installation) · [Quick start](#quick-start)
+- **Guide:** [Data and updates](#data-and-updates) · [Item sizes](#item-sizes) · [Layouts](#layouts) · [Sections and headers](#sections-and-headers) · [Expandable slots](#expandable-slots) · [Scrolling](#scrolling) · [Paging and pull to refresh](#paging-and-pull-to-refresh) · [Filtering](#filtering)
+- **Reference:** [Performance](#performance) · [Inspector](#inspector) · [API](#api) · [Dependency injection](#dependency-injection) · [AI coding agents](#ai-coding-agents)
+- [Limitations and roadmap](#limitations-and-roadmap) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Project status](#project-status)
+
 ## At a glance
 
-Slot List shows lists of any length in uGUI with a handful of GameObjects. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 cost the same.
-
-- **Set up in seconds:** add your list component to a sized UI object. It builds the Viewport (with a `RectMask2D` and its own `Canvas`) and Content. The inspector shows only direction, layout (List, Grid, Auto Grid), spacing and padding. Content can't have layout components; the editor and the list enforce it.
+- **Set up in seconds.** Add your list component to a sized UI object: it builds the Viewport (with a `RectMask2D` and its own `Canvas`) and Content. The inspector shows only what a list needs: direction, layout, spacing and padding.
 - **Sizes the way you build slots:**
-  - a fixed size from the slot (`DefaultExtent`);
-  - or the slot's own Unity layout, measured once and cached;
+  - a fixed size from the slot;
+  - the slot's own Unity layout, measured once and cached, with no `ContentSizeFitter`;
   - or both: fixed when closed, measured when expanded.
 
-  The list reads the layout's preferred size itself, so slots need no `ContentSizeFitter`. Late text, such as localized strings or downloaded content, is followed without code.
-- **Expandable slots**, one or several open at once. An opened slot is measured in Unity's own layout pass and grows on the next frame. What's on screen never jumps.
-- **Sections with headers, grids, filtering, pull to refresh and paging** (the list loads pages by itself).
-- **Read-only events and queries:** opened, closed, rebuilt, Content size changed, item offsets and sizes.
-- **Built for phones.** Scrolling allocates nothing, and pooled slots stay active out of view, so reusing them is cheap. Scrolling only rebatches the list itself, not the rest of the screen.
+  Late text (localization, downloaded content) is followed without code, and what's on screen never jumps, even mid-drag.
+- **Every layout a game screen needs:** vertical and horizontal lists in both directions, fixed and automatic grids, **bento** (tiles of different sizes, described in JSON), **sections with headers** of any height, expandable slots, looping carousels with snapping.
+- **Data that arrives in pages:** the list asks for the next page by itself, appends it without a rebuild, and cancels loads it no longer needs.
+- **Built for phones:**
+  - scrolling allocates nothing;
+  - pooled slots stay active out of view, so reusing one doesn't wake its graphics;
+  - scrolling rebatches only the list, not the rest of the screen.
 
-Measured on a low-end phone (Galaxy A02s) and a mid-range one (Pixel 5) with a real list (TMP text, 100 px rows):
+Measured on a low-end phone (Galaxy A02s) and a mid-range one (Pixel 5), with a real list (TMP text, 100 px rows):
 
 | | Galaxy A02s (60 Hz) | Pixel 5 (90 Hz) |
 |---|---|---|
 | The list's own work per frame, scrolling 100,000 items | 0.28 ms | 0.12 ms |
 | Whole frame CPU while scrolling, the app included | 7.6 of 16.7 ms | 2.9 of 11.1 ms |
 | Fast fling (16,000 px/s), whole frame | 8.3 ms | 4.0 ms |
-| Extra memory allocated while scrolling | 0 B | 0 B |
+| Memory allocated while scrolling | 0 B | 0 B |
 | Opening slots while scrolling (TMP text, up to six sentences), slowest frame | 25 ms, no missed frame at 4 opens a second | 8.9 ms |
-| Open slots scrolled back into view | cached, nothing measured | cached, nothing measured |
 | Slowdown or memory growth over 2 minutes | none | none |
 
-300 or 100,000 items cost the same. The details and every run are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md).
-
-## Why I built it
-
-I wrote Slot List after trying to fix other open-source scrollers I found on GitHub. I spent weeks on minor issues until I decided I could just make my own, calculating its boundaries my way. It seemed like a worthy challenge.
-
-After three very long days of personal time, I had a first working version. It has since evolved into a robust recycling scroller.
-
-I built and refined it on my own time in personal projects. It isn't used in production yet. In November 2026 I extracted it into this standalone package and documented it. Earlier history lives in a private repository.
+Every run is in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). A fully automated bench on more devices (iPhone, WebGL) is in progress: see [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md).
 
 ## Is it right for your project?
 
-**Use Slot List if you:**
+**Slot List fits if you:**
+- build your UI with uGUI and show long lists, grids or store-style layouts;
+- target phones, where GC spikes and canvas rebuilds hurt;
+- want measured sizes, sections, paging, expanding and bento in one component, with tests behind them.
 
-- Display large lists or grids in uGUI
-- Need responsive UI on mobile hardware
-- Want pagination and expandable slots in one component
+**Look elsewhere if you:**
+- build your UI with UI Toolkit: its `ListView` already virtualizes ([comparison](#scrollrect-or-listview));
+- have a short list (a few dozen items) that doesn't need virtualization;
+- need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as nested scrolling, several slot prefabs per list, sticky headers or gamepad navigation.
 
-**Consider something else if you:**
+**Adopting it, honestly:**
+- it's a preview, by a single author, not yet used in a shipped game;
+- it's covered by about 470 automated tests (EditMode and PlayMode) that run in batch mode, and by a benchmark measured on Android phones;
+- it's MIT licensed, with a [changelog](CHANGELOG.md) that marks every breaking change.
 
-- Have a short list that doesn't need virtualization
-- Build your UI with UI Toolkit. Its built-in `ListView` already virtualizes lists. This package is for uGUI only.
+See [Project status](#project-status).
 
 ## Features
 
-- Slot recycling and pooling
-- Vertical, horizontal and reversed layouts
-- Fixed or dynamic grid columns
-- Fixed sizes, or sizes measured with Unity's layout (text, localization, images)
-- Expandable slots
-- Sections with headers (`SectionedSlotList`)
-- List, filtered and paginated data sources
-- Scroll to an item, the start or the end, with alignment and an optional animation
-- Snapping to items or pages after a drag
-- Looping lists (carousels)
-- Item visibility checks
+| Area | What you get |
+|---|---|
+| Recycling | Only visible slots exist; a small buffer of pooled slots that stay active out of view; the first screen shows in the first frame; the pool warms up two slots per frame |
+| Layouts | Lists, fixed grids, auto grids (columns from the width), **bento** (spans or patterns in JSON), in all four directions |
+| Sizes | Fixed (`DefaultExtent`) or measured with Unity's layout, cached per item, followed when content changes late |
+| Sections | `SectionedSlotList`: a header per section, headers of any height, section spacing, works with grids and bento |
+| Expanding | Accordion slots, one or several open, fixed or measured expanded size, nothing above moves |
+| Scrolling | `ScrollToItem` with alignment, animation and offset; snapping to items or pages; looping carousels |
+| Data | `ListSource`, `FilteredSource`, `PagedSource` (async pages with cancellation), `SectionedSource` |
+| Events and queries | Expanded, collapsed, rebuilt, Content size changed, snapped, paging events; item offsets, sizes, tiles, visibility |
+| Editor | A minimal inspector with labels that follow the direction; layout components on Content are refused, with a fix button |
 
 ## Compatibility
 
@@ -83,10 +88,10 @@ I built and refined it on my own time in personal projects. It isn't used in pro
 |---|---|
 | Unity | Tested on Unity 6 (`6000.3.6f1` and `6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
 | Scripting backend | Mono (Editor) and IL2CPP (Android, 32-bit ARMv7 and 64-bit ARM64) |
-| Platforms | macOS Editor; Android, tested on a Samsung Galaxy A02s and a Google Pixel 5. iOS, WebGL and desktop players aren't tested yet. |
-| UI frameworks | uGUI only |
+| Platforms | macOS Editor; Android, tested on a Samsung Galaxy A02s and a Google Pixel 5. iOS and WebGL runs are planned (see the performance plan); desktop players aren't tested yet. |
+| UI framework | uGUI only |
 | Enter Play Mode with domain reload disabled | Supported by design: the runtime keeps no static state between plays (its only static field is an internal switch for tests). Not yet checked by hand. |
-| Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
+| Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) and uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
 
 ## Installation
 
@@ -94,7 +99,7 @@ Git must be installed on your machine.
 
 ### 1. Install Tools Core
 
-This package requires [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), the shared code that defines the injection interfaces used by Fast IoC, Screen System and Slot List. Unity doesn't install Git dependencies automatically, so add it first.
+Slot List needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core), the shared code that defines the injection interfaces. Unity doesn't install Git dependencies by itself, so add it first:
 
 1. In Unity, open **Window > Package Manager**.
 2. Select **+ > Add package from git URL**.
@@ -104,11 +109,9 @@ This package requires [Tools Core](https://github.com/sgonzalezrozo/unity-tools-
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
 
-### 2. Install this package
+### 2. Install Slot List
 
-1. In Unity, open **Window > Package Manager**.
-2. Select **+ > Add package from git URL**.
-3. Enter:
+Same steps, with:
 
 ```text
 https://github.com/sgonzalezrozo/unity-recyclable-scroller.git
@@ -120,9 +123,7 @@ To pin a release, add its tag:
 https://github.com/sgonzalezrozo/unity-recyclable-scroller.git#v1.0.0-preview.1
 ```
 
-The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's included with uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
-
-Coming from Recyclable Scroller `0.3.0`? Every type and serialized field is renamed. Follow the [migration guide](Documentation~/migration-from-recyclable-scroller.md).
+The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's part of uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
 
 ### Samples
 
@@ -130,19 +131,19 @@ Import them from the package's page in the Package Manager (**Samples** tab):
 
 | Sample | What's in it |
 |---|---|
-| **Examples** | Grid, sections, expandable rows, a looping carousel, and paging with pull to refresh. Each builds its UI in code: add one to an empty GameObject in an empty scene and press Play. |
+| **Examples** | Seven scenes that build their UI in code: add one to an empty GameObject in an empty scene and press Play. `GridExample`, `BentoExample`, `BentoSectionsExample`, `SectionsExample`, `ExpandableExample`, `CarouselExample` (loop and snap) and `PagingExample` (paging and pull to refresh). No TextMeshPro needed. |
 | **Quick Start** | The scripts for the quick start below. |
 | **Extras** | A pull-to-refresh indicator and an empty-state panel. |
 
 ## Quick start
 
-### 1. Create your data and slot
+### 1. Your data and your slot
 
-Items must be classes. The slot receives its item through `Data`:
+Items are classes. The slot receives its item through `Data`:
 
 ```csharp
-using TMPro;
 using SlotList;
+using TMPro;
 using UnityEngine;
 
 public class InventoryItem
@@ -156,7 +157,7 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
 
     private InventoryItem data;
 
-    public float DefaultExtent => 80f;
+    public float DefaultExtent => 80f; // a fixed height; -1 measures it with layout
 
     public InventoryItem Data
     {
@@ -164,7 +165,7 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
         set
         {
             data = value;
-            label.text = value.Name;
+            label.text = value.Name; // reset every visual here: slots are reused
         }
     }
 }
@@ -172,36 +173,36 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
 
 Save the slot as a prefab, with a `RectTransform` on its root.
 
-### 2. Create a scroller class
+### 2. A list class
 
-`SlotList<T>` is abstract, and Unity can't add an open generic component, so create a concrete class:
+`SlotList<T>` is generic, and Unity can't add an open generic component, so create a concrete class:
 
 ```csharp
 using SlotList;
 
-public class InventoryScroller : SlotList<InventoryItem>
+public class InventoryList : SlotList<InventoryItem>
 {
 }
 ```
 
-### 3. Set up the scene
+### 3. The scene
 
-1. Create an empty UI GameObject under your Canvas, and give it the size and anchors the list should have on screen.
-2. Add `InventoryScroller`. It builds a stretched **Viewport** and a **Content** inside it, and wires them up. There are no scrollbars. The Viewport gets:
+1. Under your Canvas, create an empty UI GameObject with the size and anchors the list should have on screen.
+2. Add `InventoryList`. It builds a stretched **Viewport** and a **Content** inside it, and wires them up. The Viewport gets:
    - a `RectMask2D`, which clips and culls slots outside it;
-   - a nested `Canvas`, so scrolling rebuilds only the list's batches, not the rest of the screen's;
+   - a nested `Canvas`, so scrolling rebuilds only the list's batches;
    - a `GraphicRaycaster`, so buttons in slots get clicks.
 
-   A list set up another way gets the Canvas and raycaster when it starts.
-3. Assign your slot prefab to **Slot Prefab**, and pick the **Direction** and **Layout**.
+   A list set up another way gets the Canvas and the raycaster when it starts.
+3. Assign the slot prefab to **Slot Prefab**, and pick the **Direction** and **Layout**.
 
 Don't start from Unity's **UI > Scroll View**: it adds scrollbars, a stencil `Mask` and an `Image` on the Viewport that this list doesn't use.
 
-**Content must have no layout components** (`ContentSizeFitter`, `LayoutGroup`, `LayoutElement`, `AspectRatioFitter`), and the Viewport no `LayoutGroup`. The list sets Content's size itself and changes it at runtime, when items are measured, expanded or collapsed. The editor removes such a component as soon as you add one, the inspector shows an error with a **Remove Layout Components** button, and `Initialize` refuses to start and logs which component is in the way.
+**Content must have no layout components** (`ContentSizeFitter`, `LayoutGroup`, `LayoutElement`, `AspectRatioFitter`), and the Viewport no `LayoutGroup`. The list sets Content's size itself. The editor removes such a component as soon as you add one, the inspector shows an error with a **Remove Layout Components** button, and `Initialize` refuses to start and names the component in the way.
 
 <!-- Screenshot: Documentation~/images/hierarchy-and-inspector.png -->
 
-### 4. Initialize it
+### 4. Start it
 
 ```csharp
 using System.Collections.Generic;
@@ -210,79 +211,183 @@ using UnityEngine;
 
 public class InventoryScreen : MonoBehaviour
 {
-    [SerializeField] private InventoryScroller scroller;
+    [SerializeField] private InventoryList list;
 
     private void Start()
     {
         List<InventoryItem> items = new();
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 10_000; i++)
             items.Add(new InventoryItem { Name = $"Item {i}" });
 
-        scroller.Initialize(new ListSource<InventoryItem>(items));
+        list.Initialize(new ListSource<InventoryItem>(items));
     }
 }
 ```
 
-## Update data
+`OnInitialized` fires inside `Initialize`, with the first screen already bound: subscribe before calling it.
 
-Change the data source, then call `Refresh()`:
+## Data and updates
+
+A list reads its items from a source (`IItemSource<T>`). Change the source, then call `Refresh()`:
 
 ```csharp
 source.AddItem(new InventoryItem { Name = "New item" });
-scroller.Refresh();
+list.Refresh();
 ```
 
-`ListSource<T>` also has `AddItems`, `InsertItem`, `RemoveItem`, `RemoveItemAt`, `SetItems`, `ReplaceItems` and `Clear`. To switch to a different source, call `SetSource(newSource)`.
+- `ListSource<T>` also has `AddItems`, `InsertItem`, `RemoveItem`, `RemoveItemAt`, `SetItems`, `ReplaceItems` and `Clear`.
+- `SetSource(newSource)` switches to another source. It also works before `Initialize` (it calls it).
+- `Refresh()` with the same item count rebinds the slots in place, keeps expanded items and allocates nothing.
+- To build the source elsewhere (a screen's Model, for example), implement `IItemSourceProvider<T>` and pass its `GetSource()`.
 
 ## Item sizes
 
-Each slot's script decides how big it is, through `DefaultExtent` (the height in a vertical list, the width in a horizontal one):
+Each slot decides how big it is through `DefaultExtent` (the height in a vertical list, the width in a horizontal one):
 
-- **A positive number is a fixed size.** Every item uses it and nothing is measured. This is the fastest option.
-- **0 or less (for example `-1`) means "measure with Unity's layout".** Text, localized strings and images decide each slot's size.
-
-```csharp
-public float DefaultExtent => -1f; // measured with layout
-```
+- **A positive number is a fixed size.** Nothing is measured. This is the fastest option.
+- **0 or less (for example `-1`) measures the slot with Unity's layout.** Text, localized strings and images decide each item's size.
 
 ### Building a slot that sizes itself
 
-- On the prefab's root, add a `VerticalLayoutGroup` (a `HorizontalLayoutGroup` for horizontal lists) with **Control Child Size > Height** on (**Width** for horizontal) and **Child Force Expand > Height** off. Add padding as you like, and a `LayoutElement` with a minimum height if you want one.
-- Inside it, use text with word wrapping on, images with a `LayoutElement` or an `AspectRatioFitter`, and nested layout groups.
+- On the prefab's root, add a `VerticalLayoutGroup` (a `HorizontalLayoutGroup` in a horizontal list) with **Control Child Size > Height** on (**Width** in a horizontal list) and **Child Force Expand > Height** off.
+- Inside it, use text with wrapping on, images with a `LayoutElement` or an `AspectRatioFitter`, and nested layout groups.
 - **Don't put a `ContentSizeFitter` on the root.** The list sets the root's size, and a fitter would fight it. Fitters on children are fine.
 - The list always sets the width: the full width in a list, the column width in a grid. That's what makes text wrap correctly.
 
-If the root reports no preferred size (no layout group), the slot keeps the prefab's own size and the list logs one warning.
+If the root reports no preferred size (no layout group), the slot keeps the prefab's size and the list logs one warning.
 
 ### How measuring works
 
-- A slot is measured when it's shown. Items not measured yet use the average of the measured ones, so the scrollbar gets more accurate as you scroll.
+- A slot is measured when it's first shown. Items not measured yet use the average of the measured ones.
+- **Sizes are cached:** an item scrolled back into view reuses its size, with no layout rebuild. `Refresh()` measures the items on screen again.
+- **Late changes are followed.** A string that arrives late, an image that finishes loading, or a child turned on or off resizes the slot one frame later. The list adds a `SlotSizeWatcher` to measured slots by itself.
+- **What you're looking at stays still.** Items measured for the first time while you scroll up grow upwards, and an item whose content changed keeps its start and pushes the ones after it. This also holds mid-drag, with no jump and no extra speed.
 - In a grid, a row is as tall as its tallest slot.
-- **Sizes are cached.** An item is measured the first time it's shown; when it scrolls back in, it reuses that size without a layout rebuild. `Refresh()` measures the items on screen again.
-- **If an item's content changed while it was off screen** (something unlocked, a new state), the watcher notices when it's shown and resizes it one frame later. To get the right size from the first frame, call `InvalidateSize(index)` when you change it.
-- **Changes after binding are picked up for you.** A localized string that arrives late, an image that finishes loading or a child turned on or off resizes the slot one frame later. The list adds a `SlotSizeWatcher` to measured slots for this; you never add it yourself.
-- **What you're looking at stays still.** Items measured for the first time while you scroll up grow upwards, and an item whose content changed keeps its top and pushes the ones below. This also holds mid-drag, without jumps or extra speed.
 
-### Measuring again
-
-When a size depends on something the slot can't notice by itself, ask for a new measurement:
+When a size depends on something the slot can't notice, ask for a new measurement:
 
 ```csharp
-scroller.InvalidateSize(index); // this item
-scroller.InvalidateAllSizes();  // every item
+list.InvalidateSize(index); // this item
+list.InvalidateAllSizes();  // every item
 ```
 
-Items on screen are measured at once and the others when they're shown. `InvalidateAllSizes()` is called for you when the list's width changes (text rewraps) and, if Unity Localization is installed, when the language changes. Both do nothing for fixed sizes.
+Items on screen are measured at once, the others when they're shown. `InvalidateAllSizes()` is called for you when the list's width changes and, with Unity Localization installed, when the language changes. Both do nothing for fixed sizes.
+
+## Layouts
+
+### Lists and directions
+
+**Direction** is Top To Bottom, Bottom To Top, Left To Right or Right To Left. Bottom To Top and Right To Left start from the opposite end, as in a list whose newest item sits at the bottom. Every layout works in every direction.
+
+### Grids
+
+Set **Layout** to:
+- **Grid** for a fixed number of columns (rows in a horizontal list);
+- **Auto Grid** for as many as the width allows, from a target slot size, between a minimum and a maximum.
+
+Slots stretch to fill the line. The space between slots on a line is **Column Spacing** (**Row Spacing** in a horizontal list).
+
+From code, before `Initialize`: `list.Settings.slotsPerLine = 3` for a fixed grid, or `list.Settings.autoSlotsPerLine = true` with `targetSlotSize` (and optionally `minSlotsPerLine` and `maxSlotsPerLine`).
+
+### Bento
+
+Bento places tiles of different sizes on a grid of cells: a big featured tile, a strip of small ones, a tall one beside two stacked. Set **Layout** to **Bento** and give the list a **Layout JSON** (a TextAsset), or set it from code. Items don't choose their size: the layout does.
+
+A layout is either:
+- **spans**, a sequence of tile sizes packed in order: each tile goes in the first gap where it fits, without going back to fill earlier holes;
+- or **patterns**, blocks of cells drawn tile by tile.
+
+Both repeat from `repeatFrom` after their last entry.
+
+```json
+{
+  "columns": 4,
+  "repeatFrom": 1,
+  "patterns": [
+    { "rows": 2, "tiles": [ {"c":0,"r":0,"w":2,"h":2}, {"c":2,"r":0,"w":2,"h":1}, {"c":2,"r":1,"w":1,"h":1}, {"c":3,"r":1,"w":1,"h":1} ] },
+    { "rows": 1, "tiles": [ {"c":0,"r":0,"w":1,"h":1}, {"c":1,"r":0,"w":1,"h":1}, {"c":2,"r":0,"w":1,"h":1}, {"c":3,"r":0,"w":1,"h":1} ] }
+  ]
+}
+```
+
+```json
+{ "columns": 4, "repeatFrom": 1, "spans": [ {"w":2,"h":2}, {"w":1,"h":1} ] }
+```
+
+```csharp
+list.Settings.bento = true;
+list.Settings.cellAspect = 1f;                    // row height / column width
+list.SetBentoLayout(BentoLayout.FromJson(json));  // or BentoLayout.FromSpans / FromPatterns
+list.Initialize(source);
+```
+
+- Columns come from the layout. The column width comes from the list's width and **Column Spacing**, and the row height from **Cell Aspect**. Tiles stretch to their cells.
+- **Every layout is checked.** A broken one logs its errors (the inspector lists them too) and places items as 1x1 tiles. `layout.Errors` has them in code.
+- Paging works: new pages continue the layout without moving what's on screen.
+- `SetBentoLayout` after `Initialize` rebuilds with the new layout. `GetTile(index)` tells you where an item sits.
+- Another JSON library can fill `BentoLayoutData` for `BentoLayout.FromData`.
+- Tiles don't expand, and a bento list doesn't loop.
+
+## Sections and headers
+
+For a list split into sections, each with a header, use `SectionedSlotList<TItem, THeader>` with a `SectionedSource<TItem, THeader>`. Each section is a header plus its own source of items:
+
+```csharp
+public class InventorySection
+{
+    public string Title;
+}
+
+// The header slot, on the Header Prefab. -1 measures it, so each header can be as tall as its own content.
+public class InventoryHeaderSlot : MonoBehaviour, ISlot<InventorySection>
+{
+    [SerializeField] private TMP_Text title;
+
+    private InventorySection data;
+
+    public float DefaultExtent => -1f;
+
+    public InventorySection Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            title.text = value.Title;
+        }
+    }
+}
+
+public class InventorySectionsList : SectionedSlotList<InventoryItem, InventorySection>
+{
+}
+```
+
+Assign **Slot Prefab** and **Header Prefab**, then build the sections:
+
+```csharp
+SectionedSource<InventoryItem, InventorySection> source = new();
+source.AddSection(new InventorySection { Title = "Weapons" }, new ListSource<InventoryItem>(weapons));
+source.AddSection(new InventorySection { Title = "Potions" }, new ListSource<InventoryItem>(potions));
+
+list.SetSource(source); // starts the list the first time, replaces the sections after that
+```
+
+- **Headers** follow the same size rule as slots: a positive `DefaultExtent` is fixed, 0 or less is measured. Measured headers can each have a different height.
+- **Section Spacing** adds space before every header except the first.
+- **In a grid or bento,** a header takes a whole row and each section starts a new row. In bento, the layout starts again in each section, and a tall tile never reaches into the next section.
+- **Empty sections are skipped**, header included. Set `source.SkipEmptySections = false` to show the header of an empty section.
+- `InsertSection`, `RemoveSection` and `ClearSections` change the sections. After changing a section's own source, call `list.Refresh()`.
+- `list.ScrollToSection(index, duration)` goes to a section's header (or the next section shown, if that one is empty).
+- **Indexes in the list's API count headers.** `source.FlatIndexOf(section, indexInSection)` gives an item's index, `source.FlatIndexOf(section, -1)` its header's, and `source.Locate(index)` goes the other way.
+- `ISectionedSourceProvider<TItem, THeader>` builds the source elsewhere: call `list.SetSource(provider)`.
+- A sectioned list doesn't page.
 
 ## Expandable slots
 
-Implement `IExpandableSlot<T>` on the slot. The list sets `Owner` and `ItemIndex` each time it binds the slot, and sets `IsExpanded` after `Data`:
+Implement `IExpandableSlot<T>`. The list sets `Owner` and `ItemIndex` every time it binds the slot, and `IsExpanded` after `Data`:
 
 ```csharp
-using SlotList;
-using TMPro;
-using UnityEngine;
-
 public class ExpandableInventorySlot : MonoBehaviour, IExpandableSlot<InventoryItem>
 {
     [SerializeField] private TMP_Text label;
@@ -291,7 +396,7 @@ public class ExpandableInventorySlot : MonoBehaviour, IExpandableSlot<InventoryI
     private InventoryItem data;
     private bool isExpanded;
 
-    public float DefaultExtent => -1f; // measured: the details decide the expanded size
+    public float DefaultExtent => 80f;
     public ISlotList Owner { get; set; }
     public int ItemIndex { get; set; }
 
@@ -324,213 +429,62 @@ public class ExpandableInventorySlot : MonoBehaviour, IExpandableSlot<InventoryI
             Owner.Expand(ItemIndex);
     }
 
-    // Called when the list collapses this slot because another one expanded.
+    // Called when the list closes this slot because another one opened.
     public void OnCollapsed()
         => IsExpanded = false;
 }
 ```
 
-- **Measured slots** (`DefaultExtent` of 0 or less) size themselves: `Expand` and `Collapse` only change the state, and the slot is measured with its details on or off. If the details change size while open, the slot follows. A size given to `Expand(index, size)` or `SetExpandedSize` is ignored, with a warning.
-- **Fixed-size slots** (`DefaultExtent` above 0), the usual case: collapsed, the slot keeps its fixed size and nothing is measured while scrolling. Expanded:
-  - `Expand(index)` without a size: the expanded slot is measured with its details on, in Unity's own layout pass, so it grows on the frame after the tap (what's above it stays still). It follows its details if they change size while open, including text that arrives late (localization). Only that item is measured. Collapsing goes back to the fixed size. The root needs a layout group (or a `LayoutElement`) that reports the expanded height; without one it expands to twice its size.
-  - `Expand(index, 240f)` with a size: a fixed expanded size. `SetExpandedSize(index, newSize)` resizes an open slot, and turns a measured one into a fixed one.
-- Expanding or collapsing never moves what's on screen above the item.
-- Turn on **Allow Multiple Expanded** to keep more than one open.
-- Expansion only works in lists. It's ignored in a grid.
+- **Fixed-size slots** (`DefaultExtent` above 0), the usual case: closed, the slot keeps its fixed size and nothing is measured while scrolling.
+  - `Expand(index)` without a size measures the open slot in Unity's own layout pass, so it grows on the frame after the tap. It follows its details while open, including late text. The root needs a layout group (or a `LayoutElement`) that reports the open height; without one it opens to twice its size.
+  - `Expand(index, 240f)` opens it to a fixed size. `SetExpandedSize(index, size)` resizes an open slot.
+- **Measured slots** (`DefaultExtent` of 0 or less) size themselves: `Expand` and `Collapse` only change the state, and the slot is measured with its details on or off. A size passed to `Expand` is ignored, with a warning.
+- Opening or closing never moves what's on screen above the item.
+- **Allow Multiple Expanded** keeps more than one open.
+- Lists only: grids and bento don't expand, because opening one slot would change the others on its row.
 
-## Grids
+## Scrolling
 
-In the inspector, set **Layout** to **Grid** and choose the number of columns (rows in a horizontal list), or to **Auto Grid** to fit as many as the width allows, between a minimum and a maximum, from a target slot size. Slots are stretched to fill the line. The spacing between slots on a line is the **Column Spacing** (**Row Spacing** in a horizontal list).
-
-From code, set them before `Initialize`: `list.Settings.slotsPerLine = 3` for a fixed grid, or `list.Settings.autoSlotsPerLine = true` with `targetSlotSize` (and optionally `minSlotsPerLine` and `maxSlotsPerLine`) for an auto grid.
-
-## Sections and headers
-
-For a list split into sections, each with a header, use `SectionedSlotList<TItem, THeader>` and a `SectionedSource<TItem, THeader>`. Headers and items are different types, with their own prefabs:
+### To an item
 
 ```csharp
-using SlotList;
-
-public class InventorySection
-{
-    public string Title;
-}
-
-// The header slot: a MonoBehaviour on the Header Prefab.
-public class InventoryHeaderSlot : MonoBehaviour, ISlot<InventorySection>
-{
-    [SerializeField] private TMP_Text title;
-
-    private InventorySection data;
-
-    public float DefaultExtent => 48f;
-
-    public InventorySection Data
-    {
-        get => data;
-        set
-        {
-            data = value;
-            title.text = value.Title;
-        }
-    }
-}
-
-// The list.
-public class InventorySectionsList : SectionedSlotList<InventoryItem, InventorySection>
-{
-}
+list.ScrollToItem(42);                                // jump, item at the start
+list.ScrollToItem(42, ScrollAlign.Center, 0.4f);      // animate for 0.4 s, item in the middle
+list.ScrollToItem(42, ScrollAlign.Nearest);           // move as little as possible; not at all if it's visible
+list.ScrollToItem(42, ScrollAlign.Start, 0.3f, 16f);  // leave 16 px before it
 ```
 
-Assign both **Slot Prefab** (implementing `ISlot<InventoryItem>`) and **Header Prefab** (implementing `ISlot<InventorySection>`), then build the sections:
-
-```csharp
-SectionedSource<InventoryItem, InventorySection> source = new();
-source.AddSection(new InventorySection { Title = "Weapons" }, new ListSource<InventoryItem>(weapons));
-source.AddSection(new InventorySection { Title = "Potions" }, new ListSource<InventoryItem>(potions));
-
-list.SetSource(source); // starts the list the first time, replaces the sections after that
-```
-
-- **Empty sections are skipped**, header included. Set `source.SkipEmptySections = false` to show the header of an empty section.
-- `InsertSection`, `RemoveSection` and `ClearSections` change the sections. After changing an inner source (adding to a section's `ListSource`, for example), call `list.Refresh()`, as with any list.
-- `list.ScrollToSection(index)` jumps to a section's header (or the next section shown, if that one is empty).
-- **A header takes a whole row in a grid**, and each section starts a new row.
-- **Section Spacing** (inspector, or `Settings.sectionSpacing`) adds space before every header except the first, in lists, grids and bento.
-- Headers follow the same size rule as slots: a positive `DefaultExtent` is fixed, 0 or less is measured with layout. Headers never change the average size used for items not measured yet.
-- Indexes in the list's API (`ScrollToItem`, `Expand`, `IsItemVisible`, `VisibleStartIndex`...) count headers. Use `source.FlatIndexOf(section, indexInSection)` to find an item's index, and `source.Locate(index)` for the other way round.
-- To build the source elsewhere (a screen's Model, for example), implement `ISectionedSourceProvider<TItem, THeader>` and call `list.SetSource(provider)`.
-- `SectionedSlotList` doesn't page: a sectioned source isn't a paged source.
-
-A plain `SlotList<T>` has no headers.
-
-## Bento layout
-
-Bento places tiles of different sizes on a grid of cells: a big featured tile, a strip of small ones, a tall one beside two stacked, and so on. Set **Layout** to **Bento** and give the list a **Layout JSON** (a TextAsset), or set it from code. Items don't choose their size: the layout does.
-
-A layout is a sequence of **spans** packed in order (each tile goes in the first gap where it fits, without going back to fill earlier holes), or a sequence of **patterns** (blocks of cells drawn tile by tile). Both repeat from `repeatFrom` after their last entry:
-
-```json
-{
-  "columns": 4,
-  "repeatFrom": 1,
-  "patterns": [
-    { "rows": 2, "tiles": [ {"c":0,"r":0,"w":2,"h":2}, {"c":2,"r":0,"w":2,"h":1}, {"c":2,"r":1,"w":1,"h":1}, {"c":3,"r":1,"w":1,"h":1} ] },
-    { "rows": 1, "tiles": [ {"c":0,"r":0,"w":1,"h":1}, {"c":1,"r":0,"w":1,"h":1}, {"c":2,"r":0,"w":1,"h":1}, {"c":3,"r":0,"w":1,"h":1} ] }
-  ]
-}
-```
-
-```json
-{ "columns": 4, "repeatFrom": 1, "spans": [ {"w":2,"h":2}, {"w":1,"h":1} ] }
-```
-
-```csharp
-list.Settings.bento = true;
-list.Settings.cellAspect = 1f; // row height / column width
-list.SetBentoLayout(BentoLayout.FromJson(json)); // or BentoLayout.FromSpans / FromPatterns in code
-list.Initialize(source);
-```
-
-- Columns come from the layout; the column width from the list's width and **Column Spacing**, the row height from **Cell Aspect**. Tiles stretch to their cells.
-- Every layout is checked. A broken one logs its errors (the inspector lists them too) and places items as 1x1 tiles. `layout.Errors` has them in code.
-- Paging works: new pages continue the layout without moving what's on screen. `SetBentoLayout` after `Initialize` rebuilds with the new layout. `GetTile(index)` tells you where an item sits.
-- In a `SectionedSlotList`, each header takes a whole row, as tall as the header (fixed or measured, so headers can differ), and the layout starts again in each section.
-- Tiles don't expand, and a bento list doesn't loop. Another JSON library can fill `BentoLayoutData` for `BentoLayout.FromData`.
-
-The **Examples** sample has `BentoExample` and `BentoSectionsExample`.
-
-## Reversed lists
-
-Choose **Bottom To Top** or **Right To Left** to start from the opposite end. It works with lists and grids.
-
-## Filtered data
-
-Wrap a source in `FilteredSource<T>`:
-
-```csharp
-ListSource<InventoryItem> items = new(allItems);
-FilteredSource<InventoryItem> filtered = new(items, item => item.Name.Contains("Sword"));
-
-scroller.Initialize(filtered);
-```
-
-To change the filter, update the predicate, then refresh:
-
-```csharp
-filtered.SetPredicate(item => item.Name.StartsWith("A"));
-scroller.Refresh();
-
-filtered.ClearPredicate();
-scroller.Refresh();
-```
-
-Each `GetItem` call walks the source list, so filtering gets slower as the list grows. For very large lists, build a filtered list yourself and pass it to `SetItems`.
-
-## Scrolling to items
-
-`ScrollToItem` takes an alignment, a duration and a gap:
-
-```csharp
-list.ScrollToItem(42);                                    // jump, item at the start
-list.ScrollToItem(42, ScrollAlign.Center, 0.4f);          // animate for 0.4 s, item in the middle
-list.ScrollToItem(42, ScrollAlign.Nearest);               // move as little as possible; not at all if it's visible
-list.ScrollToItem(42, ScrollAlign.Start, 0.3f, 16f);      // leave 16 px before it
-```
-
-The animation eases out, follows items that get measured on the way, and stops when the user starts dragging or you call `ForceStopScrolling()`. `IsScrolling` is true while it runs.
+`ScrollToStart(duration)` and `ScrollToEnd(duration)` do the same for the ends. The animation eases out, follows items measured on the way, and stops when the user drags or you call `ForceStopScrolling()`. `IsScrolling` is true while it runs.
 
 ### Snapping
 
-Set **Snap** to **Item** to settle on the nearest item once a drag ends and the list slows down, lined up with the viewport's start, centre or end (**Snap Align**). **Page** moves one viewport at a time, like a pager: a flick goes to the next or previous page, a slow release to the nearest one. `SnappedTo(index)` tells you where it landed.
+- **Snap: Item** settles on the nearest item once a drag ends and the list slows down, lined up with the viewport's start, centre or end (**Snap Align**).
+- **Snap: Page** moves one viewport at a time, like a pager: a flick goes to the next or previous page, a slow release to the nearest one.
+
+`SnappedTo(index)` tells you where it landed.
 
 ### Looping lists (carousels)
 
-Tick **Loop** and the list goes round forever. Indexes stay real (`0` to `count - 1`) everywhere in the API, and `ScrollToItem` takes the shortest way round. For a typical carousel, combine it with **Snap: Item** and **Snap Align: Center**.
+Tick **Loop** and the list goes round forever. Indexes stay real (`0` to `count - 1`) everywhere in the API, and `ScrollToItem` takes the shortest way round. For a carousel, combine it with **Snap: Item** and **Snap Align: Center**:
 
 ```csharp
 carousel.SnappedTo += index => Debug.Log($"Showing {index}");
 carousel.ScrollToItem(3, ScrollAlign.Center, 0.3f);
 ```
 
-A short list lays out a few copies of its items and, before the scroll reaches an end, jumps back by whole copies. A long one (when a few copies would be over 20,000 px) lays out only about ten screens of entries and maps them to items through an offset; near either end it moves back to the middle and shifts the offset, so the same items stay on screen. Either way you can't see the jump, the scroll position stays small (so movement and inertia are exact, as in a plain ScrollRect), and drags and flings carry on across it. In a long loop, `ScrollToItem` to an item far outside those screens jumps there rather than animating across thousands of items. A looping list is a plain list: no grid, sections, paged source or expanding items (it logs an error and doesn't loop). Pull to refresh never fires, because the list never reaches its start.
+You never see the loop jump, and drags and flings carry on across it.
+- **A short list** lays out a few copies of its items and jumps back by whole copies near either end.
+- **A long one** lays out about ten screens of entries mapped to items through an offset, so the scroll position stays small and movement and inertia stay exact. In a long loop, `ScrollToItem` to an item far away jumps there instead of animating across thousands of items.
 
-## Pull to refresh
+A looping list is a plain list: no grid, bento, sections, paged source or expanding (it logs an error and doesn't loop), and no pull to refresh, because it never reaches its start.
 
-Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 pixels past the start of the list:
+## Paging and pull to refresh
 
-```csharp
-using System.Threading.Tasks;
-using SlotList;
+### Paging
 
-public class RefreshingScroller : SlotList<InventoryItem>
-{
-    protected override async void OnPullToRefreshDetected()
-    {
-        await ReloadAsync();
-        Refresh();
-    }
-
-    private Task ReloadAsync()
-    {
-        // Update your data source here.
-        return Task.CompletedTask;
-    }
-}
-```
-
-The **Extras** sample has a `PullIndicator` component for a status label and spinner, which you drive yourself, and an `EmptyStatePanel` that shows a message when the list is empty.
-
-## Pagination
-
-Implement `IPageLoader<T>` and wrap it in `PagedSource<T>`. Pages start at `0`. Throw to report a failure:
+Implement `IPageLoader<T>` and wrap it in a `PagedSource<T>`. Pages start at 0. Throw to report a failure:
 
 ```csharp
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using SlotList;
-
 public class InventoryPageLoader : IPageLoader<InventoryItem>
 {
     private const int PageSize = 50;
@@ -547,121 +501,161 @@ public class InventoryPageLoader : IPageLoader<InventoryItem>
 }
 ```
 
-Give the list the source. It loads the first page by itself, and the next one whenever fewer than 10 items are left after the last visible one. New pages are added without a rebuild, so the scroll position and expanded items stay:
-
 ```csharp
-scroller.SetSource(new PagedSource<InventoryItem>(new InventoryPageLoader()));
+list.SetSource(new PagedSource<InventoryItem>(new InventoryPageLoader()));
 
-scroller.PageLoaded += count => Debug.Log($"{count} more items");
-scroller.PageFailed += exception => Debug.LogWarning(exception.Message);
-scroller.ReachedEnd += () => Debug.Log("No more pages");
+list.PageLoaded += count => Debug.Log($"{count} more items");
+list.PageFailed += exception => Debug.LogWarning(exception.Message);
+list.ReachedEnd += () => Debug.Log("No more pages");
 ```
 
-Only one page loads at a time. Changing the source or destroying the list cancels a load in flight (the loader receives a cancelled token). To start again, for example on pull to refresh, call `source.Reset()`: the list goes back to the start and reloads page 0.
+- The list loads the first page by itself, then the next one whenever fewer than 10 items are left after the last visible one.
+- New pages are appended without a rebuild: the scroll position and expanded items stay. A page that lands while the list bounces back from its end stops the bounce instead of drifting it back.
+- Only one page loads at a time. Changing the source or destroying the list cancels a load in flight: the loader receives a cancelled token.
+- `source.Reset()` starts again from page 0, for example on pull to refresh.
 
-### Performance tips
+### Pull to refresh
 
-- **Turn off Raycast Target** on graphics in the slot prefab that don't need clicks (backgrounds, icons, labels). Every raycast target is checked on every touch.
-- **Keep slot hierarchies shallow** when they're measured with layout: nested layout groups make each measurement slower. Measured sizes are cached, so this mostly affects the first time an item is shown.
-- Benchmarks: [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md).
+Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 px past the start of the list:
 
-## API reference
+```csharp
+public class RefreshingList : SlotList<InventoryItem>
+{
+    protected override void OnPullToRefreshDetected()
+    {
+        if (DataSource is IPagedSource<InventoryItem> paged)
+            paged.Reset();
+    }
+}
+```
 
-| API | Purpose |
-|---|---|
-| `Initialize(source)` | Starts the scroller with a data source |
-| `SetSource(source)` | Replaces the data source and refreshes |
-| `Refresh()` | Rebuilds the list from the current data source |
-| `Clear()` | Clears displayed slots and resets the scroll position |
-| `ScrollToItem(int index, ScrollAlign align = Start, float duration = 0, float offset = 0)` | Scrolls to an item: at once, or animated over `duration` seconds. See [Scrolling to items](#scrolling-to-items) |
-| `ScrollToStart(float duration = 0)`, `ScrollToEnd(float duration = 0)` | Scroll to the start or the end, at once or animated |
-| `ForceStopScrolling()` | Stops any movement, including an animation or a snap |
-| `Expand(int index, float newSize = -1)` | Expands a slot (the size is used for fixed-size slots only) |
-| `Collapse(int index)` | Collapses a slot |
-| `SetExpandedSize(int index, float newSize = -1)` | Resizes an expanded slot |
-| `InvalidateSize(int index)` | Measures an item again (measured slots) |
-| `InvalidateAllSizes()` | Measures every item again (measured slots) |
-| `IsExpanded(int index)` | Checks whether a slot is expanded |
-| `IsItemVisible(int index)` | Checks whether an item is visible |
-| `GetItemCount()` | Gets the item count |
-| `IsInitialized` | Checks whether initialization has finished |
-| `VisibleStartIndex`, `VisibleEndIndex` | Get the visible range |
-| `GetItemOffset(int index)` | Where the item's line starts along the scroll axis, from the start of Content (-1 if unknown) |
-| `GetItemSize(int index)` | The size of the item's line along the scroll axis (in a grid, its tallest slot; -1 if unknown) |
-| `ViewportSize`, `ContentSize` | The viewport's and Content's size along the scroll axis |
-| `ExpandedCount` | How many items are expanded |
+The **Extras** sample has a `PullIndicator` for a status label and spinner, which you drive yourself, and an `EmptyStatePanel` that shows a message when the list is empty.
 
-Events, all read-only notifications:
+## Filtering
 
-| Event | Raised when |
-|---|---|
-| `ItemExpanded(int index)` | An item was expanded |
-| `ItemCollapsed(int index)` | An item was collapsed, including one closed because another opened (raised before that one's `ItemExpanded`) |
-| `Rebuilt` | The list rebuilt its lines: `Refresh`, `SetSource`, or a change of slots per line |
-| `ContentSizeChanged(float size)` | The list changed Content's size along the scroll axis (items measured, opened or closed, pages, Refresh). Not raised by scrolling |
-| `SnappedTo(int index)` | The list settled on an item after a drag (Snap). With page snapping, the first item on the page |
-| `PageRequested`, `PageLoaded(int)`, `PageFailed(Exception)`, `ReachedEnd` | Paging (see Pagination) |
-| `OnInitialized` | Initialization finished. It fires inside `Initialize` (or the first `SetSource`), with the first screen already bound, so subscribe before calling it. |
+Wrap a source in a `FilteredSource<T>`:
 
-`SectionedSlotList<TItem, THeader>` has the same API, with these differences:
+```csharp
+FilteredSource<InventoryItem> filtered = new(items, item => item.Name.Contains("Sword"));
+list.Initialize(filtered);
 
-| API | Purpose |
-|---|---|
-| `SetSource(SectionedSource<TItem, THeader> source)` | Starts the list or replaces its sections |
-| `SetSource(ISectionedSourceProvider<TItem, THeader> provider)` | The same, with the provider's source |
-| `ScrollToSection(int section, float duration = 0)` | Scrolls a section's header to the start, at once or animated |
-| `Source` | The sections shown |
-| `HeaderPrefab` | The header prefab (set it before the first `SetSource`) |
+filtered.SetPredicate(item => item.Name.StartsWith("A"));
+list.Refresh();
+```
 
-It has no `Initialize`: `SetSource` starts it.
+The matching items are worked out once and cached. `SetPredicate` and `ClearPredicate` work them out again; call `Invalidate()` after the underlying source changes.
 
-## Inspector settings
+## Performance
 
-Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Left" in a left-to-right one, and so on. The `ScrollRect` settings underneath are hidden and driven by these.
+**What the tests guarantee** (they run on every verify):
+- scrolling 100,000 items allocates 0 bytes;
+- `Refresh()` with the same count allocates 0 bytes and rebinds slots in place;
+- scrolling checks only the slots on screen, and places only the slot that came in;
+- no slot ever leaves Content while scrolling;
+- rebuilds and new pages only create what's new.
+
+**How it stays cheap:**
+- **The Viewport is a nested Canvas,** so moving slots rebatches only the list, not the rest of the screen.
+- **Pooled slots stay active,** parked out of view, where the mask culls them. Reusing a slot doesn't run its `OnEnable` or wake its graphics: on a low-end phone, that cut the list's own cost by about three quarters.
+- **Sizes are cached,** and an opened slot is measured in Unity's own layout pass, so TMP lays its text out once.
+- **Scrolls under half a pixel** skip the visible-range work.
+- **The first screen** shows in the first frame. The pool warms up two slots per frame, and disabling and enabling a list rebinds nothing.
+
+**Tips:**
+- Refresh the slot from its `Data` setter, not from `OnEnable` (a reused slot was never disabled).
+- Turn off **Raycast Target** on graphics that don't need clicks.
+- Use a fixed `DefaultExtent` when every slot has the same size.
+- Keep measured slots shallow. Nested layout groups make each first measurement slower.
+- With long TMP text that appears when a slot opens, pre-fill the font asset or use a static atlas.
+
+Numbers per device, and how to run the bench, are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). The zero-GC audit and the automated device bench are planned in [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md). Measure at your own list sizes on your target devices.
+
+## Inspector
+
+Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Left" in a left-to-right one. The `ScrollRect` settings underneath are hidden and driven by these. Settings are read-only while playing.
 
 | Setting | Purpose |
 |---|---|
 | Slot Prefab | The prefab used for slots |
 | Header Prefab | The prefab used for headers (sectioned lists only) |
 | Direction | Top to bottom, bottom to top, left to right or right to left |
-| Layout | List, Grid (a fixed count per line) or Auto Grid (as many as fit) |
+| Layout | List, Grid (a fixed count per line), Auto Grid (as many as fit) or Bento (tiles from a JSON layout) |
 | Columns / Rows, Target size, Min, Max | Grid settings, shown for the chosen layout |
-| Row / Column Spacing | Space between lines, and between slots on a line in a grid |
+| Layout JSON, Cell Aspect | Bento settings: the layout, and row height divided by column width. Errors in the JSON are shown under the settings |
+| Row Spacing / Column Spacing | Space between lines, and between slots on a line |
+| Section Spacing | Space before every header except the first (sectioned lists only) |
 | Padding (start and end) | Space before the first line and after the last |
-| Loop | Loops round forever, like a carousel (lists only) |
-| Snap, Snap Align | After a drag, settle on the nearest item (lined up with the start, centre or end), or move one page at a time |
-| Allow Multiple Expanded | Keeps more than one slot open (hidden when the list loops) |
+| Loop | Goes round forever, like a carousel (lists only) |
+| Snap, Snap Align | After a drag, settle on the nearest item, or move one page at a time |
+| Allow Multiple Expanded | Keeps more than one slot open (lists only) |
 | Reset Scroll On Enable | Goes back to the start when the list is enabled again |
 | Override Pool Buffer, Pool Buffer | How many extra slots to keep ready beyond the visible ones |
 
+## API
+
+### Methods and properties
+
+| API | Purpose |
+|---|---|
+| `Initialize(source)` | Starts the list with a source |
+| `SetSource(source)` | Replaces the source and refreshes (starts the list if needed) |
+| `Refresh()` | Rebuilds from the current source |
+| `Clear()` | Clears the shown slots and resets the scroll position |
+| `ScrollToItem(index, align = Start, duration = 0, offset = 0)` | Scrolls to an item, at once or animated |
+| `ScrollToStart(duration = 0)`, `ScrollToEnd(duration = 0)` | Scrolls to an end |
+| `ForceStopScrolling()` | Stops any movement, including an animation or a snap |
+| `Expand(index, size = -1)`, `Collapse(index)`, `SetExpandedSize(index, size = -1)` | Opens, closes or resizes a slot |
+| `IsExpanded(index)`, `ExpandedCount` | Expansion state |
+| `InvalidateSize(index)`, `InvalidateAllSizes()` | Measures again (measured slots) |
+| `IsItemVisible(index)`, `VisibleStartIndex`, `VisibleEndIndex`, `IsFirstItemVisible`, `IsLastItemVisible` | What's on screen |
+| `GetItemCount()`, `IsInitialized`, `IsScrolling`, `IsDragging` | State |
+| `GetItemOffset(index)`, `GetItemSize(index)` | Where an item starts along the scroll axis, and its size (its line's in a grid, its tile's in bento); -1 if unknown |
+| `ViewportSize`, `ContentSize` | Sizes along the scroll axis |
+| `SetBentoLayout(layout)`, `GetTile(index)` | Bento: the layout, and an item's tile (counted from its section in a sectioned list) |
+| `Settings`, `SlotPrefab` | Settings and prefab, read before `Initialize` |
+
+`SectionedSlotList<TItem, THeader>` has the same API, plus `SetSource(SectionedSource)`, `SetSource(ISectionedSourceProvider)`, `ScrollToSection(section, duration = 0)`, `Source` and `HeaderPrefab`. It has no `Initialize`: `SetSource` starts it.
+
+### Overridable on your list class
+
+| Member | Purpose |
+|---|---|
+| `BindItem(SlotHandle slot, int index)` | Shows an item in a slot (the default sets `Data` and `IsExpanded`) |
+| `OnPullToRefreshDetected()` | The user pulled past the start |
+| `OnPaginationThresholdReached()`, `SupportsPagination()` | Paging hooks |
+| `DataSource`, `HasReachedLastPage` | The current source, and whether paging reached its end |
+
+### Events
+
+All are read-only notifications.
+
+| Event | Raised when |
+|---|---|
+| `OnInitialized` | Initialization finished, inside `Initialize` (subscribe first) |
+| `ItemExpanded(int)`, `ItemCollapsed(int)` | An item opened or closed (a closed one is raised before the next one's open) |
+| `Rebuilt` | The list rebuilt its lines (`Refresh`, `SetSource`, a change of columns) |
+| `ContentSizeChanged(float)` | The list changed Content's size (measuring, expanding, pages, Refresh), not when scrolling |
+| `SnappedTo(int)` | The list settled on an item after a drag |
+| `PageRequested`, `PageLoaded(int)`, `PageFailed(Exception)`, `ReachedEnd` | Paging |
+
+### Bento types
+
+| Type | Purpose |
+|---|---|
+| `BentoLayout` | `FromJson`, `FromData`, `FromSpans`, `FromPatterns`, `Uniform`; `Columns`, `IsValid`, `Errors`, `MaxRowSpan` |
+| `BentoSpan`, `BentoTile`, `BentoPattern` | A tile's size, a tile's place, a block of tiles |
+| `BentoLayoutData` and friends | The JSON form, for `JsonUtility` or any other JSON library |
+
 ## Dependency injection
 
-The scroller works without a container, using standard `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. See [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) for details.
+The list works without a container, using `Instantiate`. With [Fast IoC](https://github.com/sgonzalezrozo/unity-fast-ioc), its instantiator can be injected. The `SlotList` assembly exposes its internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign the instantiator directly, without reflection, including on subclasses in your project.
 
-The `SlotList` assembly exposes its internals to `Assembly-CSharp`, so Fast IoC `0.4.0` and later assign `injectedInstantiator` directly, without reflection. This also covers subclasses in your project, such as `MyScroller : SlotList<T>`.
+## AI coding agents
 
-## Recommended patterns
+Agents write C# from their training data, and this package is newer than it. Give them its rules so they use the real API:
 
-- Use a fixed `DefaultExtent` when every slot has the same size: nothing is measured.
-- Reset all visual state when `Data` is set, because slots are reused.
-- **Refresh the slot from the `Data` setter, not from `OnEnable`.** Slots waiting in the pool stay active (parked out of view, where the mask culls them), so a reused slot's `OnEnable` doesn't run again. Waking a slot's graphics on every reuse cost about three quarters of the list's time on a low-end phone. If a separate view component draws the slot, have the `Data` setter raise an event the view listens to.
-- Use a data source instead of changing the list without calling `Refresh()`.
-- Use the built-in `ListSource<T>` for simple in-memory lists.
-
-## Performance
-
-- Scrolling allocates nothing, even with 100,000 items, and its work depends on what's on screen, not on the item count.
-- Moving slots rebuilds only the list's own batches: the Viewport is a nested Canvas.
-- The first screen shows in the first frame. The pool warms up two slots per frame. Disabling and enabling a list rebinds nothing.
-- Rebuilds and new pages only create what's new. Measured sizes are cached.
-
-- Opening an expandable slot measures only that slot, in Unity's own layout pass, so its text is laid out once. It grows on the frame after the tap.
-
-Tests hold these as counts and allocations (0 bytes while scrolling 100,000 items, no slot leaving Content, work that follows the slots on screen). On devices, see the table in [At a glance](#at-a-glance) and the full runs in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md):
-- **Dynamic sizes:** opening an enemy with up to six sentences of TMP text peaked at 25–29 ms on the A02s and under 12 ms on the Pixel 5. Most of that is TMP laying out and building the text, and growing its buffers.
-- **TMP tip:** if your slots show long or new text when they open, pre-fill your TMP font asset with the characters you use, or use a static atlas.
-
-Measure at your own list sizes on your target device.
+1. Copy [`Documentation~/agent-rules.md`](Documentation~/agent-rules.md) into your project's agent rules, for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/slot-list.md`.
+2. For a whole Unity architecture with a verify loop, add [Unity Architecture Agents](https://github.com/sgonzalezrozo/unity-architecture-agents).
 
 ## ScrollRect or ListView?
 
@@ -669,116 +663,95 @@ Measure at your own list sizes on your target device.
 |---|---|---|
 | UI framework | uGUI | UI Toolkit |
 | Recycles rows | Yes | Yes |
-| Item sizes | Fixed or calculated per item | Fixed or dynamic height |
-| Grids | Built in | Not built in |
+| Item sizes | Fixed or measured per item | Fixed or dynamic height |
+| Grids and bento | Built in | Not built in |
+| Sections with headers | Built in | Build it yourself |
 | Expandable slots | Built in | Build it yourself |
-| Pagination | Built in | Build it yourself |
+| Paging | Built in | Build it yourself |
 | Package to install | Yes | No, it's part of Unity |
 
-Use this package if your UI is in uGUI. If your UI is in UI Toolkit, start with `ListView`.
+If your UI is in UI Toolkit, start with `ListView`.
 
-## Code layout
+## Limitations and roadmap
 
-| Folder | Assembly | Contents |
-|---|---|---|
-| `Runtime` | `SlotList` | Everything you use, in the `SlotList` namespace |
-| `Editor` | `SlotList.Editor` | The inspector |
-| `Tests` | `SlotList.Tests.Editor`, `SlotList.Tests.PlayMode` | EditMode and PlayMode tests. They run when the package is listed in `testables` |
-
-## Use it with AI coding agents
-
-Coding agents write C# files, and this package is newer than their training data. Give them its rules so they use the real API:
-
-1. Copy [`Documentation~/agent-rules.md`](Documentation~/agent-rules.md) into your project's agent rules, for example `AGENTS.md`, `CLAUDE.md` or `.cursor/rules/slot-list.md`.
-2. For a whole Unity architecture with a verify loop, add [Unity Architecture Agents](https://github.com/sgonzalezrozo/unity-architecture-agents). It detects this package and adapts its code.
-
-There are no MCP tools for Slot List yet. The rules file works with any agent that reads project files.
-
-## FAQ
-
-### How do I show a list of thousands of items in Unity UI?
-
-Use a virtualized scroll view. Subclass `SlotList<T>`, implement `ISlot<T>` on the slot prefab, then call `Initialize(new ListSource<T>(items))`. Only visible slots exist. See [Quick start](#quick-start).
-
-### ScrollRect or UI Toolkit ListView?
-
-UI Toolkit's `ListView` already virtualizes. Slot List is for uGUI projects. See [ScrollRect or ListView?](#scrollrect-or-listview).
-
-### Does it support grids and variable slot sizes?
-
-Yes. Choose **Grid** in the inspector's Layout for grids, and return `-1` from `DefaultExtent` to size slots with Unity's layout. See [Grids](#grids) and [Item sizes](#item-sizes).
-
-### Does it support infinite scroll and pagination?
-
-Yes, through a paginated data provider. See [Pagination](#pagination).
-
-### Does it work with Unity 6?
-
-Yes. It's tested on Unity `6000.3`. The package declares `2022.3` as its minimum, but older versions aren't tested yet.
-
-### Does it work with IL2CPP and mobile?
-
-Yes on Android: it's tested with IL2CPP (32-bit and 64-bit) on a Samsung Galaxy A02s and a Google Pixel 5. iOS isn't tested yet. See [Compatibility](#compatibility).
-
-### Why doesn't my slot update correctly when I scroll?
-
-Slots are reused. Reset every visual in the `Data` setter, not only the ones that change.
-
-### Does it work with AI coding agents?
-
-It ships a rules file you copy into your project, so agents use its real API instead of guessing. It hasn't been tested with agents beyond the author's own projects. See [Use it with AI coding agents](#use-it-with-ai-coding-agents).
-
-### How do I optimize a ScrollRect with many items?
-
-Don't create one GameObject per item, and remove `LayoutGroup` and `ContentSizeFitter` from the content. A recycling scroll view keeps only the visible slots and reuses them. Benchmarks aren't published yet, so measure at your own list sizes. See [Performance](#performance).
-
-### How do I install it?
-
-In Unity, open **Window > Package Manager**, select **+ > Add package from git URL** and enter `https://github.com/sgonzalezrozo/unity-recyclable-scroller.git`. Install [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) first, because Unity doesn't install Git dependencies automatically. See [Installation](#installation).
-
-### Is it production-ready? Does anyone use it?
-
-Not yet. Slot List is a preview (`1.0.0-preview.1`) by a single author. It isn't used in a shipped game, and it has no other users yet, so expect rough edges, and possibly API changes before `1.0.0`. Bug reports are very welcome. See [Project status](#project-status).
-
-### Is it free for commercial use?
-
-Yes. It's MIT licensed.
+| Limitation | Status |
+|---|---|
+| Nested scrolling (a horizontal carousel inside a vertical list): the inner list takes every drag that starts on it | Planned for 1.0: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) |
+| One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned after 1.0. Measured sizes and expanding already cover slots of different heights |
+| No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
+| Scrollbars aren't set up by default | Assigning one to the hidden `ScrollRect` fields (Debug inspector) is planned to be tested and documented |
+| Snapping runs after a drag, not after the mouse wheel | Planned |
+| No gamepad or keyboard navigation | When a console project needs it |
+| Items must be reference types | By design |
+| A looping list can't be a grid, bento, sectioned, paged or expandable | By design |
+| Grids and bento don't expand | By design: opening one slot would change its whole row |
+| A sectioned list doesn't page | By design |
 
 ## Troubleshooting
 
 | Problem | Try this |
 |---|---|
-| `Content can't have layout components` | Remove the components it names from Content (and any `LayoutGroup` from the Viewport), or press **Remove Layout Components** in the list's inspector |
-| `Slot does not implement ISlot` | Implement `ISlot<T>` on the prefab's root component |
-| `Refresh aborted - not initialized` | Call `Initialize` first |
-| A recycled slot shows old content | Reset every visual field when `Data` is set. Don't rely on `OnEnable`: a reused slot was never disabled |
-| New items don't appear | Call `Refresh()` after changing the data source |
-| `Cannot initialize inactive GameObject` | Activate the scroller before calling `Initialize` |
-| `Header Prefab is not assigned` | Assign a Header Prefab to the sectioned list before calling `SetSource` |
-| `Expand` does nothing | Set **Layout** to **List**, because expansion doesn't work in grids |
+| `Content can't have layout components` | Remove the components it names from Content (and any `LayoutGroup` from the Viewport), or press **Remove Layout Components** in the inspector |
+| `Slot does not implement ISlot` | Implement `ISlot<T>` (or `IExpandableSlot<T>`) on a component of the prefab's root |
+| `Refresh aborted - not initialized` | Call `Initialize` (or `SetSource`) first |
+| A recycled slot shows old content | Reset every visual when `Data` is set. Don't rely on `OnEnable`: a reused slot was never disabled |
+| New items don't appear | Call `Refresh()` after changing the source |
+| `Cannot initialize inactive GameObject` | Activate the list before calling `Initialize` |
+| `Header Prefab is not assigned` | Assign a Header Prefab before the first `SetSource` |
+| `Expand` does nothing | Expanding works in lists only, not in grids, bento or looping lists |
 | Measured slots all keep the prefab's size, with a warning | Add a layout group to the slot's root (see [Item sizes](#item-sizes)) |
-| Measured slots are too tall or collapse | Remove the `ContentSizeFitter` from the slot's root, and check **Child Force Expand > Height** is off |
+| Measured slots are too tall or collapse | Remove the `ContentSizeFitter` from the slot's root, and turn off **Child Force Expand > Height** |
+| The bento list shows 1x1 tiles | The layout has errors: the inspector and the console list them |
 | New pages don't appear | Check that the source is a `PagedSource<T>` (or another `IPagedSource<T>`), and subscribe to `PageFailed` to see load errors |
 
-## Limitations
+## FAQ
 
-- Items must be reference types.
-- Expandable slots don't work in grids.
-- `FilteredSource<T>` walks the source list on each item lookup.
-- A looping list can't be a grid, have sections, use a paged source or expand items, and it has no pull to refresh (it never reaches its start).
-- Snapping runs after a drag, not after the mouse wheel.
+### How do I show thousands of items in Unity UI?
+
+Use a recycling scroll view: subclass `SlotList<T>`, implement `ISlot<T>` on the slot prefab, and call `Initialize(new ListSource<T>(items))`. Only the visible slots exist. See [Quick start](#quick-start).
+
+### Does it allocate while scrolling?
+
+No. Tests check that scrolling 100,000 items and refreshing with the same count allocate 0 bytes, and the device runs show 0 B per frame. See [Performance](#performance).
+
+### Does it support grids, bento and variable sizes?
+
+Yes: **Grid**, **Auto Grid** and **Bento** in the inspector's Layout, and `DefaultExtent` of `-1` to size slots with Unity's layout. See [Layouts](#layouts) and [Item sizes](#item-sizes).
+
+### Does it support infinite scroll?
+
+Yes, with `PagedSource<T>` and an `IPageLoader<T>`. See [Paging](#paging).
+
+### Does it work with IL2CPP and mobile?
+
+Yes on Android: it's tested with IL2CPP (32-bit and 64-bit) on a Galaxy A02s and a Pixel 5. iOS and WebGL runs are planned. See [Compatibility](#compatibility).
+
+### Why doesn't my slot update when I scroll?
+
+Slots are reused: reset every visual in the `Data` setter, not only the ones that change.
+
+### Is it production-ready?
+
+Not yet. It's a preview (`1.0.0-preview.1`) by a single author, not yet used in a shipped game, so expect rough edges and possibly API changes before `1.0.0`. Bug reports are very welcome.
+
+### Is it free for commercial use?
+
+Yes, it's MIT licensed.
 
 ## Project status
 
-This is a preview, version `1.0.0-preview.1`. Its API and behavior may still change before `1.0.0`. Not yet used in a shipped game.
+This is a preview, version `1.0.0-preview.1`. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
-Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
+- Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
+- Planned work: [Limitations and roadmap](#limitations-and-roadmap), the plans in [`Documentation~`](Documentation~), and the [issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues).
 
-There's no public roadmap yet. Known gaps are listed under [Limitations](#limitations), and planned work is tracked in [issues](https://github.com/sgonzalezrozo/unity-recyclable-scroller/issues).
+### Why I built it
+
+I wrote Slot List after trying to fix other open-source scrollers I found on GitHub. I spent weeks on small issues before deciding to write my own and calculate its boundaries my way. After three very long days of personal time I had a first working version, and it has grown from there. I built and refined it in personal projects. In November 2026 I extracted it into this package, documented it and covered it with tests. Earlier history lives in a private repository.
 
 ## Contributing
 
-Bug reports and pull requests are welcome. Please open an issue before starting a large change. See the [contributing guide](.github/CONTRIBUTING.md) and [security policy](.github/SECURITY.md).
+Bug reports and pull requests are welcome. Please open an issue before starting a large change. See the [contributing guide](.github/CONTRIBUTING.md) and the [security policy](.github/SECURITY.md).
 
 ## Related packages
 
