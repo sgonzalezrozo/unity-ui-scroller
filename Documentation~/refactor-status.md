@@ -99,7 +99,7 @@ These override the plan where they differ.
   - The MyTools class names (`ShopScrollerRecyclableScrollRect`).
 - Neutral names were kept (`ScrollToItem`, `ItemCount`, `IsInitialized`, `VisibleStartIndex`...). The plan's `FirstVisibleIndex` / `LastVisibleIndex` were never applied: bug 6.13 fixed what those properties return instead of renaming them.
 
-**Not done:** renaming the GitHub repository and the folder (`unity-recyclable-scroller`). The README links still point to the old repository.
+**Done later:** the GitHub repository is `unity-ui-scroller`, the local folder was renamed from `unity-recyclable-scroller` to `unity-ui-scroller`, and every README links to the new repository under the name UI Scroller.
 
 ### Phase 5: Split the god classes
 
