@@ -20,6 +20,9 @@ namespace UIScroller
         /// <summary>A header's line: the section spacing goes before it, unless it's the first line.</summary>
         internal bool StartsSection;
 
+        // The layout that holds this line, told about size changes so it can keep its total and its offsets right.
+        internal LayoutModel Owner;
+
         public Line(int lineIndex, int slotCount)
         {
             LineIndex = lineIndex;
@@ -45,7 +48,7 @@ namespace UIScroller
         internal void Reset(int lineIndex)
         {
             LineIndex = lineIndex;
-            Size = 0f;
+            SetSize(0f);
             StartsSection = false;
             single = null;
             if (slots != null)
@@ -53,8 +56,14 @@ namespace UIScroller
         }
 
         public void CacheSize(float size)
+            => SetSize(size);
+
+        private void SetSize(float size)
         {
+            float previous = Size;
             Size = size;
+            if (Owner != null && previous != size)
+                Owner.OnLineResized(this, previous, size);
         }
 
         public override string ToString()

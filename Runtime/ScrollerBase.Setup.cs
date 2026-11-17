@@ -25,8 +25,10 @@ namespace UIScroller
             horizontal = !settings.IsVertical;
             vertical = settings.IsVertical;
 
-            // Unity doesn't allow changing RectTransforms inside OnValidate, so Content is set up right after.
-            UnityEditor.EditorApplication.delayCall += ApplySettingsAfterValidate;
+            // Unity doesn't allow changing RectTransforms inside OnValidate, so Content is set up right after. Edit mode
+            // only: in Play mode the settings apply when the list starts, and a pending call would keep a destroyed list alive.
+            if (!Application.isPlaying)
+                UnityEditor.EditorApplication.delayCall += ApplySettingsAfterValidate;
         }
 
         private void ApplySettingsAfterValidate()

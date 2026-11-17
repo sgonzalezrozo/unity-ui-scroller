@@ -33,6 +33,8 @@ namespace UIScroller
             for (int i = 0; i < count; i++)
                 rowEnd = Math.Max(rowEnd, tiles[i].Row + tiles[i].Rows);
 
+            BeginBuild(startRow);
+
             for (int row = startRow; row < rowEnd; row++)
             {
                 int first = item;
@@ -53,11 +55,7 @@ namespace UIScroller
                 line.CacheSize(rowSize);
             }
 
-            lineCount = rowEnd;
-            if (ShouldShrink(lineBuffer.Length, lineCount))
-                Array.Resize(ref lineBuffer, Math.Max(lineCount, MIN_KEPT));
-            offsetsValidCount = Math.Min(offsetsValidCount, startRow);
-            MarkDirtyFrom(startRow);
+            EndBuild(startRow, rowEnd);
         }
 
         /// <summary>
@@ -71,6 +69,7 @@ namespace UIScroller
             int count = Math.Min(itemCount, placementCount);
             int line = 0;
             int item = 0;
+            BeginBuild(0);
             while (item < count)
             {
                 if (isHeader(item))
@@ -104,11 +103,7 @@ namespace UIScroller
                 line += rowEnd;
             }
 
-            lineCount = line;
-            if (ShouldShrink(lineBuffer.Length, lineCount))
-                Array.Resize(ref lineBuffer, Math.Max(lineCount, MIN_KEPT));
-            offsetsValidCount = 0;
-            MarkDirtyFrom(0);
+            EndBuild(0, line);
         }
 
         private void BuildBentoHeaderLine(Line line, int itemIndex, BentoTile tile, float size)

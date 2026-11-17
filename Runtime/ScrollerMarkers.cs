@@ -13,5 +13,7 @@ namespace UIScroller
         public static readonly ProfilerMarker Measure = new("UI Scroller.Measure");
         public static readonly ProfilerMarker ApplySizes = new("UI Scroller.ApplySizes");
         public static readonly ProfilerMarker Rebuild = new("UI Scroller.Rebuild");
+        public static readonly ProfilerMarker Initialize = new("UI Scroller.Initialize");
+        public static readonly ProfilerMarker Instantiate = new("UI Scroller.Instantiate");
     }
 }

@@ -203,7 +203,9 @@ namespace UIScroller
             if (!prefabs.TryGetValue(kind, out GameObject prefab) || prefab == null || instantiator == null)
                 return null;
 
-            GameObject instance = instantiator.Instantiate(prefab, contentTransform);
+            GameObject instance;
+            using (ScrollerMarkers.Instantiate.Auto())
+                instance = instantiator.Instantiate(prefab, contentTransform);
             if (instance == null)
                 return null;
 

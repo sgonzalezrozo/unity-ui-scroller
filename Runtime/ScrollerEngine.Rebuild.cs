@@ -189,7 +189,7 @@ namespace UIScroller
 
                 // The offsets still hold the values the items were placed with, before this pass measured them.
                 int anchorLine = PickAnchorLine();
-                float anchorOffset = layout.OffsetOf(anchorLine);
+                float anchorOffset = layout.PlacedOffsetOf(anchorLine);
 
                 UpdatePlaceholders();
                 RecalculateContentSize();

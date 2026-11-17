@@ -118,6 +118,8 @@ namespace UIScroller
             if (isInitialized)
                 return;
 
+            using var _ = ScrollerMarkers.Initialize.Auto();
+
             if (slotPrefab == null)
             {
                 Debug.LogError($"[UIScroller] Slot Prefab is not assigned to {host.gameObject.name}. Assign a prefab implementing ISlot in the Inspector.");

@@ -27,6 +27,9 @@ namespace UIScroller
         /// <summary>Passes that gave every unmeasured item the new average size (each one visits every item).</summary>
         public int PlaceholderPasses;
 
+        /// <summary>Line offsets computed; a size change near the screen computes only up to the screen.</summary>
+        public int OffsetsComputed;
+
         public void Reset()
         {
             SlotsChecked = 0;
@@ -35,6 +38,7 @@ namespace UIScroller
             PlacementsCreated = 0;
             LinesCreated = 0;
             Measurements = 0;
+            OffsetsComputed = 0;
             PlaceholderPasses = 0;
         }
     }

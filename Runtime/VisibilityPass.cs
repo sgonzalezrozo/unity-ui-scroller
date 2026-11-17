@@ -72,8 +72,18 @@ namespace UIScroller
             if (!scrollStateManager.HasVisibilityRangeChanged(newStartLine, newEndLine))
                 return;
 
-            recycler.RecycleOutOfViewLines(newStartLine, newEndLine);
-            recycler.ShowLines(newStartLine, newEndLine, forceRebindAll);
+            // Every line of this pass is placed at the offsets it started with, even when a slot measured on the way
+            // changes a size: the engine then compares those offsets with the new ones to keep the screen still.
+            layout.FreezeOffsets();
+            try
+            {
+                recycler.RecycleOutOfViewLines(newStartLine, newEndLine);
+                recycler.ShowLines(newStartLine, newEndLine, forceRebindAll);
+            }
+            finally
+            {
+                layout.UnfreezeOffsets();
+            }
 
             scrollStateManager.UpdateVisibilityRange(newStartLine, newEndLine);
         }

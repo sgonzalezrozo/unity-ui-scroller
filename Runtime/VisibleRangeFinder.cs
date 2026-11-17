@@ -13,7 +13,7 @@ namespace UIScroller
             this.reverse = reverse;
         }
 
-        /// <summary>The first line whose end is past the viewport start. Binary search over the line offsets.</summary>
+        /// <summary>The first line whose end is past the viewport start. Offsets are computed only as far as needed.</summary>
         public int FindFirstLine(float scrollPosition, Vector2 contentAnchoredPosition, LayoutModel layout)
         {
             ListView<Line> lines = layout.Lines;
@@ -23,20 +23,7 @@ namespace UIScroller
             if (IsAtScrollStart(contentAnchoredPosition))
                 return 0;
 
-            float viewportStart = Mathf.Abs(scrollPosition);
-            int low = 0;
-            int high = lines.Length;
-
-            while (low < high)
-            {
-                int middle = low + (high - low) / 2;
-                if (layout.OffsetOf(middle) + lines[middle].Size > viewportStart)
-                    high = middle;
-                else
-                    low = middle + 1;
-            }
-
-            return low < lines.Length ? low : lines.Length - 1;
+            return layout.FirstLineEndingAfter(Mathf.Abs(scrollPosition));
         }
 
         /// <summary>The last line that starts before the viewport end, never before <paramref name="startLineIndex"/>.</summary>
@@ -47,19 +34,9 @@ namespace UIScroller
                 return 0;
 
             float viewportEnd = Mathf.Abs(scrollPosition) + viewportSize;
-            int low = Mathf.Max(0, startLineIndex);
-            int high = lines.Length;
 
             // First line at or after startLineIndex that starts at or past the viewport end.
-            while (low < high)
-            {
-                int middle = low + (high - low) / 2;
-                if (layout.OffsetOf(middle) >= viewportEnd)
-                    high = middle;
-                else
-                    low = middle + 1;
-            }
-
+            int low = layout.FirstLineStartingAtOrAfter(viewportEnd, Mathf.Max(0, startLineIndex));
             return low < lines.Length ? Mathf.Max(startLineIndex, low - 1) : lines.Length - 1;
         }
 

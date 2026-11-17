@@ -8,7 +8,8 @@ namespace UIScroller
     /// Where every item sits: one Placement per item, Lines of placements (a header takes a whole line),
     /// line offsets along the scroll axis, the total extent, and which line each item is in.
     /// Arrays keep spare capacity and Placement and Line objects are reused, so rebuilds and appended pages only
-    /// create what's new (P11).
+    /// create what's new (P11). Offsets are computed on demand, only as far as someone asks: a size change near the
+    /// screen costs the lines up to the screen, not every line after it. The total extent is a running sum.
     /// </summary>
     public sealed partial class LayoutModel
     {
@@ -23,7 +24,12 @@ namespace UIScroller
         private bool[] inAverage = Array.Empty<bool>();
         private float measuredTotal;
         private int measuredCount;
-        private int firstDirtyLine;
+        // Kept as lines change size, so the total extent never walks the lines (see OnLineResized).
+        private double lineSizeSum;
+        private int sectionStarts;
+        private bool buildingLines;
+        private double sizeBeforeBuild;
+        private int sectionStartsBeforeBuild;
         private float paddingStart;
         private float paddingEnd;
         private float lineSpacing;
@@ -44,7 +50,7 @@ namespace UIScroller
         public ListView<Placement> Placements => new(placementBuffer, placementCount);
         public ListView<Line> Lines => new(lineBuffer, lineCount);
 
-        public bool HasOffsets => lineCount > 0 && offsets.Length >= lineCount;
+        public bool HasOffsets => lineCount > 0;
 
         /// <summary>Padding plus every line's current size plus the spacing between lines.</summary>
         public float TotalExtent
@@ -54,10 +60,7 @@ namespace UIScroller
                 if (lineCount == 0)
                     return 0f;
 
-                // P12: read it from the offsets instead of adding up every line.
-                RecomputeOffsets();
-                int last = lineCount - 1;
-                return offsets[last] + lineBuffer[last].Size + paddingEnd;
+                return (float)(paddingStart + lineSizeSum + lineSpacing * (double)(lineCount - 1) + sectionSpacing * (double)sectionStarts + paddingEnd);
             }
         }
 
@@ -68,7 +71,6 @@ namespace UIScroller
             paddingEnd = paddingEndValue;
             lineSpacing = lineSpacingValue;
             sectionSpacing = sectionSpacingValue;
-            firstDirtyLine = 0;
             offsetsValidCount = 0;
         }
 
@@ -170,6 +172,7 @@ namespace UIScroller
             }
 
             int startLine = line;
+            BeginBuild(startLine);
 
             while (item < itemCount)
             {
@@ -189,11 +192,76 @@ namespace UIScroller
                 line++;
             }
 
-            lineCount = line;
+            EndBuild(startLine, line);
+        }
+
+        /// <summary>Call before lines from <paramref name="startLine"/> on are rebuilt: their sizes leave the running total.</summary>
+        private void BeginBuild(int startLine)
+        {
+            sizeBeforeBuild = SumSizes(startLine, lineCount);
+            sectionStartsBeforeBuild = CountSectionStarts(startLine, lineCount);
+            buildingLines = true;
+        }
+
+        /// <summary>Call after the lines from <paramref name="startLine"/> to <paramref name="newLineCount"/> were built.</summary>
+        private void EndBuild(int startLine, int newLineCount)
+        {
+            buildingLines = false;
+            lineCount = newLineCount;
+            if (startLine <= 0)
+            {
+                // A full build adds everything up again, so rounding never builds up.
+                lineSizeSum = SumSizes(0, lineCount);
+                sectionStarts = CountSectionStarts(0, lineCount);
+            }
+            else
+            {
+                lineSizeSum += SumSizes(startLine, lineCount) - sizeBeforeBuild;
+                sectionStarts += CountSectionStarts(startLine, lineCount) - sectionStartsBeforeBuild;
+            }
+
             if (ShouldShrink(lineBuffer.Length, lineCount))
                 Array.Resize(ref lineBuffer, Math.Max(lineCount, MIN_KEPT));
-            offsetsValidCount = Math.Min(offsetsValidCount, startLine);
-            MarkDirtyFrom(startLine);
+            offsetsValidCount = Math.Min(offsetsValidCount, lineCount);
+            MarkDirtyFrom(Math.Max(0, startLine));
+        }
+
+        private double SumSizes(int from, int to)
+        {
+            double sum = 0;
+            for (int i = Math.Max(0, from); i < to && i < lineBuffer.Length; i++)
+            {
+                if (lineBuffer[i] != null)
+                    sum += lineBuffer[i].Size;
+            }
+
+            return sum;
+        }
+
+        private int CountSectionStarts(int from, int to)
+        {
+            int count = 0;
+            for (int i = Math.Max(1, from); i < to && i < lineBuffer.Length; i++)
+            {
+                if (lineBuffer[i] != null && lineBuffer[i].StartsSection)
+                    count++;
+            }
+
+            return count;
+        }
+
+        /// <summary>A line in use changed size: the total follows, and the offsets after it are computed again when asked for.</summary>
+        internal void OnLineResized(Line line, float previousSize, float newSize)
+        {
+            if (buildingLines)
+                return;
+
+            int index = line.LineIndex;
+            if (index < 0 || index >= lineCount || lineBuffer[index] != line)
+                return;
+
+            lineSizeSum += newSize - previousSize;
+            MarkDirtyFrom(index + 1);
         }
 
         /// <summary>Line <paramref name="lineIndex"/> with room for <paramref name="slots"/>, reused when it has the same room.</summary>
@@ -209,7 +277,7 @@ namespace UIScroller
                 return line;
             }
 
-            line = new Line(lineIndex, slots);
+            line = new Line(lineIndex, slots) { Owner = this };
             lineBuffer[lineIndex] = line;
             if (Work != null)
                 Work.LinesCreated++;
@@ -352,57 +420,123 @@ namespace UIScroller
                 Placements[itemIndex].CacheSize(size);
         }
 
-        /// <summary>Recomputes the line offsets from the lowest line that changed since the last call.</summary>
+        /// <summary>
+        /// Readies the offset buffer for the current line count. Offsets themselves are computed on demand, from the
+        /// lowest line that changed, up to the line asked for (<see cref="OffsetOf"/>, <see cref="LineAtDistance"/>).
+        /// </summary>
         public void RecomputeOffsets()
-        {
-            if (lineCount == 0)
-                return;
+            => EnsureOffsetCapacity();
 
-            int start = firstDirtyLine;
-            if (ShouldShrink(offsets.Length, lineCount))
-                Array.Resize(ref offsets, Math.Max(lineCount, MIN_KEPT));
-            if (offsets.Length < lineCount)
-            {
-                Array.Resize(ref offsets, Math.Max(lineCount, offsets.Length * 2));
-                start = Math.Min(start, offsetsValidCount);
-            }
-
-            start = Math.Min(start, offsetsValidCount);
-            if (start >= lineCount)
-                return;
-
-            float position = start == 0 ? paddingStart : offsets[start - 1] + lineBuffer[start - 1].Size + lineSpacing;
-            for (int i = start; i < lineCount; i++)
-            {
-                if (i > 0 && lineBuffer[i].StartsSection)
-                    position += sectionSpacing;
-
-                offsets[i] = position;
-                position += lineBuffer[i].Size + lineSpacing;
-            }
-
-            offsetsValidCount = lineCount;
-            firstDirtyLine = lineCount;
-        }
-
-        // Offsets below this many lines hold correct values (lines past it were added since the last recompute).
+        // Offsets below this many lines hold correct values. A size change lowers it; asking for an offset raises it.
         private int offsetsValidCount;
+
+        // While frozen, size changes don't make computed offsets stale yet: they're applied on unfreeze.
+        private bool offsetsFrozen;
+        private int dirtyWhileFrozen = int.MaxValue;
 
         private void MarkDirtyFrom(int line)
         {
-            if (line < firstDirtyLine)
-                firstDirtyLine = line;
+            if (offsetsFrozen)
+            {
+                dirtyWhileFrozen = Math.Min(dirtyWhileFrozen, line);
+                return;
+            }
+
+            if (line < offsetsValidCount)
+                offsetsValidCount = Math.Max(0, line);
         }
 
-        /// <summary>The start of a line along the scroll axis, or 0 when out of range.</summary>
+        /// <summary>
+        /// Keeps the computed offsets as they are until <see cref="UnfreezeOffsets"/>, whatever sizes change meanwhile:
+        /// a visibility pass places all its lines at the offsets it started with, as the engine's anchoring expects.
+        /// Lines not computed yet are still computed when asked for.
+        /// </summary>
+        public void FreezeOffsets()
+            => offsetsFrozen = true;
+
+        public void UnfreezeOffsets()
+        {
+            offsetsFrozen = false;
+            if (dirtyWhileFrozen != int.MaxValue)
+                MarkDirtyFrom(dirtyWhileFrozen);
+            dirtyWhileFrozen = int.MaxValue;
+        }
+
+        private void EnsureOffsetCapacity()
+        {
+            if (ShouldShrink(offsets.Length, lineCount))
+            {
+                Array.Resize(ref offsets, Math.Max(lineCount, MIN_KEPT));
+                offsetsValidCount = Math.Min(offsetsValidCount, offsets.Length);
+            }
+
+            if (offsets.Length < lineCount)
+                Array.Resize(ref offsets, Math.Max(lineCount, offsets.Length * 2));
+        }
+
+        /// <summary>Computes the offsets up to and including <paramref name="lineIndex"/>.</summary>
+        private void EnsureOffsets(int lineIndex)
+        {
+            if (lineIndex < offsetsValidCount)
+                return;
+
+            EnsureOffsetCapacity();
+            int last = Math.Min(lineIndex, lineCount - 1);
+            while (offsetsValidCount <= last)
+                ComputeNextOffset();
+        }
+
+        /// <summary>Computes the offset of the first line not computed yet.</summary>
+        private void ComputeNextOffset()
+        {
+            int i = offsetsValidCount;
+            float position = i == 0 ? paddingStart : offsets[i - 1] + lineBuffer[i - 1].Size + lineSpacing;
+            if (i > 0 && lineBuffer[i].StartsSection)
+                position += sectionSpacing;
+
+            offsets[i] = position;
+            offsetsValidCount = i + 1;
+            if (Work != null)
+                Work.OffsetsComputed++;
+        }
+
+        /// <summary>Computes offsets until the last computed line ends past <paramref name="distance"/>, or all of them.</summary>
+        private void EnsureOffsetsEndingPast(float distance)
+        {
+            EnsureOffsetCapacity();
+            while (offsetsValidCount < lineCount)
+            {
+                int last = offsetsValidCount - 1;
+                if (last >= 0 && offsets[last] + lineBuffer[last].Size > distance)
+                    return;
+
+                ComputeNextOffset();
+            }
+        }
+
+        /// <summary>Computes offsets until the last computed line starts at or past <paramref name="distance"/> (past it when not <paramref name="atOrPast"/>), or all of them.</summary>
+        private void EnsureOffsetsStartingPast(float distance, bool atOrPast)
+        {
+            EnsureOffsetCapacity();
+            while (offsetsValidCount < lineCount)
+            {
+                int last = offsetsValidCount - 1;
+                if (last >= 0 && (atOrPast ? offsets[last] >= distance : offsets[last] > distance))
+                    return;
+
+                ComputeNextOffset();
+            }
+        }
+
+        /// <summary>The last line that starts at or before <paramref name="distance"/> along the scroll axis, or -1 when there are no lines.</summary>
         public int LineAtDistance(float distance)
         {
             if (lineCount == 0)
                 return -1;
 
-            RecomputeOffsets();
+            EnsureOffsetsStartingPast(distance, false);
             int low = 0;
-            int high = lineCount - 1;
+            int high = offsetsValidCount - 1;
             while (low < high)
             {
                 int mid = (low + high + 1) / 2;
@@ -415,8 +549,65 @@ namespace UIScroller
             return low;
         }
 
-        public float OffsetOf(int lineIndex)
+        /// <summary>The first line whose end is past <paramref name="distance"/>, or the last line.</summary>
+        public int FirstLineEndingAfter(float distance)
+        {
+            if (lineCount == 0)
+                return 0;
+
+            EnsureOffsetsEndingPast(distance);
+            int low = 0;
+            int high = offsetsValidCount;
+            while (low < high)
+            {
+                int middle = low + (high - low) / 2;
+                if (offsets[middle] + lineBuffer[middle].Size > distance)
+                    high = middle;
+                else
+                    low = middle + 1;
+            }
+
+            return low < lineCount ? low : lineCount - 1;
+        }
+
+        /// <summary>The first line from <paramref name="fromLine"/> on that starts at or past <paramref name="distance"/>, or the line count when none does.</summary>
+        public int FirstLineStartingAtOrAfter(float distance, int fromLine)
+        {
+            if (lineCount == 0)
+                return 0;
+
+            int low = Math.Max(0, fromLine);
+            EnsureOffsets(Math.Min(low, lineCount - 1));
+            EnsureOffsetsStartingPast(distance, true);
+            int high = offsetsValidCount;
+            while (low < high)
+            {
+                int middle = low + (high - low) / 2;
+                if (offsets[middle] >= distance)
+                    high = middle;
+                else
+                    low = middle + 1;
+            }
+
+            return low;
+        }
+
+        /// <summary>
+        /// The line's start as last computed, without bringing it up to date: where its slots were placed before sizes
+        /// changed. Used to keep a shown line still while items above it are measured.
+        /// </summary>
+        public float PlacedOffsetOf(int lineIndex)
             => lineIndex >= 0 && lineIndex < lineCount && lineIndex < offsets.Length ? offsets[lineIndex] : 0f;
+
+        /// <summary>The start of a line along the scroll axis, or 0 when out of range.</summary>
+        public float OffsetOf(int lineIndex)
+        {
+            if (lineIndex < 0 || lineIndex >= lineCount)
+                return 0f;
+
+            EnsureOffsets(lineIndex);
+            return offsets[lineIndex];
+        }
 
         private void BuildHeaderLine(Line line, int itemIndex, Func<int, float> getItemSize)
         {
