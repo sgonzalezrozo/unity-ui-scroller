@@ -6,11 +6,9 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 
 ## Summary
 
-- **Phases 0 to 8 are done. Phase 9 is done in code**; its manual `Sections` scene is missing. Phase 10 is done and measured on two phones. Phases 11 and 12 haven't started.
-- **243 tests pass** in batch mode (138 EditMode, 105 PlayMode), through `MyTools/scripts/verify.sh`. No test is ignored.
-- **Nothing is merged or pushed.** Every phase has its own branch, but each branch starts from the previous one instead of from `main`. `refactor/p9-sections` holds all the work. `main` is still at 0.3.0 plus the plan (`79b4127`).
-- The package is `com.sgonzalezrozo.slot-list` `1.0.0-preview.1`, namespace `SlotList`. The folder and the GitHub repository still use the old name.
-- MyTools (the test project) compiles against it, including the Shop scroller and Fast IoC's generated code.
+- **The refactor is finished and everything is in `main`** (squash-merged; checked 2026-11-17). The phase branches below are a record only.
+- The package is **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`). The first release will be **0.5.0**.
+- What's left before the release is tracked in [`performance-plan.md`](performance-plan.md) and [`nested-scrolling-plan.md`](nested-scrolling-plan.md), not here.
 
 | Phase | Status | Branch (last commit) | Tests at the end |
 |---|---|---|---|
@@ -26,8 +24,8 @@ Where the refactor stands against [`refactor-plan.md`](refactor-plan.md): what e
 | 9 Sections | Code and docs done; scene missing | `refactor/p9-sections` (`c7a184e` + docs) | 243 |
 | 10 Performance | Done, measured on two phones | `refactor/p10-performance` | |
 | 11 New features | Done, except the manual scenes | `feat/p11-features` | 400 (196 + 204) |
-| 12 Tests, samples, docs, release | Samples and compatibility done; merged into `main`; the release (1.0.0) left | `feat/p11-features` | 400 |
-| Bento layout (for 1.1.0) | Model, engine, inspector, sections and samples done; snapping and a pattern editor left | `feat/bento-layout`, `feat/bento-sections` | 467 (231 + 236) |
+| 12 Tests, samples, docs, release | Done; merged into `main`; the 0.5.0 release left | `feat/p11-features` | 400 |
+| Bento layout | Model, engine, inspector, sections and samples done; snapping and a pattern editor left | `feat/bento-layout`, `feat/bento-sections` | 467 (231 + 236) |
 
 ## Owner decisions along the way
 
@@ -215,31 +213,10 @@ These override the plan where they differ.
 - Sticky headers (optional).
 - Porting the old sections tests: they never existed in MyTools.
 
-## Still to do
-
-### To close Phase 9
-- [ ] A sections playground in MyTools (headers in a list and a grid, empty sections, `ScrollToSection`), checked by hand.
-- [ ] Optional: migrate the other project from `CompositeDataSource` using the notes in plan 9.4.
-
-### Housekeeping (any time, before release)
-- [ ] **Decide how to merge.** The plan said one pull request per phase into `main`, but the branches are stacked. Options: one pull request from `refactor/p9-sections` into `main`, or rebase the phases into separate pull requests. Nothing has been pushed.
-- [ ] **MyTools:**
-  - Commit the playground (`Assets/SlotListTests/`).
-  - Commit or discard the other changes waiting there (`Bootgame.unity`, the Shop scripts and prefabs, the Fast IoC generated files, `packages-lock.json`).
-  - Switch it to the branch that matches the package.
-- [ ] **Split the large files again** (Phase 5's limit of about 300 lines):
-  - `SlotListEngine.cs` (526 lines): move sizing and measuring into their own partial or class.
-  - `SlotListBase.cs` (425 lines): move the editor setup code into a partial.
-  - `LayoutModel.cs` (332 lines) and `SlotListEngine.Rebuild.cs` (313 lines).
-- [ ] **Tick the plan's checkboxes** for Phases 0 to 7, or point them to this document.
-- [ ] **README:** the links point to the old repository name (until the repository is renamed).
-- [ ] Write `Documentation~/behaviour-checklist.md` (Phase 0.4), or drop it in favour of the playgrounds.
-- [ ] Rename the GitHub repository and the folder to `unity-slot-list`, and update `manifest.json` in MyTools.
-
-### Left out on purpose (until the owner asks)
+## Left out on purpose (until the owner asks)
 - The paging footer (Loading / Failed with Retry / End) and loading at the top (prepending pages). From Phase 7.
 - Measuring ahead with a hidden copy, the expand animation, the localized-text scene and S1 to S6 as real scenes. From Phase 8.
-- Sticky headers. From Phase 9.
+- Sticky headers in the core (an Extras component instead). From Phase 9.
 
 ### Phase 10: Performance (done, measured on two phones)
 Branch `refactor/p10-performance`. Done, each with tests on counts or allocations (see `benchmarks.md` for the before/after table):
@@ -272,18 +249,17 @@ Not done:
 ### Phase 12: Tests, samples, docs, release (in progress)
 - Done: the **Examples** sample (Grid, Sections, Expandable, Carousel, Paging), each building its UI in code, smoke-tested in Play mode; the Quick Start README updated.
 - The migration guide was written, then removed at the owner's request (2026-11-16).
-- Done: the compatibility table (IL2CPP on the A02s and Pixel 5; domain reload off supported by design, not checked by hand).
+- Done: compatibility (Unity 2022.3 LTS, 6000.0 LTS and 6000.3; domain reload off checked).
 - Found while writing the Grid example: Auto Grid set from code with `slotsPerLine` at 1 made a list. Fixed.
 - Done: merged into `main` and pushed (2026-11-14).
-- Left: the release. The owner wants it to ship as **1.0.0**, not a preview: on release day, change every `1.0.0-preview.1` to `1.0.0` and tag `v1.0.0`.
-- **Update the AI rules repository** (`unity-architecture-agents`): its docs still describe Recyclable Scroller's API and package name. Also settle the naming clash between `ISlot<T>` and MVC Models. Then bump the `.ai` submodule in MyTools.
+- Left: the release as **0.5.0**.
 
-### Bento layout (for 1.1.0)
+### Bento layout
 Branch `feat/bento-layout`, merged into `main`. The plan, decisions and progress are in `bento-layout-plan.md`.
 - A layout mode where tiles of different sizes sit on a grid of cells. The owner chose to define it in **JSON**: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Items don't decide their own size.
 - Done: the model with validation (a broken layout logs its errors and uses 1x1 tiles), the engine (rows of cells are lines), `SetBentoLayout`, `GetTile`, **Layout: Bento** in the inspector with a **Layout JSON** field and **Cell Aspect**, `BentoExample`, and sections (`feat/bento-sections`): a header takes a whole row as tall as the header, and the layout starts again in each section, with `BentoSectionsExample`. Expand is ignored and loop refused. List, Grid and Auto Grid are unchanged.
-- Used in MyTools: the Shop's enemy list (`ShopBg.prefab`) is a 2-column bento with `Shop/EnemyBentoLayout.json`. Not committed in MyTools.
-- Left: item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, a pattern asset with a grid editor, README and agent rules.
+- Used in MyTools: the Shop's enemy list (`ShopBg.prefab`) is a 2-column bento with `Shop/EnemyBentoLayout.json`. 
+- Left: item snapping to tile starts, `VisibleStartIndex` ignoring tiles in the extra rows above the screen, and a pattern asset with a grid editor.
 
 ### Section Spacing (2026-11-14)
 - `Settings.sectionSpacing`: extra space before every header except the first (lists, grids and bento). A header's line is marked `StartsSection`, and the offsets add the spacing before it. In the inspector under Row Spacing, for sectioned lists only.

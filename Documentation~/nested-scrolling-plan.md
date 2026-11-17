@@ -2,7 +2,7 @@
 
 Native nested scrolling for UI Scroller: a horizontal carousel inside a vertical list (or the other way round) where a drag across the inner list's axis moves the outer list instead. Today the inner list takes every drag that starts on it, so the outer list can't be scrolled from there. MyTools works around it with a third-party MIT plugin.
 
-Status: proposal, not started. Target: **1.0.0** (it's the one gap that shows up in every F2P store and lobby).
+Status: proposal, not started. Target: **0.5.0**, the first release (it's the one gap that shows up in every F2P store and lobby).
 
 ## How others do it
 

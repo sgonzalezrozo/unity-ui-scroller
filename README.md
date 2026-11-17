@@ -57,7 +57,7 @@ Every run is in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). 
 **Look elsewhere if you:**
 - build your UI with UI Toolkit: its `ListView` already virtualizes ([comparison](#scrollrect-or-listview));
 - have a short list (a few dozen items) that doesn't need virtualization;
-- need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as nested scrolling, several slot prefabs per list, sticky headers or gamepad navigation.
+- need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as nested scrolling, several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
 - it's a preview, by a single author, not yet used in a shipped game;
@@ -84,11 +84,11 @@ See [Project status](#project-status).
 
 | Requirement | Supported |
 |---|---|
-| Unity | Tested on Unity 6 (`6000.3.6f1` and `6000.3.16f1`). The package declares `2022.3` as its minimum, but older versions aren't tested yet. |
+| Unity | Tested on Unity 2022.3 LTS, Unity 6000.0 LTS and Unity 6000.3. |
 | Scripting backend | Mono (Editor) and IL2CPP (Android, 32-bit ARMv7 and 64-bit ARM64) |
 | Platforms | macOS Editor; Android, tested on a Samsung Galaxy A02s and a Google Pixel 5. iOS and WebGL runs are planned (see the performance plan); desktop players aren't tested yet. |
 | UI framework | uGUI only |
-| Enter Play Mode with domain reload disabled | Supported by design: the runtime keeps no static state between plays (its only static field is an internal switch for tests). Not yet checked by hand. |
+| Enter Play Mode with domain reload disabled | Supported and checked: the runtime keeps no static state between plays (its only static field is an internal switch for tests). |
 | Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) and uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
 
 ## Installation
@@ -191,7 +191,7 @@ public class InventoryList : Scroller<InventoryItem>
    - a nested `Canvas`, so scrolling rebuilds only the list's batches;
    - a `GraphicRaycaster`, so buttons in slots get clicks.
 
-   A list set up another way gets the Canvas and the raycaster when it starts.
+   A list set up another way gets the Canvas and the raycaster when it starts. A list added from code at runtime builds nothing: create a Viewport (with a `RectMask2D`) and a Content, and assign `viewport` and `content` before `Initialize`, as `ExampleUI` in the Examples sample does. Without Content, `Initialize` logs an error and doesn't start.
 3. Assign the slot prefab to **Slot Prefab**, and pick the **Direction** and **Layout**.
 
 Don't start from Unity's **UI > Scroll View**: it adds scrollbars, a stencil `Mask` and an `Image` on the Viewport that this list doesn't use.
@@ -667,12 +667,10 @@ If your UI is in UI Toolkit, start with `ListView`.
 
 | Limitation | Status |
 |---|---|
-| Nested scrolling (a horizontal carousel inside a vertical list): the inner list takes every drag that starts on it | Planned for 1.0: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) |
-| One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned after 1.0. Measured sizes and expanding already cover slots of different heights |
+| Nested scrolling (a horizontal carousel inside a vertical list): the inner list takes every drag that starts on it | Planned for the first release: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) |
+| One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
-| Scrollbars aren't set up by default | Assigning one to the hidden `ScrollRect` fields (Debug inspector) is planned to be tested and documented |
 | Snapping runs after a drag, not after the mouse wheel | Planned |
-| No gamepad or keyboard navigation | When a console project needs it |
 | Items must be reference types | By design |
 | A looping list can't be a grid, bento, sectioned, paged or expandable | By design |
 | Grids and bento don't expand | By design: opening one slot would change its whole row |

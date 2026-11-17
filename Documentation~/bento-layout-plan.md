@@ -2,7 +2,7 @@
 
 A new **Bento** layout for UI Scroller: an asymmetric grid where each item is a tile covering one or more cells (1×1, 2×1, 1×2, 2×2, and so on), and only the tiles on screen have slots.
 
-Status: in progress on `feat/bento-layout`. Target: **1.1.0**, after the 1.0.0 release.
+Status: merged into `main`; ships in 0.5.0. Snapping to tile starts and a pattern editor are left for later.
 
 ## Progress
 

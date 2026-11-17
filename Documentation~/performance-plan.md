@@ -112,7 +112,7 @@ Measured with `Tests/Runtime/HeapBench.cs` (`[Explicit]`, run with `-testFilter 
 
 **What it costs:** `Placement` and `Line` are public types used throughout the layout model, the recycler, expansion, sizing, loop, bento and sections. It's the largest refactor since Phase 5, and every one of the 650 tests depends on it.
 
-**Recommendation: no-go for 1.0.**
+**Recommendation: no-go for the first release.**
 - Revisit after the device runs (P2) show the GC cost on phones with real heaps.
 - Or revisit when a project needs lists past about 100,000 items.
 - If memory matters before then, a smaller step ("C7-lite") gets part of the gain without touching the public types:
@@ -189,9 +189,8 @@ The written assessment comes last, so it can quote the measurements. These are t
 
 | Risk | Today | What would fix it |
 |---|---|---|
-| Single author, preview version, not used in a shipped game | Stated in the README | 1.0.0, then time and users |
+| Single author, preview version, not used in a shipped game | Stated in the README | The first release, then time and users |
 | Installing it needs Tools Core first, as a Git URL (UPM doesn't resolve Git dependencies) | Two manual steps | Publish on OpenUPM (it resolves dependencies), or make Tools Core optional |
-| Only tested on Unity 6000.3; 2022.3 is declared but not tested | — | A CI run on 2022.3 LTS and 6000.0 LTS |
 | Platforms: Editor and Android (IL2CPP) only | — | An iOS and a WebGL check |
 | Items must be classes | `where T : class` everywhere | Probably never; a struct wrapped in a class covers it |
 | No proof of performance a third party can reproduce | A bench in a private project | This plan |
@@ -200,13 +199,11 @@ The written assessment comes last, so it can quote the measurements. These are t
 
 | Feature | Decision |
 |---|---|
-| Nested scrolling (a carousel inside a vertical list) | Planned for 1.0: `nested-scrolling-plan.md` |
-| Scrollbars | Already work when assigned in the Debug inspector; to test and document |
+| Nested scrolling (a carousel inside a vertical list) | Planned for the first release: `nested-scrolling-plan.md` |
 | Snap after the mouse wheel | Small; planned |
-| Several prefabs per list (slot types) | 1.2 |
+| Several prefabs per list (slot types) | After the first release |
 | Sticky headers | Outside the core: a `StickyHeaderBar` in the Extras sample |
-| Gamepad navigation | When a console project needs it; check parked slots' `Selectable`s first |
-| Per-slot position for carousels | 1.1, as a read-only query |
+| Per-slot position for carousels | After the first release, as a read-only query |
 
 ## 3. Measuring
 
