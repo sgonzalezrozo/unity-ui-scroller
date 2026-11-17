@@ -13,6 +13,13 @@ namespace UIScroller
     internal sealed partial class ScrollerEngine<T>
     {
         private readonly List<BentoTile> bentoTiles = new();
+
+        // Arrangers already made for the layouts this list used, so swapping between layouts allocates only the first
+        // time. An arranger keeps state, so each list keeps its own.
+        private const int ARRANGER_CACHE_SIZE = 4;
+        private readonly List<BentoLayout> arrangerLayouts = new(ARRANGER_CACHE_SIZE);
+        private readonly List<BentoArranger> arrangers = new(ARRANGER_CACHE_SIZE);
+        private BentoLayout uniformLayout;
         private bool isBento;
         private int bentoColumns;
         private BentoLayout appliedBentoLayout;
@@ -35,12 +42,12 @@ namespace UIScroller
                 return;
             }
 
-            appliedBentoLayout = BentoSource ?? BentoLayout.Uniform(Mathf.Clamp((int)settings.slotsPerLine, 1, BentoLayout.MAX_COLUMNS));
+            appliedBentoLayout = BentoSource ?? UniformLayout(Mathf.Clamp((int)settings.slotsPerLine, 1, BentoLayout.MAX_COLUMNS));
             ReportBentoErrors(appliedBentoLayout);
             bentoColumns = appliedBentoLayout.Columns > 0
                 ? appliedBentoLayout.Columns
                 : Mathf.Clamp((int)settings.slotsPerLine, 1, BentoLayout.MAX_COLUMNS);
-            bentoArranger = appliedBentoLayout.CreateArranger(bentoColumns);
+            bentoArranger = ArrangerFor(appliedBentoLayout, bentoColumns);
             bentoArranger.Reset();
 
             if (isLayoutSized && !hasWarnedAboutBentoMeasuring)
@@ -50,6 +57,31 @@ namespace UIScroller
             }
 
             isLayoutSized = false;
+        }
+
+        private BentoLayout UniformLayout(int columns)
+        {
+            if (uniformLayout == null || uniformLayout.Columns != columns)
+                uniformLayout = BentoLayout.Uniform(columns);
+            return uniformLayout;
+        }
+
+        private BentoArranger ArrangerFor(BentoLayout bentoLayout, int columns)
+        {
+            int cached = arrangerLayouts.IndexOf(bentoLayout);
+            if (cached >= 0)
+                return arrangers[cached];
+
+            BentoArranger arranger = bentoLayout.CreateArranger(columns);
+            if (arrangerLayouts.Count >= ARRANGER_CACHE_SIZE)
+            {
+                arrangerLayouts.RemoveAt(0);
+                arrangers.RemoveAt(0);
+            }
+
+            arrangerLayouts.Add(bentoLayout);
+            arrangers.Add(arranger);
+            return arranger;
         }
 
         private void ReportBentoErrors(BentoLayout layout)

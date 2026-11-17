@@ -58,6 +58,8 @@ All 56 cases of the matrix now allocate nothing (P1's 54, plus bento patterns wh
 | Filter change | `FilteredSource` keeps its matches in a reused list |
 | `GetAllItems()` | `ListSource`, `PagedSource` and `FilteredSource` return the same read-only view every call. `FilteredSource`'s view is updated in place after the filter or the source changes |
 
+**Found by the device bench (2026-11-17):** a filter change that changes the count, `SetSource` between sources of different sizes and a grid scroll with graphics in the slots all allocate nothing once warmed up (tests added). Swapping bento layouts created a new arranger each time; arrangers are now cached per list (test added). Disabling and enabling a list whose slots have graphics allocates inside Unity: its graphic registry drops a canvas's set when the last graphic is disabled and makes a new one when one comes back. A plain Canvas with Images, no list, allocates the same; the list's own part is zero.
+
 **Measuring note:** in the Editor (Mono), `GC.GetAllocatedBytesForCurrentThread()` reports 0 even when something allocates. The enable allocation was invisible to it and only showed in the profiler's `GC.Alloc` samples. The allocation tests use Unity's constraint (built on those samples), and P2's bench must use the `GC.Alloc` recorder too.
 
 ## P4 results: CPU (2026-11-16)

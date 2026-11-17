@@ -233,5 +233,29 @@ namespace UIScroller.Tests.Editor
                 }
             }
         }
+
+        [TestCase(10_000, 5_000)]
+        [TestCase(5_000, 3_334)]
+        public void SwappingBetweenSourcesOfSimilarSize_ReusesEveryLine(int larger, int smaller)
+        {
+            // From the very first swap: dropping lines on the way down meant creating them again on the way back.
+            LayoutModel layout = Build(larger, 1);
+            layout.Work.Reset();
+
+            for (int swap = 0; swap < 3; swap++)
+            {
+                Rebuild(layout, smaller);
+                Rebuild(layout, larger);
+            }
+
+            Assert.AreEqual(0, layout.Work.LinesCreated);
+            Assert.AreEqual(0, layout.Work.PlacementsCreated);
+        }
+
+        private static void Rebuild(LayoutModel layout, int count)
+        {
+            layout.CreatePlacements(count);
+            layout.BuildLines(count, 1, NO_HEADERS, SIZE_100, SIZE_100);
+        }
     }
 }

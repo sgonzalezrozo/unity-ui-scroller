@@ -48,8 +48,11 @@ namespace UIScroller
         internal WorkCounters Work;
 
         // Buffers shrink back when the item count falls under 1/SHRINK_FACTOR of what they hold, and above this many
-        // entries: small changes and pages keep reusing them, a big drop gives the memory back.
-        private const int SHRINK_FACTOR = 2;
+        // entries, keeping KEEP_FACTOR times the count: small changes, pages and swapping between sources of similar
+        // sizes keep reusing them (a tighter rule dropped and recreated thousands of lines on every such swap), and a
+        // big drop gives the memory back.
+        private const int SHRINK_FACTOR = 4;
+        private const int KEEP_FACTOR = 2;
         private const int MIN_KEPT = 256;
 
         internal int PlacementCapacity => placementBuffer.Length;
@@ -142,10 +145,10 @@ namespace UIScroller
         /// <summary>After a big drop in item count, drops the records past it (their objects are garbage collected).</summary>
         private void ShrinkItemBuffers(int itemCount)
         {
-            int keep = Math.Max(itemCount, MIN_KEPT);
-            if (placementBuffer.Length <= keep * SHRINK_FACTOR)
+            if (!ShouldShrink(placementBuffer.Length, itemCount))
                 return;
 
+            int keep = KeptCapacity(itemCount);
             Array.Resize(ref placementBuffer, keep);
             Array.Resize(ref itemToLine, keep);
             Array.Resize(ref measured, keep);
@@ -154,6 +157,9 @@ namespace UIScroller
 
         private static bool ShouldShrink(int capacity, int count)
             => capacity > Math.Max(count, MIN_KEPT) * SHRINK_FACTOR;
+
+        private static int KeptCapacity(int count)
+            => Math.Max(count * KEEP_FACTOR, MIN_KEPT);
 
         private void EnsureItemCapacity(int itemCount)
         {
@@ -242,7 +248,7 @@ namespace UIScroller
             }
 
             if (ShouldShrink(lineBuffer.Length, lineCount))
-                Array.Resize(ref lineBuffer, Math.Max(lineCount, MIN_KEPT));
+                Array.Resize(ref lineBuffer, KeptCapacity(lineCount));
             offsetsValidCount = Math.Min(offsetsValidCount, lineCount);
             MarkDirtyFrom(Math.Max(0, startLine));
         }
@@ -617,7 +623,7 @@ namespace UIScroller
         {
             if (ShouldShrink(offsets.Length, lineCount))
             {
-                Array.Resize(ref offsets, Math.Max(lineCount, MIN_KEPT));
+                Array.Resize(ref offsets, KeptCapacity(lineCount));
                 offsetsValidCount = Math.Min(offsetsValidCount, offsets.Length);
             }
 

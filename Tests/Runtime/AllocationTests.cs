@@ -364,6 +364,83 @@ namespace UIScroller.Tests.PlayMode
 
         private static bool IsEven(TestItem item) => item.Id % 2 == 0;
         private static bool IsOdd(TestItem item) => item.Id % 2 == 1;
+        private static bool IsThird(TestItem item) => item.Id % 3 == 0;
+
+        // ---------- Found by the device bench: operations that change the item count or the layout ----------
+
+        [UnityTest]
+        public IEnumerator FilterChange_ThatChangesTheCount()
+        {
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true });
+            ListSource<TestItem> all = new(ScrollerRig.MakeItems(COUNT));
+            Func<TestItem, bool> even = IsEven;
+            Func<TestItem, bool> third = IsThird;
+            FilteredSource<TestItem> filtered = new(all, even);
+            yield return rig.Initialize(filtered);
+
+            AssertZeroGC(SwitchFilter);
+
+            void SwitchFilter()
+            {
+                filtered.SetPredicate(third);
+                rig.List.Refresh();
+                filtered.SetPredicate(even);
+                rig.List.Refresh();
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator SetSource_BetweenSourcesOfDifferentSizes([Values(Kind.List, Kind.Grid, Kind.BentoPatterns)] Kind kind)
+        {
+            yield return Build(kind);
+            ListSource<TestItem> half = new(ScrollerRig.MakeItems(COUNT / 2));
+            ListSource<TestItem> full = source;
+
+            AssertZeroGC(Swap);
+
+            void Swap()
+            {
+                rig.Scroller.SetSource(half);
+                rig.Scroller.SetSource(full);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator SetBentoLayout_Swap()
+        {
+            yield return Build(Kind.BentoPatterns);
+            BentoLayout spans = BentoLayout.FromSpans(4, new[] { Big, BentoSpan.One }, repeatFrom: 1);
+            BentoLayout patterns = BentoLayout.FromPatterns(4, new[]
+            {
+                new BentoPattern(2, new[] { new BentoTile(0, 0, 2, 2), new BentoTile(2, 0, 2, 1), new BentoTile(2, 1, 1, 1), new BentoTile(3, 1, 1, 1) }),
+                new BentoPattern(1, new[] { new BentoTile(0, 0, 1, 1), new BentoTile(1, 0, 1, 1), new BentoTile(2, 0, 1, 1), new BentoTile(3, 0, 1, 1) })
+            }, repeatFrom: 1);
+
+            AssertZeroGC(Swap);
+
+            void Swap()
+            {
+                rig.List.SetBentoLayout(spans);
+                rig.List.SetBentoLayout(patterns);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Scroll_GridWithGraphicsInSlots()
+        {
+            rig = ScrollerRig.Create(new RigOptions { QuietSlots = true, SlotImage = true, SlotsPerLine = 4 });
+            yield return rig.Initialize(COUNT);
+
+            AssertZeroGC(ScrollDownAndBack);
+
+            void ScrollDownAndBack()
+            {
+                for (int step = 1; step <= 20; step++)
+                    ScrollNow(step * 137f);
+                for (int step = 20; step >= 0; step--)
+                    ScrollNow(step * 137f);
+            }
+        }
 
         [UnityTest]
         public IEnumerator GetAllItems_FromEverySource()
