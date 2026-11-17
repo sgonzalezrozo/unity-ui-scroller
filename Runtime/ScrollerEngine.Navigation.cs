@@ -282,6 +282,9 @@ namespace UIScroller
             layout.RecomputeOffsets();
             ScrollAlign align = ToScrollAlign(settings.snapAlign);
             float content = layout.TotalExtent;
+            if (isBento)
+                return NearestSnapTile(first, last, current, content, align);
+
             int bestLine = -1;
             float bestDistance = float.MaxValue;
             for (int line = first; line <= last && line < layout.Lines.Length; line++)
@@ -296,6 +299,37 @@ namespace UIScroller
             }
 
             return FirstItemIn(bestLine);
+        }
+
+        /// <summary>
+        /// Bento: the tile whose aligned position is closest, each by its own size. Rows that only tall tiles cross hold
+        /// no tile start and are skipped.
+        /// </summary>
+        private int NearestSnapTile(int first, int last, float current, float content, ScrollAlign align)
+        {
+            int bestItem = -1;
+            float bestDistance = float.MaxValue;
+            for (int line = first; line <= last && line < layout.Lines.Length; line++)
+            {
+                Line row = layout.Lines[line];
+                float start = layout.OffsetOf(line);
+                for (int slot = 0; slot < row.SlotCount; slot++)
+                {
+                    Placement placement = row[slot];
+                    if (placement == null)
+                        continue;
+
+                    float target = ScrollTargets.For(start, placement.Size, viewportSize, content, current, align, 0f);
+                    float distance = Mathf.Abs(target - current);
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        bestItem = placement.DataIndex;
+                    }
+                }
+            }
+
+            return bestItem;
         }
 
         /// <summary>The first item whose line reaches past <paramref name="distance"/>.</summary>

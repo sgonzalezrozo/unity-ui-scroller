@@ -311,8 +311,36 @@ namespace UIScroller.Editor
                 EditorGUILayout.PropertyField(property, true);
             }
 
+            if (path == BENTO_JSON)
+                DrawBentoLayoutButtons(property);
+
             if (indent)
                 EditorGUI.indentLevel--;
+        }
+
+        /// <summary>Opens the visual editor on the list's layout JSON, or makes a new one and assigns it.</summary>
+        private void DrawBentoLayoutButtons(SerializedProperty property)
+        {
+            if (serializedObject.isEditingMultipleObjects)
+                return;
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(EditorGUIUtility.labelWidth);
+            TextAsset json = property.objectReferenceValue as TextAsset;
+            if (json != null && GUILayout.Button("Edit Layout…", EditorStyles.miniButton))
+                BentoLayoutWindow.Open(json);
+
+            if (json == null && GUILayout.Button("New Layout…", EditorStyles.miniButton))
+            {
+                TextAsset created = BentoLayoutWindow.CreateLayoutAsset();
+                if (created != null)
+                {
+                    property.objectReferenceValue = created;
+                    BentoLayoutWindow.Open(created);
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

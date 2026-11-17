@@ -199,17 +199,32 @@ namespace UIScroller
         private float MainSizeOf(int index, int line)
             => isBento ? layout.Placements[index].Size : layout.Lines[line].Size;
 
-        /// <summary>The first item shown in visible lines, skipping rows that hold no tile start.</summary>
+        /// <summary>
+        /// The first item whose tile reaches the screen. The visible lines start a few rows above it, so tall tiles that
+        /// start there keep their slots; the shorter tiles in those rows are off screen and don't count.
+        /// </summary>
         private int FirstItemInVisibleLines()
         {
             for (int line = FirstVisibleLine; line >= 0 && line <= LastVisibleLine; line++)
             {
-                int item = FirstItemIn(line);
-                if (item >= 0)
-                    return item;
+                Line row = layout.Lines[line];
+                for (int slot = 0; slot < row.SlotCount; slot++)
+                {
+                    Placement placement = row[slot];
+                    if (placement != null && IsBentoTileOnScreen(line, placement))
+                        return placement.DataIndex;
+                }
             }
 
             return -1;
+        }
+
+        /// <summary>True when a tile starting in <paramref name="line"/> overlaps the viewport.</summary>
+        private bool IsBentoTileOnScreen(int line, Placement placement)
+        {
+            float viewportStart = viewportMetrics.GetScrollDistance();
+            float tileStart = layout.OffsetOf(line);
+            return tileStart + placement.Size > viewportStart && tileStart < viewportStart + viewportSize;
         }
 
         private int LastItemInVisibleLines()

@@ -188,6 +188,22 @@ namespace UIScroller.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator SnapItem_Bento_SettlesOnATileStart_NotOnARowOnlyTallTilesCross()
+        {
+            // 2 columns of 200 px; every tile is 1 x 3 (600 px), so tiles start on rows 0, 3, 6... and rows between are empty.
+            BentoLayout layout = BentoLayout.FromSpans(2, new[] { new BentoSpan(1, 3) });
+            yield return Start(new RigOptions { Bento = true, BentoLayout = layout }, SnapMode.Item);
+            yield return rig.ScrollToOffset(820f);
+
+            DragAndRelease();
+            yield return ScrollerRig.Frames(5);
+
+            // Row 4 (800 px) is the nearest row, but nothing starts there: the nearest tile start is row 3 (600 px).
+            Assert.AreEqual(600f, rig.ScrollDistance, 0.01f);
+            CollectionAssert.AreEqual(new[] { 2 }, snapped);
+        }
+
+        [UnityTest]
         public IEnumerator SnapItem_AlreadyAligned_SaysSoWithoutMoving()
         {
             yield return Start(snap: SnapMode.Item);

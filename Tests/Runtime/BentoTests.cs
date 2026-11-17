@@ -138,6 +138,24 @@ namespace UIScroller.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator VisibleStartIndex_SkipsShortTilesInTheRowsKeptAboveTheScreen()
+        {
+            // As above: item 0 is 1 x 3 (0 to 600 px), then 1 x 1 tiles; rows 1 and 2 hold items 2 and 3 beside it.
+            // The list keeps two rows above the screen for tall tiles, but items 2 and 3 there are off screen.
+            BentoLayout layout = BentoLayout.FromSpans(2, new[] { new BentoSpan(1, 3), BentoSpan.One }, repeatFrom: 1);
+            yield return Start(layout, 40, new RigOptions { ViewportSize = new Vector2(400f, 300f) });
+
+            yield return rig.ScrollToOffset(450f);
+            Assert.AreEqual(0, rig.List.VisibleStartIndex, "the tall tile still reaches the screen");
+            Assert.IsFalse(rig.List.IsItemVisible(2), "row 1 ends at 400 px");
+
+            yield return rig.ScrollToOffset(650f);
+            Assert.AreEqual(4, rig.List.VisibleStartIndex, "row 3 is the first on screen");
+            Assert.IsFalse(rig.List.IsItemVisible(3), "row 2 ends at 600 px");
+            Assert.IsTrue(rig.List.IsItemVisible(4));
+        }
+
+        [UnityTest]
         public IEnumerator ScrollingFar_RecyclesSlots_AndShowsTheRightItems()
         {
             yield return Start(BentoLayout.Uniform(4), 2000);

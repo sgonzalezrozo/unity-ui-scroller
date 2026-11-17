@@ -84,7 +84,7 @@ namespace UIScroller
                 {
                     Placement placement = line[i];
                     if (placement != null && ToReal(placement.DataIndex) == index)
-                        return true;
+                        return !isBento || IsBentoTileOnScreen(lineIndex, placement);
                 }
             }
 
