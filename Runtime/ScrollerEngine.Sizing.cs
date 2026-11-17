@@ -44,6 +44,8 @@ namespace UIScroller
         /// <summary>A DefaultExtent of 0 or less means "measure with layout". The prefab's own size is the first placeholder.</summary>
         private void ReadSizingFromPrefab()
         {
+            hasViewportListeners = slotPrefab.GetComponent<IViewportPositionListener>() != null
+                || (headerPrefab != null && headerPrefab.GetComponent<IViewportPositionListener>() != null);
             ReadSizing(slotPrefab, out isLayoutSized, out slotExtent, out placeholderSize);
             slotRootHasLayout = slotPrefab.GetComponent<LayoutGroup>() != null || slotPrefab.GetComponent<LayoutElement>() != null;
             if (headerPrefab != null)

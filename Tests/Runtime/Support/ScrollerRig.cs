@@ -50,6 +50,9 @@ namespace UIScroller.Tests.PlayMode
         /// <summary>The slot is a QuietSlot (allocates nothing when bound) instead of a RecordingSlot. Every slot also gets a ParentWatch.</summary>
         public bool QuietSlots;
 
+        /// <summary>The slot template gets a ViewportRecorder, which listens for its viewport position.</summary>
+        public bool ViewportRecorder;
+
         /// <summary>The slot template gets an Image, so canvas rebuilds have graphics to rebuild (the CPU bench).</summary>
         public bool SlotImage;
     }
@@ -393,6 +396,9 @@ namespace UIScroller.Tests.PlayMode
                 template.AddComponent<QuietSlot>().Size = size;
             else
                 template.AddComponent<RecordingSlot>().Size = size;
+
+            if (Options.ViewportRecorder)
+                template.AddComponent<ViewportRecorder>();
 
             template.AddComponent<ParentWatch>();
             if (Options.SlotImage)

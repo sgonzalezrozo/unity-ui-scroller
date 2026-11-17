@@ -20,6 +20,7 @@ namespace UIScroller
 
         public IExpandableSlot Expandable { get; }
         public IAppearAnimation Appear { get; }
+        internal IViewportPositionListener ViewportListener { get; }
 
         /// <summary>The slot's GameObject, looked up once (reading Rect.gameObject is a native call).</summary>
         public GameObject GameObject { get; }
@@ -64,6 +65,7 @@ namespace UIScroller
             Slot = rect.GetComponent<ISlot>();
             Expandable = Slot as IExpandableSlot;
             Appear = rect.GetComponent<IAppearAnimation>();
+            ViewportListener = rect.GetComponent<IViewportPositionListener>();
         }
     }
 }

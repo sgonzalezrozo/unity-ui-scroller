@@ -173,6 +173,12 @@ namespace UIScroller
         /// <summary>An item's tile in a bento list: its first column and row, and its span. A 0x0 tile outside bento.</summary>
         public BentoTile GetTile(int index) => engine?.QueryTile(index) ?? default;
 
+        /// <summary>
+        /// Where a shown item sits in the viewport: 0 at the centre, -0.5 at the start edge, +0.5 at the end edge (from its
+        /// centre, along the scroll axis). NaN when it isn't shown. Slots can implement IViewportPositionListener instead.
+        /// </summary>
+        public float GetViewportPosition(int index) => engine?.QueryViewportPosition(index) ?? float.NaN;
+
         bool IScrollerHooks.IsHeader(int index) => IsHeaderEntry(index);
         void IScrollerHooks.BindItem(SlotHandle slot, int index) => BindEntry(slot, index);
         bool IScrollerHooks.SupportsPaging() => SupportsPagingEntries();

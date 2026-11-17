@@ -198,6 +198,7 @@ namespace UIScroller
             }
 
             RequestPageIfNeeded();
+            NotifyViewportPositions();
         }
 
         // ---------- Lifecycle ----------
