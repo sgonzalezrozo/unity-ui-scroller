@@ -4,7 +4,7 @@ How the list performs on phones, and what the tests guarantee on every run.
 
 ## Device bench, 0.5.0 (2026-11-17)
 
-The current numbers. Five phones, development players (IL2CPP, Unity 6000.3.6f1), each running the same 45 cases by itself: every layout and direction, sections, loop, snapping, expanding, paging, filtering, data changes, width changes, disable and enable, source and layout swaps, opening and closing, a 60 s soak, and two controls. Each case scrolls at 4,000 px/s (or flings, or repeats its operation) for 5 s on a Screen Space Overlay canvas with 200 static images around the list. Slots have an Image and a legacy Text label. Development players run the profiler markers, so times are higher than in a release build, by the same amount for every case.
+The current numbers. Five phones and a browser (WebGL in Chrome on a MacBook), development players (IL2CPP, Unity 6000.3.6f1), each running the same 45 cases by itself: every layout and direction, sections, loop, snapping, expanding, paging, filtering, data changes, width changes, disable and enable, source and layout swaps, opening and closing, a 60 s soak, and two controls. Each case scrolls at 4,000 px/s (or flings, or repeats its operation) for 5 s on a Screen Space Overlay canvas with 200 static images around the list. Slots have an Image and a legacy Text label. Development players run the profiler markers, so times are higher than in a release build, by the same amount for every case.
 
 ### Scrolling 100,000 items
 
@@ -17,8 +17,9 @@ The current numbers. Five phones, development players (IL2CPP, Unity 6000.3.6f1)
 | Pixel 5 | 11.1 ms (90 Hz) | 0.10 / 0.51 ms | 3.5 / 4.2 ms | 0.33 / 1.4 ms | 0.14 / 0.70 ms | 0.10 / 0.74 ms | 0 % |
 | iPhone 13 mini | 16.7 ms (60 Hz) | 0.25 / 0.71 ms | 4.6 / 5.4 ms | 0.81 / 2.8 ms | 0.39 / 2.2 ms | 0.31 / 1.9 ms | ≤ 0.3 % |
 | iPhone Air | 8.3 ms (120 Hz) | 0.07 / 0.35 ms | 2.0 / 2.5 ms | 0.22 / 1.4 ms | 0.13 / 0.65 ms | 0.08 / 0.87 ms | ≤ 0.3 % |
+| WebGL (Chrome, MacBook) | 16.7 ms (60 Hz) | 0.07 / 0.60 ms | 1.6 / 2.5 ms | 0.17 / 0.60 ms | 0.08 / 0.30 ms | 0.05 / 0.20 ms | ≤ 0.3 % |
 
-"Normal use" is every scroll, fling, scroll-to, snap, carousel, sections, paging, expanding and soak case. The same screen with no list costs 6.6 ms of CPU on the A02s and 0.8 ms on the iPhone Air, so most of the frame is the screen, not the list.
+In the browser, timers have a resolution of 0.1 ms, so its slowest times are rounded up. "Normal use" is every scroll, fling, scroll-to, snap, carousel, sections, paging, expanding and soak case. The same screen with no list costs 6.6 ms of CPU on the A02s and 0.8 ms on the iPhone Air, so most of the frame is the screen, not the list.
 
 ### Memory
 

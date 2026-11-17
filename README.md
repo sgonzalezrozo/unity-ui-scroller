@@ -34,14 +34,14 @@ UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a sl
   - pooled slots stay active out of view, so reusing one doesn't wake its graphics;
   - scrolling rebatches only the list, not the rest of the screen.
 
-Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, scrolling 100,000 items (development players, every case in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md)):
+Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, and in a browser (WebGL), scrolling 100,000 items (development players, every case in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md)):
 
-| | Galaxy A02s | Pixel 2 XL | Pixel 5 | iPhone 13 mini | iPhone Air |
-|---|---|---|---|---|---|
-| The list's own work per scroll event | 0.19 ms | 0.20 ms | 0.10 ms | 0.25 ms | 0.07 ms |
-| …with slots measured by layout (text of any length) | 0.82 ms | 0.74 ms | 0.33 ms | 0.81 ms | 0.22 ms |
-| Whole frame CPU, app included, of the frame budget | 8.0 of 16.7 ms | 5.2 of 16.7 ms | 3.5 of 11.1 ms | 4.6 of 16.7 ms | 2.0 of 8.3 ms |
-| Missed frames scrolling, flinging, snapping, paging | ≤ 1.4 % | ≤ 0.3 % | 0 % | ≤ 0.3 % | ≤ 0.3 % |
+| | Galaxy A02s | Pixel 2 XL | Pixel 5 | iPhone 13 mini | iPhone Air | WebGL (Chrome) |
+|---|---|---|---|---|---|---|
+| The list's own work per scroll event | 0.19 ms | 0.20 ms | 0.10 ms | 0.25 ms | 0.07 ms | 0.07 ms |
+| …with slots measured by layout (text of any length) | 0.82 ms | 0.74 ms | 0.33 ms | 0.81 ms | 0.22 ms | 0.17 ms |
+| Whole frame CPU, app included, of the frame budget | 8.0 of 16.7 ms | 5.2 of 16.7 ms | 3.5 of 11.1 ms | 4.6 of 16.7 ms | 2.0 of 8.3 ms | 1.6 of 16.7 ms |
+| Missed frames scrolling, flinging, snapping, paging | ≤ 1.4 % | ≤ 0.3 % | 0 % | ≤ 0.3 % | ≤ 0.3 % | ≤ 0.3 % |
 
 - **Allocates nothing while scrolling**: tests check it on every run, and on the phones every case allocates what the same screen with no list does.
 - **Leaves nothing behind**: on all five phones, every list's items and slots were collected after it was destroyed.
@@ -85,8 +85,8 @@ See [Project status](#project-status).
 | Requirement | Supported |
 |---|---|
 | Unity | Tested on Unity 2022.3 LTS, Unity 6000.0 LTS and Unity 6000.3. |
-| Scripting backend | Mono (Editor) and IL2CPP (Android 32-bit ARMv7 and 64-bit ARM64, iOS ARM64) |
-| Platforms | macOS Editor; Android (Galaxy A02s, Pixel 2 XL, Pixel 5) and iOS (iPhone 13 mini, iPhone Air), each running the full device bench. WebGL and desktop players aren't tested yet. |
+| Scripting backend | Mono (Editor) and IL2CPP (Android 32-bit ARMv7 and 64-bit ARM64, iOS ARM64, WebGL) |
+| Platforms | macOS Editor; Android (Galaxy A02s, Pixel 2 XL, Pixel 5), iOS (iPhone 13 mini, iPhone Air) and WebGL (Chrome on macOS), each running the full device bench. Desktop players aren't tested yet. |
 | UI framework | uGUI only |
 | Enter Play Mode with domain reload disabled | Supported and checked: the runtime keeps no static state between plays (its only static field is an internal switch for tests). |
 | Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) and uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
@@ -778,7 +778,7 @@ Yes, with `PagedSource<T>` and an `IPageLoader<T>`. See [Paging](#paging).
 
 ### Does it work with IL2CPP and mobile?
 
-Yes: it's tested with IL2CPP on Android (Galaxy A02s, Pixel 2 XL, Pixel 5) and iOS (iPhone 13 mini, iPhone Air), with a 45-case bench on each. See [Compatibility](#compatibility) and [`benchmarks.md`](Documentation~/benchmarks.md).
+Yes: it's tested with IL2CPP on Android (Galaxy A02s, Pixel 2 XL, Pixel 5), iOS (iPhone 13 mini, iPhone Air) and WebGL, with a 45-case bench on each. See [Compatibility](#compatibility) and [`benchmarks.md`](Documentation~/benchmarks.md).
 
 ### Why doesn't my slot update when I scroll?
 
