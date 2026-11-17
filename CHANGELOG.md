@@ -28,6 +28,7 @@ All notable changes to this package are documented in this file.
 - **Bento Layout Editor** (Window > UI Scroller, or **Edit Layout** / **New Layout** next to **Layout JSON**): patterns drawn on a grid, spans as a list, a live preview of the first items and the layout's errors. Saves the same JSON.
 - **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
 - **Bento carousels:** a bento list can loop. The layout starts again with every round of items, so the same tiles come back in the same places; snapping and the viewport position work as in any carousel. A bento loop too long to lay out as a few copies logs a warning and doesn't loop.
+- **Loop with a paged source:** instead of refusing to loop, the list loads the first page only and loops over it as the whole list; no more pages load. A warning says so, and the inspector notes it under **Loop**.
 - Snapping (item or page) also runs after the mouse wheel, once it stops turning.
 - Profiler markers `UI Scroller.Initialize` and `UI Scroller.Instantiate`.
 

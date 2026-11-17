@@ -58,7 +58,7 @@ A list added from code at runtime builds nothing: create a Viewport (with `RectM
 - **Carousel**: `loop` with `snap = SnapMode.Item` and `snapAlign = SnapAlign.Center`; `SnappedTo` reports the index. **Pager**: `snap = SnapMode.Page`.
 - **Carousel effects**: a slot implementing `IViewportPositionListener` gets `OnViewportPosition(position)` (0 centre, ±0.5 edges) whenever the list moves; scale a child, not the slot's root.
 - **Nested lists** (a carousel inside a vertical list) work with no setup: drags across a list's axis go to its parent. In a pooled row slot, `Initialize` the carousel the first time and `SetSource` + `ScrollToStart()` after. Never add a third-party nested ScrollRect. `settings.passDragsToParent = false` opts a list out.
-- Grids and bento don't expand. A looping list is a list or a bento layout (each round starts the bento layout again): no grid, sections, paged source or expanding. A sectioned list doesn't page.
+- Grids and bento don't expand. A looping list is a list or a bento layout (each round starts the bento layout again): no grid, sections or expanding. With a `PagedSource`, Loop uses the first page as the whole list and loads no more pages. A sectioned list doesn't page.
 - Set settings from code before `Initialize`.
 
 ## Sections with headers

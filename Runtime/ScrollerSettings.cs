@@ -66,7 +66,7 @@ namespace UIScroller
         [Tooltip("Bento row height divided by column width. 1 makes square cells.")]
         public float cellAspect = 1f;
 
-        [Tooltip("Loop round forever, like a carousel. Lists only: not grids, sections or paged sources. Items don't expand.")]
+        [Tooltip("Loop round forever, like a carousel. Lists and bento: not grids or sections. With a paged source, the first page is the whole list. Items don't expand.")]
         public bool loop;
 
         [Tooltip("After a drag, settle on the nearest item, or move one page (viewport) at a time.")]

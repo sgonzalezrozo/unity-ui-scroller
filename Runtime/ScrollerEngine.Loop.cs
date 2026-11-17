@@ -23,6 +23,10 @@ namespace UIScroller
         private int loopIndexOffset;
         private int layoutRealCount;
         private bool hasWarnedAboutLoop;
+        private bool hasWarnedAboutLoopPaging;
+
+        // Loop with a paged source: the first page is the whole list, and no more pages load.
+        private bool loopsFirstPageOnly;
         private int loopAnchorItem = -1;
         private float loopAnchorInset;
 
@@ -38,6 +42,8 @@ namespace UIScroller
         private void UpdateLooping()
         {
             isLooping = settings.loop && CanLoop();
+            loopsFirstPageOnly = isLooping && pagedSource != null;
+            WarnThatLoopTurnsPagingOff();
             layoutRealCount = RealCount;
             if (!isLooping)
             {
@@ -92,8 +98,6 @@ namespace UIScroller
                 reason = "a grid";
             else if (headerPrefab != null || !hooks.SupportsLooping())
                 reason = "sections";
-            else if (hooks.SupportsPaging())
-                reason = "a paged source";
 
             if (reason == null)
                 return true;
@@ -105,6 +109,15 @@ namespace UIScroller
             }
 
             return false;
+        }
+
+        private void WarnThatLoopTurnsPagingOff()
+        {
+            if (!loopsFirstPageOnly || hasWarnedAboutLoopPaging)
+                return;
+
+            hasWarnedAboutLoopPaging = true;
+            Debug.LogWarning($"[UIScroller] {host.gameObject.name}: Loop turns paging off: the paged source's first page is the whole list, and no more pages load.", host);
         }
 
         private float EstimatedLoopItemExtent()

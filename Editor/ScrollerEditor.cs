@@ -315,6 +315,9 @@ namespace UIScroller.Editor
             if (path == BENTO_JSON)
                 DrawBentoLayoutButtons(property);
 
+            if (path == S + "loop" && property.boolValue)
+                EditorGUILayout.HelpBox("Loop overrides paging: with a paged source, the first page is the whole list and no more pages load.", MessageType.Info);
+
             if (indent)
                 EditorGUI.indentLevel--;
         }

@@ -483,7 +483,8 @@ You never see the loop jump, and drags and flings carry on across it.
 | A list, any direction | Yes |
 | Bento | Yes, as a block per round (below) |
 | Grid, Auto Grid | No |
-| Sections, paged sources, expanding slots | No (it logs an error and doesn't loop) |
+| A paged source | Yes: its first page is the whole list, and no more pages load (a warning says so; the inspector notes it under **Loop**) |
+| Sections, expanding slots | No (it logs an error and doesn't loop) |
 | Pull to refresh | Never fires: a looping list never reaches its start |
 
 #### Bento carousels
@@ -732,7 +733,7 @@ If your UI is in UI Toolkit, start with `ListView`.
 | One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
 | Items must be reference types | By design |
-| A looping list can't be a grid, sectioned, paged or expandable | By design |
+| A looping list can't be a grid, sectioned or expandable; with a paged source it loops over the first page only | By design |
 | A bento carousel repeats its layout as a block per round: when the item count doesn't fill whole patterns, each round ends with holes | By design: it keeps the loop seamless. Use an item count that fills the patterns |
 | **Snap: Page** moves one viewport at a time, not one bento pattern or round | By design |
 | A bento loop can't be very long: it's laid out as a few copies of its items | Longer ones log a warning and don't loop |

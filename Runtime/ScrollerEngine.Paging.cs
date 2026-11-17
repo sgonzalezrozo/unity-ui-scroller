@@ -57,6 +57,10 @@ namespace UIScroller
             if (!isInitialized || pagedSource == null || HasReachedLastPage || !pagedSource.HasMore || pagedSource.IsLoading || !hooks.SupportsPaging())
                 return;
 
+            // A looping list only ever asks for its first page.
+            if (loopsFirstPageOnly && pagedSource.ItemCount > 0)
+                return;
+
             int itemsAfterLastVisible = ItemCount - (VisibleEndIndex + 1);
             if (itemsAfterLastVisible >= PAGING_THRESHOLD_ITEMS)
                 return;
@@ -90,7 +94,8 @@ namespace UIScroller
             if (!isInitialized)
                 return;
 
-            if (start != layout.Placements.Length)
+            // The first page of a looping list is the whole list: lay out its copies from scratch.
+            if (loopsFirstPageOnly || start != layout.Placements.Length)
             {
                 Refresh();
                 hooks.OnPageLoaded(count);
