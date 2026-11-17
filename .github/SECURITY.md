@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Recyclable Scroller is pre-release software. Only the latest tagged version gets fixes.
+UI Scroller is pre-release software. Only the latest tagged version gets fixes.
 
 ## Report a vulnerability
 

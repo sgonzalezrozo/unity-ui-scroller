@@ -1,4 +1,4 @@
-# Contributing to Recyclable Scroller
+# Contributing to UI Scroller
 
 Thanks for helping out. Bug reports, documentation fixes and pull requests are welcome.
 
