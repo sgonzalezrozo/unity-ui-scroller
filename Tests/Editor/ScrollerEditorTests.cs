@@ -76,7 +76,7 @@ namespace UIScroller.Tests.Editor
         }
 
         [Test]
-        public void Loop_IsDrawnOnlyForAPlainList_AndHidesExpansion()
+        public void Loop_IsDrawnForListsAndBento_NotGridsOrSections_AndHidesExpansion()
         {
             CollectionAssert.Contains(Drawn(), "settings.loop");
 
@@ -239,8 +239,9 @@ namespace UIScroller.Tests.Editor
             Assert.IsFalse(list.Settings.autoSlotsPerLine);
             foreach (string field in new[] { ScrollerEditor.BENTO_JSON, "settings.cellAspect", "settings.slotSpacing" })
                 Assert.Greater(IndexOf(drawn, field), IndexOf(drawn, ScrollerEditor.LAYOUT_MODE), field);
-            foreach (string hidden in new[] { "settings.slotsPerLine", "settings.targetSlotSize", "settings.loop", "settings.allowMultipleExpanded" })
+            foreach (string hidden in new[] { "settings.slotsPerLine", "settings.targetSlotSize", "settings.allowMultipleExpanded" })
                 CollectionAssert.DoesNotContain(drawn, hidden);
+            CollectionAssert.Contains(drawn, "settings.loop", "a bento list can loop (a bento carousel)");
         }
 
         [Test]

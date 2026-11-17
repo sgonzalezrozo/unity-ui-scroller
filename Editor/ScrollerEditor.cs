@@ -82,8 +82,9 @@ namespace UIScroller.Editor
 
             entries.Add(HEADER + "Behaviour");
 
-            // A looping list is a plain list: no grid, no sections.
-            bool canLoop = GetLayoutMode(serializedObject) == ScrollerLayoutMode.List && serializedObject.FindProperty("headerPrefab") == null;
+            // A looping list is a list or bento: no grid, no sections.
+            ScrollerLayoutMode layoutMode = GetLayoutMode(serializedObject);
+            bool canLoop = (layoutMode == ScrollerLayoutMode.List || layoutMode == ScrollerLayoutMode.Bento) && serializedObject.FindProperty("headerPrefab") == null;
             if (canLoop)
                 entries.Add(S + "loop");
 
