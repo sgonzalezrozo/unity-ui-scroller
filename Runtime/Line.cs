@@ -11,7 +11,16 @@ namespace UIScroller
         private readonly Placement[] slots;
         private Placement single;
 
-        public float Size { get; private set; }
+        private float size;
+
+        /// <summary>The line's length along the scroll axis. A line whose items are all unmeasured follows the layout's current placeholder.</summary>
+        public float Size => UsesPlaceholder && Owner != null ? Owner.UnmeasuredSize : size;
+
+        // Every item in the line is unmeasured: its size is the layout's placeholder, so a new placeholder costs nothing here.
+        internal bool UsesPlaceholder;
+
+        // In the layout's list of lines with their own size that still hold unmeasured items.
+        internal bool Tracked;
         public int LineIndex { get; internal set; }
 
         /// <summary>How many slots the line has room for. Some can be empty (null), such as at the end of a grid.</summary>
@@ -48,6 +57,8 @@ namespace UIScroller
         internal void Reset(int lineIndex)
         {
             LineIndex = lineIndex;
+            UsesPlaceholder = false;
+            Tracked = false;
             SetSize(0f);
             StartsSection = false;
             single = null;
@@ -58,13 +69,28 @@ namespace UIScroller
         public void CacheSize(float size)
             => SetSize(size);
 
-        private void SetSize(float size)
+        private void SetSize(float newSize)
         {
-            float previous = Size;
-            Size = size;
-            if (Owner != null && previous != size)
-                Owner.OnLineResized(this, previous, size);
+            if (UsesPlaceholder)
+            {
+                UsesPlaceholder = false;
+                size = newSize;
+                Owner?.OnLineLeftPlaceholder(this, newSize);
+                return;
+            }
+
+            float previous = size;
+            size = newSize;
+            if (Owner != null && previous != newSize)
+                Owner.OnLineResized(this, previous, newSize);
         }
+
+        /// <summary>Makes the line follow the placeholder. The layout adjusts its own totals.</summary>
+        internal void FollowPlaceholder()
+            => UsesPlaceholder = true;
+
+        /// <summary>The size the line holds of its own, ignoring the placeholder.</summary>
+        internal float OwnSize => size;
 
         public override string ToString()
             => $"LineIndex:{LineIndex} Size:{Size} SlotCount:{SlotCount}";

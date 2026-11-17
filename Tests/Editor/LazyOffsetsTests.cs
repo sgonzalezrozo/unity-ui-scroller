@@ -168,5 +168,70 @@ namespace UIScroller.Tests.Editor
 
             AssertMatchesFullSum(layout);
         }
+
+        [Test]
+        public void ASecondPlaceholder_VisitsOnlyLinesThatMixMeasuredAndUnmeasuredItems()
+        {
+            LayoutModel layout = Build(100_000, 4);
+            layout.SetUnmeasuredSize(80f);
+            for (int item = 0; item < 40; item += 3)
+                layout.SetItemSize(item, 150f);
+            layout.Work.Reset();
+
+            layout.SetUnmeasuredSize(90f);
+
+            Assert.LessOrEqual(layout.Work.PlaceholderLinesVisited, 12);
+            AssertMatchesFullSum(layout);
+            Assert.AreEqual(90f, layout.Lines[500].Size);
+        }
+
+        [Test]
+        public void MixedOperations_GiveEveryLineItsMeasuredSizeOrThePlaceholder()
+        {
+            const int count = 400;
+            LayoutModel layout = Build(count, 1);
+            float[] expected = new float[count];
+            bool[] isMeasured = new bool[count];
+            float placeholder = 100f;
+            Random random = new(3);
+
+            for (int step = 0; step < 600; step++)
+            {
+                int item = random.Next(count);
+                switch (random.Next(4))
+                {
+                    case 0:
+                        float size = 40f + random.Next(200);
+                        layout.SetItemSize(item, size);
+                        expected[item] = size;
+                        isMeasured[item] = true;
+                        break;
+                    case 1:
+                        placeholder = 50f + random.Next(150);
+                        layout.SetUnmeasuredSize(placeholder);
+                        break;
+                    case 2:
+                        layout.ForgetSize(item);
+                        if (isMeasured[item])
+                        {
+                            // A forgotten item keeps its size until the next placeholder.
+                            isMeasured[item] = false;
+                        }
+
+                        break;
+                    default:
+                        layout.OffsetOf(random.Next(count));
+                        break;
+                }
+
+                if (step % 50 == 49)
+                {
+                    layout.SetUnmeasuredSize(placeholder);
+                    for (int i = 0; i < count; i++)
+                        Assert.AreEqual(isMeasured[i] ? expected[i] : placeholder, layout.Lines[i].Size, TOLERANCE, $"step {step}, line {i}");
+                    AssertMatchesFullSum(layout);
+                }
+            }
+        }
     }
 }

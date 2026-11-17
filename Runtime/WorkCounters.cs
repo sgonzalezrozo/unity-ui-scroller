@@ -30,6 +30,9 @@ namespace UIScroller
         /// <summary>Line offsets computed; a size change near the screen computes only up to the screen.</summary>
         public int OffsetsComputed;
 
+        /// <summary>Lines a new placeholder visited; lines made only of unmeasured items follow it without a visit.</summary>
+        public int PlaceholderLinesVisited;
+
         public void Reset()
         {
             SlotsChecked = 0;
@@ -39,6 +42,7 @@ namespace UIScroller
             LinesCreated = 0;
             Measurements = 0;
             OffsetsComputed = 0;
+            PlaceholderLinesVisited = 0;
             PlaceholderPasses = 0;
         }
     }

@@ -30,6 +30,15 @@ namespace UIScroller
         private bool buildingLines;
         private double sizeBeforeBuild;
         private int sectionStartsBeforeBuild;
+        private int placeholderLinesBeforeBuild;
+
+        // Lines whose items are all unmeasured follow one shared placeholder size (Line.UsesPlaceholder), so a new
+        // placeholder doesn't visit them. Lines with their own size that still hold unmeasured items are tracked.
+        private float unmeasuredSize;
+        private int placeholderLineCount;
+        private int firstPlaceholderLine = int.MaxValue;
+        private bool needsFullPlaceholderPass = true;
+        private readonly List<Line> trackedLines = new();
         private float paddingStart;
         private float paddingEnd;
         private float lineSpacing;
@@ -52,6 +61,9 @@ namespace UIScroller
 
         public bool HasOffsets => lineCount > 0;
 
+        /// <summary>The size every line made only of unmeasured items has: the last one given to <see cref="SetUnmeasuredSize"/>.</summary>
+        internal float UnmeasuredSize => unmeasuredSize;
+
         /// <summary>Padding plus every line's current size plus the spacing between lines.</summary>
         public float TotalExtent
         {
@@ -60,7 +72,7 @@ namespace UIScroller
                 if (lineCount == 0)
                     return 0f;
 
-                return (float)(paddingStart + lineSizeSum + lineSpacing * (double)(lineCount - 1) + sectionSpacing * (double)sectionStarts + paddingEnd);
+                return (float)(paddingStart + lineSizeSum + placeholderLineCount * (double)unmeasuredSize + lineSpacing * (double)(lineCount - 1) + sectionSpacing * (double)sectionStarts + paddingEnd);
             }
         }
 
@@ -200,6 +212,7 @@ namespace UIScroller
         {
             sizeBeforeBuild = SumSizes(startLine, lineCount);
             sectionStartsBeforeBuild = CountSectionStarts(startLine, lineCount);
+            placeholderLinesBeforeBuild = CountPlaceholderLines(startLine, lineCount);
             buildingLines = true;
         }
 
@@ -210,14 +223,22 @@ namespace UIScroller
             lineCount = newLineCount;
             if (startLine <= 0)
             {
-                // A full build adds everything up again, so rounding never builds up.
+                // A full build adds everything up again, so rounding never builds up. Built lines have their own sizes:
+                // the next placeholder visits every line once to find the ones that can follow it.
                 lineSizeSum = SumSizes(0, lineCount);
                 sectionStarts = CountSectionStarts(0, lineCount);
+                placeholderLineCount = CountPlaceholderLines(0, lineCount);
+                ClearTrackedLines();
+                needsFullPlaceholderPass = true;
             }
             else
             {
                 lineSizeSum += SumSizes(startLine, lineCount) - sizeBeforeBuild;
                 sectionStarts += CountSectionStarts(startLine, lineCount) - sectionStartsBeforeBuild;
+                placeholderLineCount -= placeholderLinesBeforeBuild;
+                // Appended lines hold unmeasured items with their own sizes: the next placeholder visits only them.
+                for (int i = startLine; i < lineCount; i++)
+                    Track(lineBuffer[i]);
             }
 
             if (ShouldShrink(lineBuffer.Length, lineCount))
@@ -231,11 +252,71 @@ namespace UIScroller
             double sum = 0;
             for (int i = Math.Max(0, from); i < to && i < lineBuffer.Length; i++)
             {
-                if (lineBuffer[i] != null)
-                    sum += lineBuffer[i].Size;
+                if (lineBuffer[i] != null && !lineBuffer[i].UsesPlaceholder)
+                    sum += lineBuffer[i].OwnSize;
             }
 
             return sum;
+        }
+
+        private int CountPlaceholderLines(int from, int to)
+        {
+            int count = 0;
+            for (int i = Math.Max(0, from); i < to && i < lineBuffer.Length; i++)
+            {
+                if (lineBuffer[i] != null && lineBuffer[i].UsesPlaceholder)
+                    count++;
+            }
+
+            return count;
+        }
+
+        private bool IsInUse(Line line)
+        {
+            int index = line.LineIndex;
+            return index >= 0 && index < lineCount && lineBuffer[index] == line;
+        }
+
+        /// <summary>A line that followed the placeholder got a size of its own (an item in it was measured or opened).</summary>
+        internal void OnLineLeftPlaceholder(Line line, float newSize)
+        {
+            if (buildingLines || !IsInUse(line))
+                return;
+
+            placeholderLineCount--;
+            lineSizeSum += newSize;
+            MarkDirtyFrom(line.LineIndex + 1);
+            Track(line);
+        }
+
+        private void Track(Line line)
+        {
+            if (line == null || line.Tracked || line.UsesPlaceholder)
+                return;
+
+            line.Tracked = true;
+            trackedLines.Add(line);
+        }
+
+        private void ClearTrackedLines()
+        {
+            foreach (Line line in trackedLines)
+                line.Tracked = false;
+            trackedLines.Clear();
+        }
+
+        /// <summary>Before a placeholder line gets its own size, its unmeasured items take the current placeholder.</summary>
+        private void RefreshPlaceholderItems(Line line)
+        {
+            if (!line.UsesPlaceholder)
+                return;
+
+            for (int slot = 0; slot < line.SlotCount; slot++)
+            {
+                Placement placement = line[slot];
+                if (placement != null && !measured[placement.DataIndex])
+                    placement.CacheSize(unmeasuredSize);
+            }
         }
 
         private int CountSectionStarts(int from, int to)
@@ -311,6 +392,7 @@ namespace UIScroller
 
             float lineSize = 0f;
             Line changedLine = Lines[line];
+            RefreshPlaceholderItems(changedLine);
             for (int slot = 0; slot < changedLine.SlotCount; slot++)
             {
                 Placement placement = changedLine[slot];
@@ -324,42 +406,106 @@ namespace UIScroller
 
         /// <summary>
         /// Gives every item not measured yet this placeholder size, and resizes the lines that hold them.
-        /// Items for which <paramref name="skip"/> is true (headers) keep their size.
+        /// Items for which <paramref name="skip"/> is true (headers) keep their size. Lines made only of unmeasured
+        /// items follow the placeholder, so after the first call only lines that mix measured and unmeasured items
+        /// are visited: the cost doesn't grow with the item count.
         /// </summary>
         public void SetUnmeasuredSize(float size, Func<int, bool> skip = null)
         {
-            int firstChanged = -1;
-            for (int lineIndex = 0; lineIndex < Lines.Length; lineIndex++)
+            float previous = unmeasuredSize;
+            unmeasuredSize = size;
+
+            if (needsFullPlaceholderPass)
             {
-                Line line = Lines[lineIndex];
-                bool changed = false;
-                float lineSize = 0f;
-
-                for (int slot = 0; slot < line.SlotCount; slot++)
+                ClearTrackedLines();
+                firstPlaceholderLine = int.MaxValue;
+                for (int i = 0; i < lineCount; i++)
                 {
-                    Placement placement = line[slot];
-                    if (placement == null)
-                        continue;
-
-                    if (!measured[placement.DataIndex] && !Mathf.Approximately(placement.Size, size) && (skip == null || !skip(placement.DataIndex)))
-                    {
-                        placement.CacheSize(size);
-                        changed = true;
-                    }
-
-                    lineSize = Mathf.Max(lineSize, placement.Size);
+                    if (ApplyPlaceholder(lineBuffer[i], skip))
+                        Track(lineBuffer[i]);
                 }
 
-                if (!changed)
-                    continue;
-
-                line.CacheSize(lineSize);
-                if (firstChanged < 0)
-                    firstChanged = lineIndex;
+                needsFullPlaceholderPass = false;
+                return;
             }
 
-            if (firstChanged >= 0)
-                MarkDirtyFrom(firstChanged);
+            if (placeholderLineCount > 0 && previous != size)
+                MarkDirtyFrom(firstPlaceholderLine == int.MaxValue ? 0 : firstPlaceholderLine);
+
+            for (int i = trackedLines.Count - 1; i >= 0; i--)
+            {
+                Line line = trackedLines[i];
+                if (ApplyPlaceholder(line, skip))
+                    continue;
+
+                line.Tracked = false;
+                trackedLines[i] = trackedLines[trackedLines.Count - 1];
+                trackedLines.RemoveAt(trackedLines.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// Brings one line up to the placeholder. A line of only unmeasured items starts following it; a line that
+        /// mixes them gives its unmeasured items the placeholder and resizes. True if the line still needs visiting.
+        /// </summary>
+        private bool ApplyPlaceholder(Line line, Func<int, bool> skip)
+        {
+            if (line == null || line.UsesPlaceholder || !IsInUse(line))
+                return false;
+
+            if (Work != null)
+                Work.PlaceholderLinesVisited++;
+
+            bool anyUnmeasured = false;
+            bool allUnmeasured = true;
+            for (int slot = 0; slot < line.SlotCount; slot++)
+            {
+                Placement placement = line[slot];
+                if (placement == null)
+                    continue;
+
+                if (measured[placement.DataIndex] || (skip != null && skip(placement.DataIndex)))
+                    allUnmeasured = false;
+                else
+                    anyUnmeasured = true;
+            }
+
+            if (!anyUnmeasured)
+                return false;
+
+            if (allUnmeasured)
+            {
+                for (int slot = 0; slot < line.SlotCount; slot++)
+                    line[slot]?.CacheSize(unmeasuredSize);
+
+                lineSizeSum -= line.OwnSize;
+                placeholderLineCount++;
+                line.FollowPlaceholder();
+                MarkDirtyFrom(line.LineIndex + 1);
+                firstPlaceholderLine = Math.Min(firstPlaceholderLine, line.LineIndex);
+                return false;
+            }
+
+            bool changed = false;
+            float lineSize = 0f;
+            for (int slot = 0; slot < line.SlotCount; slot++)
+            {
+                Placement placement = line[slot];
+                if (placement == null)
+                    continue;
+
+                if (!measured[placement.DataIndex] && !Mathf.Approximately(placement.Size, unmeasuredSize) && (skip == null || !skip(placement.DataIndex)))
+                {
+                    placement.CacheSize(unmeasuredSize);
+                    changed = true;
+                }
+
+                lineSize = Mathf.Max(lineSize, placement.Size);
+            }
+
+            if (changed)
+                line.CacheSize(lineSize);
+            return true;
         }
 
         /// <summary>Marks an item to be measured again. Its current size stays as the placeholder until then.</summary>
@@ -370,6 +516,9 @@ namespace UIScroller
 
             RemoveFromAverage(itemIndex);
             measured[itemIndex] = false;
+            int line = LineOf(itemIndex);
+            if (line >= 0 && line < lineCount)
+                Track(lineBuffer[line]);
         }
 
         private void RemoveFromAverage(int itemIndex)
@@ -389,6 +538,7 @@ namespace UIScroller
             Array.Clear(inAverage, 0, placementCount);
             measuredTotal = 0f;
             measuredCount = 0;
+            needsFullPlaceholderPass = true;
         }
 
         public bool IsMeasured(int itemIndex)
@@ -409,6 +559,7 @@ namespace UIScroller
             if (line < 0 || line >= Lines.Length)
                 return;
 
+            RefreshPlaceholderItems(Lines[line]);
             Lines[line].CacheSize(size);
             MarkDirtyFrom(line);
         }
