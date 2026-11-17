@@ -75,6 +75,13 @@ namespace UIScroller
         [Tooltip("The part of the viewport a snapped item lines up with. Pages always line up with the start.")]
         public SnapAlign snapAlign = SnapAlign.Start;
 
+        /// <summary>
+        /// A drag or mouse wheel mostly across the list's axis goes to the nearest parent that handles it (a carousel in a
+        /// vertical list scrolls the page). Code only; does nothing without such a parent.
+        /// </summary>
+        [HideInInspector]
+        public bool passDragsToParent = true;
+
         [Tooltip("Go back to the start every time the list is enabled.")]
         public bool resetScrollOnEnable;
 

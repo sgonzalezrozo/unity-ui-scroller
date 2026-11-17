@@ -204,6 +204,39 @@ namespace UIScroller.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator SnapItem_AfterTheMouseWheel_SettlesOnceTheWheelStops()
+        {
+            yield return Start(snap: SnapMode.Item);
+            rig.List.scrollSensitivity = 30f;
+
+            // Two wheel steps of 30 px towards the end: 60 px, nearer item 1 (100) than item 0.
+            Wheel();
+            yield return ScrollerRig.Frames(1);
+            Wheel();
+            yield return ScrollerRig.Frames(1);
+            Assert.AreEqual(60f, rig.ScrollDistance, 0.5f, "no snap while the wheel is turning");
+
+            yield return ScrollerRig.Frames(8);
+            Assert.AreEqual(100f, rig.ScrollDistance, 0.01f);
+            CollectionAssert.AreEqual(new[] { 1 }, snapped);
+        }
+
+        [UnityTest]
+        public IEnumerator SnapPage_AfterTheMouseWheel_SettlesOnTheNearestPage()
+        {
+            yield return Start(snap: SnapMode.Page);
+            rig.List.scrollSensitivity = 500f;
+
+            Wheel();
+            yield return ScrollerRig.Frames(10);
+
+            Assert.AreEqual(800f, rig.ScrollDistance, 0.01f, "500 px is nearer the second page (800) than the first");
+        }
+
+        private void Wheel()
+            => rig.List.OnScroll(new PointerEventData(null) { scrollDelta = new Vector2(0f, -1f) });
+
+        [UnityTest]
         public IEnumerator SnapItem_AlreadyAligned_SaysSoWithoutMoving()
         {
             yield return Start(snap: SnapMode.Item);

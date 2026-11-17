@@ -17,17 +17,29 @@ All notable changes to this package are documented in this file.
 - **Breaking:** `Line.Placements` is replaced by an indexer (`line[slot]`) and `SlotCount`. `Line` is part of the public `LayoutModel`, which the list uses internally; code outside the package rarely touches it.
 - `GetAllItems()` on `ListSource`, `PagedSource` and `FilteredSource` returns the same read-only view on every call. `FilteredSource`'s view is updated in place after the filter or the source changes.
 
+- **Measured lists cost the same at any length.** Lines made only of unmeasured items share one placeholder size, and line offsets are computed on demand up to the line asked for. A 100,000-item measured list took up to 46 ms per scroll event on a Galaxy A02s and now takes up to 3.5 ms, as a 1,000-item one does.
+- **Rebuilds are faster:** fixed-size lists read the slot prefab's size once instead of calling `GetComponent` for every item. On a Galaxy A02s at 10,000 items, `Refresh()` with a new count went from up to 75 ms to 21 ms.
+- **No allocations when switching between sources of similar size:** buffers shrink only past four times the item count. The first swap used to drop and recreate thousands of lines.
+
 ### Added
 
+- **Nested scrolling:** a drag or mouse wheel mostly across a list's axis goes to the nearest parent that handles it, so a horizontal carousel inside a vertical list scrolls the page from anywhere. The gesture is handed over once, when it starts; touching the inner list also stops the outer list's fling. On by default; `Settings.passDragsToParent` turns it off (code only). The Examples sample has a `NestedExample`.
+- **Viewport position for carousel effects:** slots that implement `IViewportPositionListener` are told where they sit in the viewport whenever the list moves (0 at the centre, ±0.5 at the edges), and `GetViewportPosition(index)` answers the same for any shown item.
+- **Bento Layout Editor** (Window > UI Scroller, or **Edit Layout** / **New Layout** next to **Layout JSON**): patterns drawn on a grid, spans as a list, a live preview of the first items and the layout's errors. Saves the same JSON.
 - **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
+- Snapping (item or page) also runs after the mouse wheel, once it stops turning.
+- Profiler markers `UI Scroller.Initialize` and `UI Scroller.Instantiate`.
 
 ### Fixed
 
 - A page that lands while the list bounces back from its end no longer makes it drift towards the start: the new items end the overscroll, and ScrollRect turned the elastic pull into inertia. The bounce now stops and the list stays where it is. Easy to see in a bottom-to-top list.
+- Bento: `VisibleStartIndex` and `IsItemVisible` count a tile only when it reaches the screen (the list keeps a few rows above it for tall tiles), and item snapping settles on the nearest tile start, by the tile's own size, instead of doing nothing on rows only tall tiles cross.
+- In the editor, a destroyed list (with its source and items) is no longer kept alive by a pending `OnValidate` call in Play mode.
+- A list without Content says why it won't start: a list added from code must create its Viewport and Content.
 
 ### Added
 
-- **Bento layout** (in progress): `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop. List, Grid and Auto Grid don't change. Bento works in a `SectionedScroller` too: each header takes a whole row, as tall as the header itself (fixed, or measured so each header can differ), and the layout starts again in each section; a tall tile never reaches into the next section. The Examples sample has a `BentoExample` and a `BentoSectionsExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
+- **Bento layout**: `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop. List, Grid and Auto Grid don't change. Bento works in a `SectionedScroller` too: each header takes a whole row, as tall as the header itself (fixed, or measured so each header can differ), and the layout starts again in each section; a tall tile never reaches into the next section. The Examples sample has a `BentoExample` and a `BentoSectionsExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
 
 ## [1.0.0-preview.1] - Unreleased
 

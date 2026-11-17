@@ -2,7 +2,7 @@
 
 Native nested scrolling for UI Scroller: a horizontal carousel inside a vertical list (or the other way round) where a drag across the inner list's axis moves the outer list instead. Today the inner list takes every drag that starts on it, so the outer list can't be scrolled from there. MyTools works around it with a third-party MIT plugin.
 
-Status: proposal, not started. Target: **0.5.0**, the first release (it's the one gap that shows up in every F2P store and lobby).
+Status: **N1, N2 and N4 done** (2026-11-17): cross-axis hand-over, mouse wheel, `NestedExample`, docs. N3 (same-axis chaining) waits for a screen that needs it. Decisions taken: on by default, wheel routed, plain larger-component comparison, and `passDragsToParent` is code only (no inspector toggle, to keep the inspector minimal). A hand check on a phone with the Input System module is still to do.
 
 ## How others do it
 

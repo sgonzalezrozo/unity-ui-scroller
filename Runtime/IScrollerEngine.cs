@@ -32,6 +32,7 @@ namespace UIScroller
         float QueryItemSize(int index);
         BentoTile QueryTile(int index);
         float QueryViewportPosition(int index);
+        void OnWheelScrolled();
         void SetBentoLayout(BentoLayout layout);
         float ViewportSize { get; }
         float ContentSize { get; }

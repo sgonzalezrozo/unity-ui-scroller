@@ -22,6 +22,9 @@ namespace UIScroller.Tests.Editor
         [Test]
         public void OpeningTheWindow_WithALayout_DoesNotThrow()
         {
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+                Assert.Ignore("Editor windows need a graphics device (verify.sh runs with -nographics).");
+
             TextAsset json = new(JsonUtility.ToJson(BentoLayoutWindow.StartingLayout()));
 
             BentoLayoutWindow.Open(json);

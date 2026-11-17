@@ -53,6 +53,8 @@ The developer adds the concrete scroller to an empty UI object sized and anchore
 - **Grid** (`settings.slotsPerLine`) or **Auto Grid** (`settings.autoSlotsPerLine`, `targetSlotSize`): slots stretch to fill the line.
 - **Bento**: tiles of different sizes from a **Layout JSON** (TextAsset) or `SetBentoLayout(BentoLayout.FromJson(json))`; row height from `cellAspect`. The layout decides every tile's size, never the item or the slot. A broken layout logs errors and uses 1x1 tiles. `GetTile(index)` reads a placement.
 - **Carousel**: `loop` with `snap = SnapMode.Item` and `snapAlign = SnapAlign.Center`; `SnappedTo` reports the index. **Pager**: `snap = SnapMode.Page`.
+- **Carousel effects**: a slot implementing `IViewportPositionListener` gets `OnViewportPosition(position)` (0 centre, ±0.5 edges) whenever the list moves; scale a child, not the slot's root.
+- **Nested lists** (a carousel inside a vertical list) work with no setup: drags across a list's axis go to its parent. In a pooled row slot, `Initialize` the carousel the first time and `SetSource` + `ScrollToStart()` after. Never add a third-party nested ScrollRect.
 - Grids and bento don't expand. A looping list is a plain list: no grid, bento, sections, paged source or expanding. A sectioned list doesn't page.
 - Set settings from code before `Initialize`.
 

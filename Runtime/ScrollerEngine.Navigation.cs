@@ -192,6 +192,16 @@ namespace UIScroller
             if (!isInitialized)
                 return;
 
+            if (wheelSnapPending)
+            {
+                wheelIdleTime += deltaTime;
+                if (wheelIdleTime >= WHEEL_SETTLE_SECONDS)
+                {
+                    wheelSnapPending = false;
+                    BeginSnapAfterDrag();
+                }
+            }
+
             if (scrollAnimation.IsRunning)
             {
                 float progress = scrollAnimation.Advance(deltaTime);
@@ -217,6 +227,23 @@ namespace UIScroller
         }
 
         // ---------- Snapping ----------
+
+        // The wheel sends bursts of small steps: snap once it has been still this long.
+        private const float WHEEL_SETTLE_SECONDS = 0.15f;
+        private bool wheelSnapPending;
+        private float wheelIdleTime;
+
+        /// <summary>The mouse wheel moved the list: with snapping on, settle once the wheel stops, as after a drag.</summary>
+        public void OnWheelScrolled()
+        {
+            if (!isInitialized || settings.snap == SnapMode.None)
+                return;
+
+            CancelScrollAnimation();
+            snapPending = false;
+            wheelSnapPending = true;
+            wheelIdleTime = 0f;
+        }
 
         private void BeginSnapAfterDrag()
         {

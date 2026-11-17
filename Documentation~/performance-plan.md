@@ -202,7 +202,6 @@ The written assessment comes last, so it can quote the measurements. These are t
 | Feature | Decision |
 |---|---|
 | Nested scrolling (a carousel inside a vertical list) | Planned for the first release: `nested-scrolling-plan.md` |
-| Snap after the mouse wheel | Small; planned |
 | Several prefabs per list (slot types) | After the first release |
 | Sticky headers | Outside the core: a `StickyHeaderBar` in the Extras sample |
 | Per-slot position for carousels | After the first release, as a read-only query |

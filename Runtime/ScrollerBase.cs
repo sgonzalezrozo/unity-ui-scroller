@@ -301,6 +301,9 @@ namespace UIScroller
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
+            if (HandDragToParent(eventData))
+                return;
+
             base.OnBeginDrag(eventData);
             RememberLeftDrag(eventData);
             engine?.OnDragBegin();

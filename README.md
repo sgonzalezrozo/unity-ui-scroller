@@ -57,7 +57,7 @@ Every run is in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). 
 **Look elsewhere if you:**
 - build your UI with UI Toolkit: its `ListView` already virtualizes ([comparison](#scrollrect-or-listview));
 - have a short list (a few dozen items) that doesn't need virtualization;
-- need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as nested scrolling, several slot prefabs per list or sticky headers.
+- need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
 - it's a preview, by a single author, not yet used in a shipped game;
@@ -291,6 +291,8 @@ From code, before `Initialize`: `list.Settings.slotsPerLine = 3` for a fixed gri
 
 Bento places tiles of different sizes on a grid of cells: a big featured tile, a strip of small ones, a tall one beside two stacked. Set **Layout** to **Bento** and give the list a **Layout JSON** (a TextAsset), or set it from code. Items don't choose their size: the layout does.
 
+**Edit Layout** (or **New Layout**) next to the field opens the **Bento Layout Editor** (also under Window > UI Scroller): draw each pattern's tiles on a grid, or list the spans, and see the first items placed as you go. It saves the same JSON.
+
 A layout is either:
 - **spans**, a sequence of tile sizes packed in order: each tile goes in the first gap where it fits, without going back to fill earlier holes;
 - or **patterns**, blocks of cells drawn tile by tile.
@@ -459,7 +461,7 @@ list.ScrollToItem(42, ScrollAlign.Start, 0.3f, 16f);  // leave 16 px before it
 - **Snap: Item** settles on the nearest item once a drag ends and the list slows down, lined up with the viewport's start, centre or end (**Snap Align**).
 - **Snap: Page** moves one viewport at a time, like a pager: a flick goes to the next or previous page, a slow release to the nearest one.
 
-`SnappedTo(index)` tells you where it landed.
+Snapping also runs after the mouse wheel, once it stops turning. `SnappedTo(index)` tells you where it landed.
 
 ### Looping lists (carousels)
 
@@ -475,6 +477,35 @@ You never see the loop jump, and drags and flings carry on across it.
 - **A long one** lays out about ten screens of entries mapped to items through an offset, so the scroll position stays small and movement and inertia stay exact. In a long loop, `ScrollToItem` to an item far away jumps there instead of animating across thousands of items.
 
 A looping list is a plain list: no grid, bento, sections, paged source or expanding (it logs an error and doesn't loop), and no pull to refresh, because it never reaches its start.
+
+### Carousel effects
+
+A slot that implements `IViewportPositionListener` is told where it sits in the viewport every time the list moves: 0 at the centre, -0.5 at the start edge, +0.5 at the end edge, from the slot's centre along the scroll axis. Use it to scale, fade or tilt the centred card:
+
+```csharp
+public class CardSlot : MonoBehaviour, ISlot<CardItem>, IViewportPositionListener
+{
+    [SerializeField] private RectTransform face;   // a child: the list sizes the slot's root
+
+    public void OnViewportPosition(float position)
+    {
+        float scale = Mathf.Lerp(1f, 0.8f, Mathf.Clamp01(Mathf.Abs(position) * 2f));
+        face.localScale = new Vector3(scale, scale, 1f);
+    }
+    // ...
+}
+```
+
+`list.GetViewportPosition(index)` answers the same for any shown item (NaN when it isn't shown). Lists whose slots don't implement the interface do no extra work.
+
+### Nested scrolling
+
+Put a horizontal carousel inside a vertical list (or the other way round) and it just works: a drag mostly across the carousel's axis scrolls the list around it, a drag along it scrolls the carousel. The mouse wheel follows the same rule. The gesture is handed over once, when it starts, to the nearest parent that handles drags: a UI Scroller, a plain `ScrollRect` or your own handler. Touching the carousel also stops the outer list's fling.
+
+- The carousel can live in a pooled slot of the outer list: give it the row's source in the slot's `Data` setter (`Initialize` the first time, `SetSource` after) and call `ScrollToStart()` for a new row. The `NestedExample` in the Examples sample does exactly that.
+- Exactly diagonal drags stay with the list under the finger. A list with no such parent behaves as before.
+- To turn it off for a list: `list.Settings.passDragsToParent = false`.
+- A vertical list inside another vertical list doesn't hand over at its edges yet.
 
 ## Paging and pull to refresh
 
@@ -610,6 +641,7 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 | `GetItemOffset(index)`, `GetItemSize(index)` | Where an item starts along the scroll axis, and its size (its line's in a grid, its tile's in bento); -1 if unknown |
 | `ViewportSize`, `ContentSize` | Sizes along the scroll axis |
 | `SetBentoLayout(layout)`, `GetTile(index)` | Bento: the layout, and an item's tile (counted from its section in a sectioned list) |
+| `GetViewportPosition(index)` | Where a shown item sits in the viewport: 0 centre, ±0.5 edges, NaN when not shown. Slots can implement `IViewportPositionListener` to be told instead |
 | `Settings`, `SlotPrefab` | Settings and prefab, read before `Initialize` |
 
 `SectionedScroller<TItem, THeader>` has the same API, plus `SetSource(SectionedSource)`, `SetSource(ISectionedSourceProvider)`, `ScrollToSection(section, duration = 0)`, `Source` and `HeaderPrefab`. It has no `Initialize`: `SetSource` starts it.
@@ -667,10 +699,9 @@ If your UI is in UI Toolkit, start with `ListView`.
 
 | Limitation | Status |
 |---|---|
-| Nested scrolling (a horizontal carousel inside a vertical list): the inner list takes every drag that starts on it | Planned for the first release: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) |
+| Nested lists on the same axis (a vertical list inside a vertical one) don't hand the drag over at their edges | When a screen needs it: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) (N3) |
 | One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
-| Snapping runs after a drag, not after the mouse wheel | Planned |
 | Items must be reference types | By design |
 | A looping list can't be a grid, bento, sectioned, paged or expandable | By design |
 | Grids and bento don't expand | By design: opening one slot would change its whole row |
