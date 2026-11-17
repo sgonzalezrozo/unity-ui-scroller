@@ -26,7 +26,7 @@ namespace UIScroller
 
             if (Content == null)
             {
-                Debug.LogError($"[UIScroller] The ScrollRect on {host.gameObject.name} has no Content assigned.");
+                Debug.LogError($"[UIScroller] {host.gameObject.name} has no Content, so it won't start. Adding the component in the editor builds its Viewport and Content; a list added from code at runtime must create them and assign `viewport` and `content` before Initialize.", host);
                 return false;
             }
 

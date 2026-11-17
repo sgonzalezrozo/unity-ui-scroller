@@ -27,6 +27,7 @@ namespace UIScroller
                 return;
             }
 
+            RereadSlotExtent();
             bool slotsPerLineChanged = ResolveSlotsPerLine();
             RememberLoopAnchor();
             UpdateLooping();
