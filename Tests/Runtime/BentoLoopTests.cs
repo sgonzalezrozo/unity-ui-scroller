@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
 namespace UIScroller.Tests.PlayMode
@@ -130,6 +131,70 @@ namespace UIScroller.Tests.PlayMode
             Assert.AreEqual(200f, featured.rect.height, TOLERANCE);
             Assert.AreEqual(200f, featured.rect.width, TOLERANCE);
         }
+
+        private const float FRAME = 0.1f;
+        private const float FAST_STEP = 330f;
+
+        /// <summary>A drag that doesn't move the pointer, released with <paramref name="velocity"/>.</summary>
+        private void DragAndRelease(Vector2 velocity)
+        {
+            PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 400f) };
+            rig.List.OnBeginDrag(pointer);
+            rig.List.velocity = velocity;
+            rig.List.OnEndDrag(pointer);
+        }
+
+        [UnityTest]
+        public IEnumerator AFastMoveAcrossTheJump_ThenARelease_SnapsOnATileStart([Values(1f, -1f)] float direction)
+        {
+            yield return Start();
+            rig.List.frameDeltaTime = FixedFrame;
+            rig.List.Settings.snap = SnapMode.Item;
+            List<int> snapped = new();
+            rig.List.SnappedTo += snapped.Add;
+
+            // Big steps, as a fling moves, through at least one jump by whole copies, ending between two rows.
+            yield return ScrollBy(FAST_STEP * direction, 8);
+            yield return rig.ScrollToOffset(rig.ScrollDistance + 40f);
+
+            DragAndRelease(Vector2.zero);
+            yield return ScrollerRig.Frames(10);
+
+            Assert.AreEqual(1, snapped.Count, "settled once");
+            Assert.That(snapped[0], Is.InRange(0, COUNT - 1));
+            Assert.AreEqual(0f, Mathf.Repeat(rig.ScrollDistance + TOLERANCE, STEP), TOLERANCE * 2f, "on a row where a tile starts");
+            Assert.IsTrue(rig.List.IsItemVisible(snapped[0]));
+        }
+
+        [UnityTest]
+        public IEnumerator ADragThroughTheJump_MovesSmoothly()
+        {
+            yield return Start();
+            PointerEventData pointer = new(null) { button = PointerEventData.InputButton.Left, position = new Vector2(200f, 400f), pressPosition = new Vector2(200f, 400f) };
+            rig.List.OnBeginDrag(pointer);
+            Dictionary<int, float> before = Positions();
+
+            // Drag one copy towards the end in small steps: every step moves the content by the step, jump or not.
+            for (int step = 0; step < Mathf.RoundToInt(COPY / STEP); step++)
+            {
+                float start = rig.ScrollDistance;
+                pointer.position += new Vector2(0f, STEP);
+                rig.List.OnDrag(pointer);
+                yield return ScrollerRig.Frames(1);
+                float moved = Mathf.Repeat(rig.ScrollDistance - start, COPY);
+                Assert.AreEqual(STEP, moved, TOLERANCE, $"step {step}");
+            }
+
+            rig.List.OnEndDrag(pointer);
+            Dictionary<int, float> after = Positions();
+            foreach (KeyValuePair<int, float> item in before)
+            {
+                if (after.ContainsKey(item.Key))
+                    Assert.AreEqual(item.Value, after[item.Key], TOLERANCE, $"item {item.Key} one copy later");
+            }
+        }
+
+        private static float FixedFrame() => FRAME;
 
         [UnityTest]
         public IEnumerator ABentoLoopTooLongForCopies_WarnsAndDoesntLoop()

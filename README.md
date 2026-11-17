@@ -27,7 +27,7 @@ UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a sl
   - or both: fixed when closed, measured when expanded.
 
   Late text (localization, downloaded content) is followed without code, and what's on screen never jumps, even mid-drag.
-- **Every layout a game screen needs:** vertical and horizontal lists in both directions, fixed and automatic grids, **bento** (tiles of different sizes, described in JSON), **sections with headers** of any height, expandable slots, looping carousels with snapping.
+- **Every layout a game screen needs:** vertical and horizontal lists in both directions, fixed and automatic grids, **bento** (tiles of different sizes, described in JSON), **sections with headers** of any height, expandable slots, looping carousels with snapping (bento ones too).
 - **Data that arrives in pages:** the list asks for the next page by itself, appends it without a rebuild, and cancels loads it no longer needs.
 - **Built for phones:**
   - scrolling allocates nothing;
@@ -476,9 +476,34 @@ You never see the loop jump, and drags and flings carry on across it.
 - **A short list** lays out a few copies of its items and jumps back by whole copies near either end.
 - **A long one** lays out about ten screens of entries mapped to items through an offset, so the scroll position stays small and movement and inertia stay exact. In a long loop, `ScrollToItem` to an item far away jumps there instead of animating across thousands of items.
 
-A looping list is a list or a bento layout: no grid, sections, paged source or expanding (it logs an error and doesn't loop), and no pull to refresh, because it never reaches its start.
+**What can loop:**
 
-**Bento carousels:** tick **Loop** on a bento list and its tiles go round too. The layout starts again with every round, so the same tiles always come back in the same places. If the item count doesn't fill whole patterns, the last row of each round keeps its holes; pick a count that fills them for a seamless carousel. A bento loop is laid out as a few copies of its items, so a very long one (tens of thousands of pixels per round) logs a warning and doesn't loop.
+| List | Loops |
+|---|---|
+| A list, any direction | Yes |
+| Bento | Yes, as a block per round (below) |
+| Grid, Auto Grid | No |
+| Sections, paged sources, expanding slots | No (it logs an error and doesn't loop) |
+| Pull to refresh | Never fires: a looping list never reaches its start |
+
+#### Bento carousels
+
+Tick **Loop** on a bento list and its tiles go round too: a featured tile and its smaller neighbours, then the next row of offers, and back to the start. A typical store strip:
+
+```csharp
+ScrollerSettings settings = offers.Settings;
+settings.direction = ScrollerDirection.LeftToRight;   // rows of cells run sideways
+settings.bento = true;                                // Layout JSON: 2 rows across, a 2 x 2 featured tile, then 1 x 1 tiles
+settings.loop = true;
+settings.snap = SnapMode.Item;
+settings.snapAlign = SnapAlign.Start;
+offers.Initialize(new ListSource<Offer>(todaysOffers));
+```
+
+- **Each round is a block.** The layout starts again with every round of items, so the same tiles always come back in the same places and the jump is invisible.
+- **Fill whole patterns for a seamless strip.** When the item count doesn't fill the layout's last pattern (or row of spans), that round's last row keeps its holes, right before the next round starts. With a 4-tile pattern that repeats, use a count that completes it.
+- **Snap: Item** settles on the nearest tile start, by the tile's own size. **Snap: Page** moves one viewport at a time; pages don't line up with patterns or rounds.
+- **Not too long.** A bento loop is laid out as a few copies of its items. One whose round is tens of thousands of pixels long logs a warning and scrolls as a plain bento list.
 
 ### Carousel effects
 
@@ -707,7 +732,10 @@ If your UI is in UI Toolkit, start with `ListView`.
 | One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
 | Items must be reference types | By design |
-| A looping list can't be a grid, sectioned, paged or expandable; a bento loop can't be very long | By design |
+| A looping list can't be a grid, sectioned, paged or expandable | By design |
+| A bento carousel repeats its layout as a block per round: when the item count doesn't fill whole patterns, each round ends with holes | By design: it keeps the loop seamless. Use an item count that fills the patterns |
+| **Snap: Page** moves one viewport at a time, not one bento pattern or round | By design |
+| A bento loop can't be very long: it's laid out as a few copies of its items | Longer ones log a warning and don't loop |
 | Grids and bento don't expand | By design: opening one slot would change its whole row |
 | A sectioned list doesn't page | By design |
 
