@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
-[![Version 1.0.0-preview.1](https://img.shields.io/badge/version-1.0.0--preview.1-blue.svg)](CHANGELOG.md)
+[![Version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue.svg)](CHANGELOG.md)
 
 UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
 
@@ -60,7 +60,7 @@ Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, and in 
 - need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
-- it's a preview, by a single author, not yet used in a shipped game;
+- it's a first release (0.5.0), by a single author, not yet used in a shipped game;
 - it's covered by about 470 automated tests (EditMode and PlayMode) that run in batch mode, and by a benchmark measured on Android phones;
 - it's MIT licensed, with a [changelog](CHANGELOG.md) that marks every breaking change.
 
@@ -107,6 +107,8 @@ UI Scroller needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
 
+UI Scroller 0.5.0 is tested with Tools Core 0.4.0. To pin it: `https://github.com/sgonzalezrozo/unity-tools-core.git#v0.4.0`.
+
 ### 2. Install UI Scroller
 
 Same steps, with:
@@ -118,7 +120,7 @@ https://github.com/sgonzalezrozo/unity-ui-scroller.git
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-ui-scroller.git#v1.0.0-preview.1
+https://github.com/sgonzalezrozo/unity-ui-scroller.git#v0.5.0
 ```
 
 The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's part of uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
@@ -786,7 +788,7 @@ Slots are reused: reset every visual in the `Data` setter, not only the ones tha
 
 ### Is it production-ready?
 
-Not yet. It's a preview (`1.0.0-preview.1`) by a single author, not yet used in a shipped game, so expect rough edges and possibly API changes before `1.0.0`. Bug reports are very welcome.
+It's a first release (`0.5.0`): tested in depth (700+ automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome.
 
 ### Does it work with AI coding agents?
 
@@ -798,9 +800,9 @@ Yes, it's MIT licensed.
 
 ## Project status
 
-This is a preview, version `1.0.0-preview.1`. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
+This is version `0.5.0`, the first release as UI Scroller. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
-- Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
+- Until `1.0.0`, a minor version (0.6, 0.7…) can include breaking changes; patch versions (0.5.1) never do. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
 - Planned work: [Limitations and roadmap](#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
 
 ### Why I built it

@@ -4,9 +4,12 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-17
+
+The first release as UI Scroller: Recyclable Scroller 0.3.0, refactored and renamed. **Breaking** changes are marked below.
+
 ### Changed
 
-- **Breaking:** the package is renamed **UI Scroller** (`com.sgonzalezrozo.ui-scroller`). The namespace is `UIScroller`, and the assemblies are `UIScroller`, `UIScroller.Editor` and the two test assemblies. `SlotList<T>` is now `Scroller<T>`, `SectionedSlotList` is `SectionedScroller`, `SlotListBase` is `ScrollerBase`, `ISlotList` is `IScroller`, `SlotListSettings` is `ScrollerSettings`, `SlotListDirection` is `ScrollerDirection`, the profiler markers are `UI Scroller.*` and the localization define is `UISCROLLER_LOCALIZATION`. `ISlot<T>`, `IExpandableSlot<T>`, **Slot Prefab** and every serialized field keep their names, so scenes and prefabs keep their values.
 - **Zero GC in every case tested.** A 56-case test matrix (each layout × scroll, fling, scroll to, snap, refresh, expand, width change, enable and disable, filter) checks that nothing allocates once warmed up. Fixed on the way:
   - enabling a list no longer allocates: the locale listener subscribes once for the list's lifetime;
   - a width change no longer starts a coroutine: the re-placement and the pool warm-up run from `LateUpdate`;
@@ -20,41 +23,6 @@ All notable changes to this package are documented in this file.
 - **Measured lists cost the same at any length.** Lines made only of unmeasured items share one placeholder size, and line offsets are computed on demand up to the line asked for. A 100,000-item measured list took up to 46 ms per scroll event on a Galaxy A02s and now takes up to 3.5 ms, as a 1,000-item one does.
 - **Rebuilds are faster:** fixed-size lists read the slot prefab's size once instead of calling `GetComponent` for every item. On a Galaxy A02s at 10,000 items, `Refresh()` with a new count went from up to 75 ms to 21 ms.
 - **No allocations when switching between sources of similar size:** buffers shrink only past four times the item count. The first swap used to drop and recreate thousands of lines.
-
-### Added
-
-- **Nested scrolling:** a drag or mouse wheel mostly across a list's axis goes to the nearest parent that handles it, so a horizontal carousel inside a vertical list scrolls the page from anywhere. The gesture is handed over once, when it starts; touching the inner list also stops the outer list's fling. On by default; `Settings.passDragsToParent` turns it off (code only). The Examples sample has a `NestedExample`.
-- **Viewport position for carousel effects:** slots that implement `IViewportPositionListener` are told where they sit in the viewport whenever the list moves (0 at the centre, ±0.5 at the edges), and `GetViewportPosition(index)` answers the same for any shown item.
-- **Bento Layout Editor** (Window > UI Scroller, or **Edit Layout** / **New Layout** next to **Layout JSON**): patterns drawn on a grid, spans as a list, a live preview of the first items and the layout's errors. Saves the same JSON.
-- **Header To Content Spacing** (`Settings.headerContentSpacing`): extra space between each section's header and its first line, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
-- **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
-- **Bento carousels:** a bento list can loop. The layout starts again with every round of items, so the same tiles come back in the same places; snapping and the viewport position work as in any carousel. A bento loop too long to lay out as a few copies logs a warning and doesn't loop.
-- **Loop with a paged source:** instead of refusing to loop, the list loads the first page only and loops over it as the whole list; no more pages load. A warning says so, and the inspector notes it under **Loop**.
-- Snapping (item or page) also runs after the mouse wheel, once it stops turning.
-- Profiler markers `UI Scroller.Initialize` and `UI Scroller.Instantiate`.
-
-### Fixed
-
-- A page that lands while the list bounces back from its end no longer makes it drift towards the start: the new items end the overscroll, and ScrollRect turned the elastic pull into inertia. The bounce now stops and the list stays where it is. Easy to see in a bottom-to-top list.
-- Bento: `VisibleStartIndex` and `IsItemVisible` count a tile only when it reaches the screen (the list keeps a few rows above it for tall tiles), and item snapping settles on the nearest tile start, by the tile's own size, instead of doing nothing on rows only tall tiles cross.
-- In the editor, a destroyed list (with its source and items) is no longer kept alive by a pending `OnValidate` call in Play mode.
-- A list without Content says why it won't start: a list added from code must create its Viewport and Content.
-
-### Added
-
-- **Bento layout**: `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop. List, Grid and Auto Grid don't change. Bento works in a `SectionedScroller` too: each header takes a whole row, as tall as the header itself (fixed, or measured so each header can differ), and the layout starts again in each section; a tall tile never reaches into the next section. The Examples sample has a `BentoExample` and a `BentoSectionsExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
-
-## [1.0.0-preview.1] - Unreleased
-
-### Added
-
-- An **Examples** sample: grid, sections, expandable rows, a looping carousel and paging with pull to refresh. Each builds its UI in code, so it runs from an empty scene, and none needs TextMeshPro.
-
-### Fixed
-
-- `autoSlotsPerLine` set from code with `slotsPerLine` left at 1 made a plain list. Auto Grid is now a grid whatever the fixed count, as the inspector already showed.
-
-### Changed
 
 - `ScrollToItem(index, align, duration, offset)` takes an alignment (`ScrollAlign`: `Start`, `Center`, `End`, `Nearest`), an optional animation and a gap from the aligned edge. `ScrollToStart`, `ScrollToEnd` and `ScrollToSection` take an optional duration. A drag or `ForceStopScrolling()` cancels the animation, and `IsScrolling` is true while it runs. Existing calls keep jumping to the start of the item.
 - Snapping: **Snap** (`None`, `Item`, `Page`) and **Snap Align** (`Start`, `Center`, `End`) settle the list on an item, or move it a page at a time, after a drag. New `SnappedTo(int index)` event.
@@ -76,7 +44,7 @@ All notable changes to this package are documented in this file.
 - Recycling checks only the slots on screen, a slot that didn't move isn't placed again, and a scroll under half a pixel skips the visible-range work.
 - New read-only extension points: the events `ItemExpanded`, `ItemCollapsed` and `Rebuilt`, and `GetItemOffset(index)`, `GetItemSize(index)`, `ViewportSize` and `ContentSize`. They replace what the removed protected hooks (`OnCellExpanded`, `OnCellCollapsed`, `OnBefore/AfterRebuildStructures`, `GetViewportSize`, `cellItems`, `cellLines`) were used to read.
 - **Breaking:** A row (vertical) or column (horizontal) of slots is a **line**: `Line`, `slotsPerLine`, `autoSlotsPerLine`, `minSlotsPerLine`, `maxSlotsPerLine` and `lineSpacing` (the 0.3.0 name). Re-check slots per line and line spacing on existing lists.
-- **Breaking:** The package is now **UI Scroller** (`com.sgonzalezrozo.ui-scroller`). Every type is renamed, the namespace `RecyclableScroller.Runtime` is now `UIScroller`, and the assemblies are `UIScroller`, `UIScroller.Editor`, `UIScroller.Tests.Editor` and `UIScroller.Tests.PlayMode`.
+- **Breaking:** The package is now **UI Scroller** (`com.sgonzalezrozo.ui-scroller`). Every type is renamed, the namespace `RecyclableScroller.Runtime` is now `UIScroller`, and the assemblies are `UIScroller`, `UIScroller.Editor`, `UIScroller.Tests.Editor` and `UIScroller.Tests.PlayMode`. The profiler markers are `UI Scroller.*` and the localization define is `UISCROLLER_LOCALIZATION`. **Slot Prefab** and the other serialized fields keep their values in scenes and prefabs only where the field name didn't change: re-assign the rest once.
 - **Breaking:** Serialized fields on the scroller are renamed, with no automatic migration. Reassign **Slot Prefab** and check the spacing and grid settings on existing scrollers.
 - `SetSource(source)` replaces `SetDataSource` and also works before initialization (it calls `Initialize`).
 - **Breaking:** `Scroller<T>` is a thin component over an internal engine. Subclasses keep `BindItem` (now takes a `SlotHandle`), `SupportsPagination`, `OnPullToRefreshDetected`, `OnPaginationThresholdReached`, `DataSource` (read-only) and `HasReachedLastPage`. The other protected members (`InitializeBase`, `InitializePlacements`, `GetItemSize`, `GetDefaultItemSize`, `GetExpandedSizeForItem`, `OnItemCollapsed`, `OnItemExpanded`, `OnBeforeRebuildStructures`, `OnAfterRebuildStructures`, `RecalculateContentSize`, `RebuildVisibleItems`, `GetViewportSize`, `CalculateVisibleCountForViewport`) and the public `scrollStateManager` field are gone.
@@ -123,19 +91,42 @@ All notable changes to this package are documented in this file.
 | `ShouldAnimate`, `CalculateCellSize`, `GetDataSource()` | `ShouldPlay`, `CalculateSize`, `GetSource()` |
 | Serialized `cellPrefab`, `lineSpacing`, `gridCellSpacing`, `gridCount` | `slotPrefab`, `lineSpacing`, `slotSpacing`, `slotsPerLine` |
 
+- **Breaking:** `PullToRefreshUI` and `EmptyStateDisplay` moved out of the runtime into the new **Extras** sample, renamed `PullIndicator` and `EmptyStatePanel`. The runtime assembly no longer references TextMeshPro.
+- **Breaking:** Removed the non-generic `IRecyclableDataSource` interface. Use `IItemSource<T>`.
+- Removed unused classes and members (see the refactor plan, Phase 3).
+- **Breaking:** The direction classes (`IScrollDirection` and the four directions) moved from `RecyclableScroller.Core` to `RecyclableScroller.Runtime`. They lost `CalculateCachedPositions` and `PositionCell`, which nothing called.
+
+- The runtime assemblies expose their internals to `Assembly-CSharp`, so Fast IoC `0.4.0` assigns injected fields directly, without reflection.
+
+### Added
+
+- **Nested scrolling:** a drag or mouse wheel mostly across a list's axis goes to the nearest parent that handles it, so a horizontal carousel inside a vertical list scrolls the page from anywhere. The gesture is handed over once, when it starts; touching the inner list also stops the outer list's fling. On by default; `Settings.passDragsToParent` turns it off (code only). The Examples sample has a `NestedExample`.
+- **Viewport position for carousel effects:** slots that implement `IViewportPositionListener` are told where they sit in the viewport whenever the list moves (0 at the centre, ±0.5 at the edges), and `GetViewportPosition(index)` answers the same for any shown item.
+- **Bento Layout Editor** (Window > UI Scroller, or **Edit Layout** / **New Layout** next to **Layout JSON**): patterns drawn on a grid, spans as a list, a live preview of the first items and the layout's errors. Saves the same JSON.
+- **Header To Content Spacing** (`Settings.headerContentSpacing`): extra space between each section's header and its first line, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
+- **Section Spacing** (`Settings.sectionSpacing`): extra space before every section's header except the first, in sectioned lists, grids and bento. Shown in the inspector for sectioned lists only.
+- **Bento carousels:** a bento list can loop. The layout starts again with every round of items, so the same tiles come back in the same places; snapping and the viewport position work as in any carousel. A bento loop too long to lay out as a few copies logs a warning and doesn't loop.
+- **Loop with a paged source:** instead of refusing to loop, the list loads the first page only and loops over it as the whole list; no more pages load. A warning says so, and the inspector notes it under **Loop**.
+- Snapping (item or page) also runs after the mouse wheel, once it stops turning.
+- Profiler markers `UI Scroller.Initialize` and `UI Scroller.Instantiate`.
+
+- **Bento layout**: `Settings.bento` places tiles of different sizes on a grid of cells. A `BentoLayout`, written in JSON or built in code, gives each item its tile: a span sequence packed in order, or patterns filled in sequence, both repeating from `repeatFrom`. Bad layouts log their errors and fall back to 1x1 tiles. New `SetBentoLayout`, `GetTile` and `Settings.cellAspect`. Tiles don't expand and aren't measured, and a bento list doesn't loop. List, Grid and Auto Grid don't change. Bento works in a `SectionedScroller` too: each header takes a whole row, as tall as the header itself (fixed, or measured so each header can differ), and the layout starts again in each section; a tall tile never reaches into the next section. The Examples sample has a `BentoExample` and a `BentoSectionsExample`. In the inspector, **Layout: Bento** shows a **Layout JSON** field (a TextAsset) and **Cell Aspect**, and lists any errors in the JSON.
+
+- An **Examples** sample: grid, sections, expandable rows, a looping carousel and paging with pull to refresh. Each builds its UI in code, so it runs from an empty scene, and none needs TextMeshPro.
+
 ### Removed
 
 - The unfinished UI Toolkit adapters (`RecyclableScroller.UIToolkit`). The package is uGUI only.
 - The unfinished second layout: the `RecyclableScroller.Core`, `RecyclableScroller.Abstractions` and `RecyclableScroller.UGUI` assemblies, including `RecyclableScrollerCore<T>` and `RecyclableScrollRectGUI<T>`. Everything you use is in `RecyclableScroller.Runtime`.
 
-### Changed
-
-- **Breaking:** `PullToRefreshUI` and `EmptyStateDisplay` moved out of the runtime into the new **Extras** sample, renamed `PullIndicator` and `EmptyStatePanel`. The runtime assembly no longer references TextMeshPro.
-- **Breaking:** Removed the non-generic `IRecyclableDataSource` interface. Use `IRecyclableDataSource<T>`.
-- Removed unused classes and members (see the refactor plan, Phase 3).
-- **Breaking:** The direction classes (`IScrollDirection` and the four directions) moved from `RecyclableScroller.Core` to `RecyclableScroller.Runtime`. They lost `CalculateCachedPositions` and `PositionCell`, which nothing called.
-
 ### Fixed
+
+- A page that lands while the list bounces back from its end no longer makes it drift towards the start: the new items end the overscroll, and ScrollRect turned the elastic pull into inertia. The bounce now stops and the list stays where it is. Easy to see in a bottom-to-top list.
+- Bento: `VisibleStartIndex` and `IsItemVisible` count a tile only when it reaches the screen (the list keeps a few rows above it for tall tiles), and item snapping settles on the nearest tile start, by the tile's own size, instead of doing nothing on rows only tall tiles cross.
+- In the editor, a destroyed list (with its source and items) is no longer kept alive by a pending `OnValidate` call in Play mode.
+- A list without Content says why it won't start: a list added from code must create its Viewport and Content.
+
+- `autoSlotsPerLine` set from code with `slotsPerLine` left at 1 made a plain list. Auto Grid is now a grid whatever the fixed count, as the inspector already showed.
 
 - The scroller now initializes in batch mode. Its first build waited for `WaitForEndOfFrame`, which never resumes there. It now waits one frame.
 
@@ -147,13 +138,7 @@ All notable changes to this package are documented in this file.
 
 - An FAQ, rules for AI coding agents in `Documentation~/agent-rules.md`, `llms.txt` and more package keywords.
 
-### Documentation
-
 - Said that the package isn't used in production or in a shipped game yet, and described Tools Core as a required dependency.
-
-### Changed
-
-- The runtime assemblies expose their internals to `Assembly-CSharp`, so Fast IoC `0.4.0` assigns injected fields directly, without reflection.
 
 ## [0.3.0] - 2026-11-03
 
