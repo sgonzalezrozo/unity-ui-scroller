@@ -99,6 +99,22 @@ namespace UIScroller.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator HeaderToContentSpacing_SeparatesEachHeaderFromItsItems()
+        {
+            // Headers 50 px, items 100 px; 12 px between a header and its first item, 30 px before each header but the first.
+            rig = ScrollerRig.Create(new RigOptions { Sectioned = true, SectionSpacing = 30f });
+            rig.List.Settings.headerContentSpacing = 12f;
+            yield return rig.InitializeSections(ScrollerRig.MakeSections(2, 2));
+
+            AssertAt(rig.HeaderFor("S0"), 0f, 50f, "S0");
+            AssertAt(rig.ItemFor(0), -62f, 100f, "item 0, 12 px below its header");
+            AssertAt(rig.ItemFor(1), -162f, 100f, "item 1");
+            AssertAt(rig.HeaderFor("S1"), -292f, 50f, "S1, after the 30 px section gap");
+            AssertAt(rig.ItemFor(100), -354f, 100f, "item 100, 12 px below its header");
+            Assert.AreEqual(554f, rig.List.ContentSize, 0.5f);
+        }
+
+        [UnityTest]
         public IEnumerator InAList_EachHeaderTakesItsOwnHeight()
         {
             yield return Start(1);

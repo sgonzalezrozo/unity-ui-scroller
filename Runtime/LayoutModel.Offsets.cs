@@ -80,6 +80,8 @@ namespace UIScroller
             float position = i == 0 ? paddingStart : offsets[i - 1] + lineBuffer[i - 1].Size + lineSpacing;
             if (i > 0 && lineBuffer[i].StartsSection)
                 position += sectionSpacing;
+            if (i > 0 && lineBuffer[i - 1].StartsSection)
+                position += headerContentSpacing;
 
             offsets[i] = position;
             offsetsValidCount = i + 1;

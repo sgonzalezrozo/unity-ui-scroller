@@ -65,7 +65,7 @@ A list added from code at runtime builds nothing: create a Viewport (with `RectM
 
 - Use `SectionedScroller<TItem, THeader>` (assign Slot Prefab AND Header Prefab) with a `SectionedSource<TItem, THeader>`: `source.AddSection(header, new ListSource<TItem>(items))`, then `list.SetSource(source)`. Never check `IsInitialized` first.
 - The header slot implements `ISlot<THeader>`; the item slot `ISlot<TItem>`. No shared base class. A plain `Scroller<T>` has NO headers and no `IsHeader` override.
-- `sectionSpacing` adds space before every header except the first.
+- `sectionSpacing` adds space before every header except the first; `headerContentSpacing` adds space between each header and its section's content.
 - Empty sections are skipped automatically. List indexes count headers: use `source.FlatIndexOf(section, i)`. `ScrollToSection(section)` jumps to a header.
 
 ## Change data

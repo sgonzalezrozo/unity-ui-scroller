@@ -27,9 +27,11 @@ namespace UIScroller
         // Kept as lines change size, so the total extent never walks the lines (see OnLineResized).
         private double lineSizeSum;
         private int sectionStarts;
+        private int linesAfterHeader;
         private bool buildingLines;
         private double sizeBeforeBuild;
         private int sectionStartsBeforeBuild;
+        private int linesAfterHeaderBeforeBuild;
         private int placeholderLinesBeforeBuild;
 
         // Lines whose items are all unmeasured follow one shared placeholder size (Line.UsesPlaceholder), so a new
@@ -43,6 +45,7 @@ namespace UIScroller
         private float paddingEnd;
         private float lineSpacing;
         private float sectionSpacing;
+        private float headerContentSpacing;
 
         /// <summary>Counts created placements and lines, for tests. Optional.</summary>
         internal WorkCounters Work;
@@ -75,17 +78,21 @@ namespace UIScroller
                 if (lineCount == 0)
                     return 0f;
 
-                return (float)(paddingStart + lineSizeSum + placeholderLineCount * (double)unmeasuredSize + lineSpacing * (double)(lineCount - 1) + sectionSpacing * (double)sectionStarts + paddingEnd);
+                return (float)(paddingStart + lineSizeSum + placeholderLineCount * (double)unmeasuredSize + lineSpacing * (double)(lineCount - 1) + sectionSpacing * (double)sectionStarts + headerContentSpacing * (double)linesAfterHeader + paddingEnd);
             }
         }
 
-        /// <summary>Padding at both ends, the space between lines, and the extra space before every header but the first.</summary>
-        public void SetSpacing(float paddingStartValue, float paddingEndValue, float lineSpacingValue, float sectionSpacingValue = 0f)
+        /// <summary>
+        /// Padding at both ends, the space between lines, the extra space before every header but the first, and the
+        /// extra space between a header and the content after it.
+        /// </summary>
+        public void SetSpacing(float paddingStartValue, float paddingEndValue, float lineSpacingValue, float sectionSpacingValue = 0f, float headerContentSpacingValue = 0f)
         {
             paddingStart = paddingStartValue;
             paddingEnd = paddingEndValue;
             lineSpacing = lineSpacingValue;
             sectionSpacing = sectionSpacingValue;
+            headerContentSpacing = headerContentSpacingValue;
             offsetsValidCount = 0;
         }
 

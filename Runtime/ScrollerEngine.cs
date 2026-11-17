@@ -160,7 +160,7 @@ namespace UIScroller
 
             viewportSize = viewportMetrics.GetViewportSize();
             gridResolver.Resolve(viewportMetrics.GetCrossAxisViewportSize());
-            layout.SetSpacing(settings.paddingStart, settings.paddingEnd, settings.lineSpacing, headerPrefab != null ? settings.sectionSpacing : 0f);
+            layout.SetSpacing(settings.paddingStart, settings.paddingEnd, settings.lineSpacing, headerPrefab != null ? settings.sectionSpacing : 0f, headerPrefab != null ? settings.headerContentSpacing : 0f);
             return true;
         }
 

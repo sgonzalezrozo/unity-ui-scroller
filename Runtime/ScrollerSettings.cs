@@ -45,6 +45,9 @@ namespace UIScroller
         [Tooltip("Extra space before each section's header, except the first. Sectioned lists only.")]
         public float sectionSpacing;
 
+        [Tooltip("Extra space between each section's header and its content. Sectioned lists only.")]
+        public float headerContentSpacing;
+
         public float paddingStart;
         public float paddingEnd;
 

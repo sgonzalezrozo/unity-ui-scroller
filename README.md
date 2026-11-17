@@ -374,7 +374,7 @@ list.SetSource(source); // starts the list the first time, replaces the sections
 ```
 
 - **Headers** follow the same size rule as slots: a positive `DefaultExtent` is fixed, 0 or less is measured. Measured headers can each have a different height.
-- **Section Spacing** adds space before every header except the first.
+- **Section Spacing** adds space before every header except the first, and **Header To Content Spacing** adds space between each header and its section's first line.
 - **In a grid or bento,** a header takes a whole row and each section starts a new row. In bento, the layout starts again in each section, and a tall tile never reaches into the next section.
 - **Empty sections are skipped**, header included. Set `source.SkipEmptySections = false` to show the header of an empty section.
 - `InsertSection`, `RemoveSection` and `ClearSections` change the sections. After changing a section's own source, call `list.Refresh()`.
@@ -643,6 +643,7 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 | Layout JSON, Cell Aspect | Bento settings: the layout, and row height divided by column width. Errors in the JSON are shown under the settings |
 | Row Spacing / Column Spacing | Space between lines, and between slots on a line |
 | Section Spacing | Space before every header except the first (sectioned lists only) |
+| Header To Content Spacing | Space between each header and its section's first line (sectioned lists only) |
 | Padding (start and end) | Space before the first line and after the last |
 | Loop | Goes round forever, like a carousel (lists only) |
 | Snap, Snap Align | After a drag, settle on the nearest item, or move one page at a time |

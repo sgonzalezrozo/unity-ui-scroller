@@ -52,6 +52,7 @@ namespace UIScroller
         {
             sizeBeforeBuild = SumSizes(startLine, lineCount);
             sectionStartsBeforeBuild = CountSectionStarts(startLine, lineCount);
+            linesAfterHeaderBeforeBuild = CountLinesAfterHeader(startLine, lineCount);
             placeholderLinesBeforeBuild = CountPlaceholderLines(startLine, lineCount);
             buildingLines = true;
         }
@@ -67,6 +68,7 @@ namespace UIScroller
                 // the next placeholder visits every line once to find the ones that can follow it.
                 lineSizeSum = SumSizes(0, lineCount);
                 sectionStarts = CountSectionStarts(0, lineCount);
+                linesAfterHeader = CountLinesAfterHeader(0, lineCount);
                 placeholderLineCount = CountPlaceholderLines(0, lineCount);
                 ClearTrackedLines();
                 needsFullPlaceholderPass = true;
@@ -75,6 +77,7 @@ namespace UIScroller
             {
                 lineSizeSum += SumSizes(startLine, lineCount) - sizeBeforeBuild;
                 sectionStarts += CountSectionStarts(startLine, lineCount) - sectionStartsBeforeBuild;
+                linesAfterHeader += CountLinesAfterHeader(startLine, lineCount) - linesAfterHeaderBeforeBuild;
                 placeholderLineCount -= placeholderLinesBeforeBuild;
                 // Appended lines hold unmeasured items with their own sizes: the next placeholder visits only them.
                 for (int i = startLine; i < lineCount; i++)
@@ -157,6 +160,19 @@ namespace UIScroller
                 if (placement != null && !measured[placement.DataIndex])
                     placement.CacheSize(unmeasuredSize);
             }
+        }
+
+        /// <summary>Lines right after a header: each gets the header-to-content spacing before it.</summary>
+        private int CountLinesAfterHeader(int from, int to)
+        {
+            int count = 0;
+            for (int i = Math.Max(1, from); i < to && i < lineBuffer.Length; i++)
+            {
+                if (lineBuffer[i - 1] != null && lineBuffer[i - 1].StartsSection)
+                    count++;
+            }
+
+            return count;
         }
 
         private int CountSectionStarts(int from, int to)

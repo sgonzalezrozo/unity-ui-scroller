@@ -13,6 +13,7 @@ namespace UIScroller.Tests.Editor
         private const float PADDING_END = 20f;
         private const float LINE_SPACING = 6f;
         private const float SECTION_SPACING = 30f;
+        private const float HEADER_CONTENT_SPACING = 14f;
         private const float TOLERANCE = 0.01f;
 
         private static readonly Func<int, bool> NO_HEADERS = _ => false;
@@ -22,7 +23,7 @@ namespace UIScroller.Tests.Editor
         private static LayoutModel Build(int count, int slotsPerLine, Func<int, bool> isHeader = null)
         {
             LayoutModel layout = new() { Work = new WorkCounters() };
-            layout.SetSpacing(PADDING_START, PADDING_END, LINE_SPACING, SECTION_SPACING);
+            layout.SetSpacing(PADDING_START, PADDING_END, LINE_SPACING, SECTION_SPACING, HEADER_CONTENT_SPACING);
             layout.CreatePlacements(count);
             layout.BuildLines(count, slotsPerLine, isHeader ?? NO_HEADERS, SIZE_100, SIZE_100);
             return layout;
@@ -37,6 +38,8 @@ namespace UIScroller.Tests.Editor
             {
                 if (i > 0 && lines[i].StartsSection)
                     position += SECTION_SPACING;
+                if (i > 0 && lines[i - 1].StartsSection)
+                    position += HEADER_CONTENT_SPACING;
 
                 Assert.AreEqual(position, layout.OffsetOf(i), TOLERANCE, $"offset of line {i}");
                 position += lines[i].Size + LINE_SPACING;
@@ -163,7 +166,7 @@ namespace UIScroller.Tests.Editor
             LayoutModel layout = Build(50, 1, EVERY_TENTH_IS_HEADER);
             layout.OffsetOf(49);
 
-            layout.SetSpacing(PADDING_START, PADDING_END, LINE_SPACING, SECTION_SPACING);
+            layout.SetSpacing(PADDING_START, PADDING_END, LINE_SPACING, SECTION_SPACING, HEADER_CONTENT_SPACING);
             layout.SetItemSize(3, 10f);
 
             AssertMatchesFullSum(layout);
@@ -256,6 +259,21 @@ namespace UIScroller.Tests.Editor
         {
             layout.CreatePlacements(count);
             layout.BuildLines(count, 1, NO_HEADERS, SIZE_100, SIZE_100);
+        }
+
+        [Test]
+        public void HeaderToContentSpacing_GoesBetweenEachHeaderAndItsFirstLine()
+        {
+            // Every tenth item is a header: line 0 is a header, line 1 its first item, line 10 the next header.
+            LayoutModel layout = Build(30, 1, EVERY_TENTH_IS_HEADER);
+
+            float afterFirstHeader = layout.OffsetOf(0) + 100f + LINE_SPACING + HEADER_CONTENT_SPACING;
+            Assert.AreEqual(afterFirstHeader, layout.OffsetOf(1), TOLERANCE, "the first item, below its header");
+            Assert.AreEqual(layout.OffsetOf(1) + 100f + LINE_SPACING, layout.OffsetOf(2), TOLERANCE, "items keep the line spacing");
+            float nextHeader = layout.OffsetOf(9) + 100f + LINE_SPACING + SECTION_SPACING;
+            Assert.AreEqual(nextHeader, layout.OffsetOf(10), TOLERANCE, "section spacing goes before the next header");
+            Assert.AreEqual(nextHeader + 100f + LINE_SPACING + HEADER_CONTENT_SPACING, layout.OffsetOf(11), TOLERANCE);
+            AssertMatchesFullSum(layout);
         }
     }
 }
