@@ -48,6 +48,25 @@ namespace UIScroller
                 return;
             }
 
+            if (isBento)
+            {
+                if (!PrepareBentoLoop(out int bentoCopies))
+                {
+                    isLooping = false;
+                    isLoopWindow = false;
+                    loopCopies = 1;
+                    loopEntries = RealCount;
+                    loopIndexOffset = 0;
+                    return;
+                }
+
+                isLoopWindow = false;
+                loopCopies = bentoCopies;
+                loopEntries = RealCount * bentoCopies;
+                loopIndexOffset = 0;
+                return;
+            }
+
             float itemExtent = EstimatedLoopItemExtent();
             float period = RealCount * itemExtent;
             int copies = LoopIndex.Copies(viewportSize, period);
@@ -69,9 +88,7 @@ namespace UIScroller
         private bool CanLoop()
         {
             string reason = null;
-            if (isBento)
-                reason = "a bento layout";
-            else if (settings.slotsPerLine != 1 || settings.autoSlotsPerLine)
+            if (!isBento && (settings.slotsPerLine != 1 || settings.autoSlotsPerLine))
                 reason = "a grid";
             else if (headerPrefab != null || !hooks.SupportsLooping())
                 reason = "sections";
@@ -106,8 +123,8 @@ namespace UIScroller
             if (!isLooping)
                 return realIndex;
 
-            int first = FirstItemIn(FirstVisibleLine);
-            int last = LastItemIn(LastVisibleLine);
+            int first = FirstEntryFrom(FirstVisibleLine);
+            int last = LastEntryUpTo(LastVisibleLine);
             int around = first >= 0 && last >= 0 ? (first + last) / 2 : loopEntries / 2;
             return LoopIndex.NearestCopy(LoopIndex.Real(realIndex - loopIndexOffset, RealCount), RealCount, around);
         }
@@ -135,9 +152,14 @@ namespace UIScroller
             if (!isLooping || layoutRealCount == 0 || firstLine < 0 || firstLine >= layout.Lines.Length)
                 return;
 
+            int entry = FirstEntryFrom(firstLine);
+            int line = entry >= 0 ? LineIndexOf(entry) : -1;
+            if (line < 0)
+                return;
+
             layout.RecomputeOffsets();
-            loopAnchorItem = LoopIndex.Real(FirstItemIn(firstLine) + loopIndexOffset, layoutRealCount);
-            loopAnchorInset = viewportMetrics.GetScrollDistance() - layout.OffsetOf(firstLine);
+            loopAnchorItem = LoopIndex.Real(entry + loopIndexOffset, layoutRealCount);
+            loopAnchorInset = viewportMetrics.GetScrollDistance() - layout.OffsetOf(line);
         }
 
         /// <summary>Puts the remembered item back at the top after the layout was rebuilt: in the second copy, or the window's middle.</summary>
@@ -180,12 +202,13 @@ namespace UIScroller
             }
 
             int count = RealCount;
-            if (layout.Lines.Length < count * LoopIndex.MIN_COPIES)
+            int linesPerCopy = LoopLinesPerCopy;
+            if (layout.Lines.Length < linesPerCopy * LoopIndex.MIN_COPIES)
                 return;
 
             layout.RecomputeOffsets();
             float start = layout.OffsetOf(0);
-            float period = layout.OffsetOf(count) - start;
+            float period = layout.OffsetOf(linesPerCopy) - start;
             float distance = viewportMetrics.GetScrollDistance();
             float shift = LoopIndex.Recentre(distance, viewportSize, start, period, loopCopies);
             if (shift == 0f)

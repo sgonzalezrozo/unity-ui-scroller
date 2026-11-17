@@ -213,18 +213,6 @@ namespace UIScroller.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator Loop_IsRefused_AndTheTilesStay()
-        {
-            rig = ScrollerRig.Create(new RigOptions { Bento = true, BentoLayout = BigFirst() });
-            rig.List.Settings.loop = true;
-
-            LogAssert.Expect(LogType.Error, new Regex("Loop doesn't work with a bento layout"));
-            yield return rig.Initialize(50);
-
-            AssertTile(1, 200f, 0f, 100f, 100f);
-        }
-
-        [UnityTest]
         public IEnumerator ABrokenLayout_LogsItsErrors_AndUsesOneByOneTilesOverSlotsPerLine()
         {
             rig = ScrollerRig.Create(new RigOptions { Bento = true, SlotsPerLine = 4, BentoLayout = BentoLayout.FromJson("{ columns: ") });

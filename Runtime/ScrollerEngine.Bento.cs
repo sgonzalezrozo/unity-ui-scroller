@@ -101,10 +101,13 @@ namespace UIScroller
             if (!isInitialized)
                 return;
 
+            RememberLoopAnchor();
             UpdateBento();
+            UpdateLooping();
             forceRebindAll = true;
             RebuildStructures();
             forceRebindAll = false;
+            loopAnchorItem = -1;
         }
 
         private void BuildBentoLines(int fromItem)
@@ -116,8 +119,15 @@ namespace UIScroller
             }
             else
             {
-                while (bentoTiles.Count < ItemCount)
-                    bentoTiles.Add(bentoArranger.Next());
+                if (isLooping)
+                {
+                    FillBentoLoopTiles();
+                }
+                else
+                {
+                    while (bentoTiles.Count < ItemCount)
+                        bentoTiles.Add(bentoArranger.Next());
+                }
 
                 layout.BuildBentoLines(ItemCount, bentoTiles, BentoRowSize(), bentoColumns, fromItem);
             }

@@ -326,7 +326,7 @@ list.Initialize(source);
 - Paging works: new pages continue the layout without moving what's on screen.
 - `SetBentoLayout` after `Initialize` rebuilds with the new layout. `GetTile(index)` tells you where an item sits.
 - Another JSON library can fill `BentoLayoutData` for `BentoLayout.FromData`.
-- Tiles don't expand, and a bento list doesn't loop.
+- Tiles don't expand. A bento list can loop: see [Looping lists](#looping-lists-carousels).
 
 ## Sections and headers
 
@@ -476,7 +476,9 @@ You never see the loop jump, and drags and flings carry on across it.
 - **A short list** lays out a few copies of its items and jumps back by whole copies near either end.
 - **A long one** lays out about ten screens of entries mapped to items through an offset, so the scroll position stays small and movement and inertia stay exact. In a long loop, `ScrollToItem` to an item far away jumps there instead of animating across thousands of items.
 
-A looping list is a plain list: no grid, bento, sections, paged source or expanding (it logs an error and doesn't loop), and no pull to refresh, because it never reaches its start.
+A looping list is a list or a bento layout: no grid, sections, paged source or expanding (it logs an error and doesn't loop), and no pull to refresh, because it never reaches its start.
+
+**Bento carousels:** tick **Loop** on a bento list and its tiles go round too. The layout starts again with every round, so the same tiles always come back in the same places. If the item count doesn't fill whole patterns, the last row of each round keeps its holes; pick a count that fills them for a seamless carousel. A bento loop is laid out as a few copies of its items, so a very long one (tens of thousands of pixels per round) logs a warning and doesn't loop.
 
 ### Carousel effects
 
@@ -705,7 +707,7 @@ If your UI is in UI Toolkit, start with `ListView`.
 | One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
 | Items must be reference types | By design |
-| A looping list can't be a grid, bento, sectioned, paged or expandable | By design |
+| A looping list can't be a grid, sectioned, paged or expandable; a bento loop can't be very long | By design |
 | Grids and bento don't expand | By design: opening one slot would change its whole row |
 | A sectioned list doesn't page | By design |
 

@@ -75,8 +75,8 @@ namespace UIScroller
         public bool IsInitialized => isInitialized;
         public bool IsScrolling => (dragState?.IsScrolling ?? false) || scrollAnimation.IsRunning;
         public bool IsDragging => dragState?.IsDragging ?? false;
-        public int VisibleStartIndex => isBento ? FirstItemInVisibleLines() : ToReal(FirstItemIn(FirstVisibleLine));
-        public int VisibleEndIndex => isBento ? LastItemInVisibleLines() : ToReal(LastItemIn(LastVisibleLine));
+        public int VisibleStartIndex => ToReal(isBento ? FirstItemInVisibleLines() : FirstItemIn(FirstVisibleLine));
+        public int VisibleEndIndex => ToReal(isBento ? LastItemInVisibleLines() : LastItemIn(LastVisibleLine));
         public bool IsFirstItemVisible => isInitialized && !isLooping && FirstVisibleLine == 0;
         public bool IsLastItemVisible => isInitialized && !isLooping && layout.Lines.Length > 0 && LastVisibleLine == layout.Lines.Length - 1;
 
