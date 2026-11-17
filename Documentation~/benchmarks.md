@@ -2,7 +2,47 @@
 
 How the list performs, measured with the bench runner in MyTools (`Assets/ScrollerTests/Bench`).
 
-## Method
+## Device bench, 0.5.0 (2026-11-17)
+
+The current numbers. Five phones, development players (IL2CPP, Unity 6000.3.6f1), each running the same 45 cases by itself: every layout and direction, sections, loop, snapping, expanding, paging, filtering, data changes, width changes, disable and enable, source and layout swaps, opening and closing, a 60 s soak, and two controls. Each case scrolls at 4,000 px/s (or flings, or repeats its operation) for 5 s on a Screen Space Overlay canvas with 200 static images around the list. Slots have an Image and a legacy Text label. Development players run the profiler markers, so times are higher than in a release build, by the same amount for every case.
+
+**Built and run from MyTools:** Tools > UI Scroller > Build Device Bench (Android installs and starts by itself; iOS writes an Xcode project). The report is written to `persistentDataPath/UIScrollerBench.md`, logged and shown on screen.
+
+### Scrolling 100,000 items
+
+`OnScroll` is the list's own work per scroll event (average / slowest). CPU is the whole main thread per frame, the app and the 200 static images included (average / 95th percentile).
+
+| Device | Frame budget | Plain list: OnScroll | Plain list: CPU | Measured text: OnScroll | Grid 4: OnScroll | Bento: OnScroll | Missed frames, normal use |
+|---|---|---|---|---|---|---|---|
+| Galaxy A02s (low end, 2021) | 16.7 ms (60 Hz) | 0.19 / 0.74 ms | 8.0 / 10.6 ms | 0.82 / 3.5 ms | 0.29 / 1.5 ms | 0.21 / 1.4 ms | ≤ 1.4 % |
+| Pixel 2 XL (2017) | 16.7 ms (60 Hz) | 0.20 / 0.87 ms | 5.2 / 6.1 ms | 0.74 / 2.8 ms | 0.43 / 1.7 ms | 0.19 / 1.5 ms | ≤ 0.3 % |
+| Pixel 5 | 11.1 ms (90 Hz) | 0.10 / 0.51 ms | 3.5 / 4.2 ms | 0.33 / 1.4 ms | 0.14 / 0.70 ms | 0.10 / 0.74 ms | 0 % |
+| iPhone 13 mini | 16.7 ms (60 Hz) | 0.25 / 0.71 ms | 4.6 / 5.4 ms | 0.81 / 2.8 ms | 0.39 / 2.2 ms | 0.31 / 1.9 ms | ≤ 0.3 % |
+| iPhone Air | 8.3 ms (120 Hz) | 0.07 / 0.35 ms | 2.0 / 2.5 ms | 0.22 / 1.4 ms | 0.13 / 0.65 ms | 0.08 / 0.87 ms | ≤ 0.3 % |
+
+"Normal use" is every scroll, fling, scroll-to, snap, carousel, sections, paging, expanding and soak case. The same screen with no list costs 6.6 ms of CPU on the A02s and 0.8 ms on the iPhone Air, so most of the frame is the screen, not the list.
+
+### Memory
+
+- **Allocations:** every case allocates what the same screen with no list allocates (about 1.8 KB per frame, the development player's own), except where it's expected: measuring text (Unity's text generation), adding items and the first use of a bigger bento layout (buffers grow once), opening a list (its slots), and enabling slots with graphics (Unity's graphic registry). The zero-GC test matrix checks the list's own part on every verify.
+- **Leaks:** after each case its screen is destroyed and garbage is collected. On all five phones, every case's items and list were collected, and GameObjects returned to their starting count.
+- **Per item** (Editor, 100,000 items): 54 bytes for a plain list, 18 for a 4-column grid, 39 for bento.
+
+### What still costs a frame
+
+| Case | Slowest frame | Why |
+|---|---|---|
+| Opening a list of 10,000 items (every 0.25 s, to stress it) | 42 ms (iPhone Air) to 94 ms (A02s) | Creating the slots that fill the screen. Open lists before they're shown, or keep the screen loaded |
+| Refresh after adding an item, every 5 frames | 20 % missed at 120 Hz (iPhone Air), 12 % at 60 Hz (A02s) | A new count rebuilds the layout of all 10,000 items, about 3 ms on the A02s. Batch changes into one `Refresh()` |
+| Width change on a measured list | 1.4 to 4.6 % missed | Unity lays out every shown text again at the new width |
+
+Full reports per device are kept with the bench in MyTools (`BenchResults/2026-11-17-final`).
+
+## Earlier runs (before 0.5.0)
+
+The sections below are the first measurements, from the end of the refactor (Phase 10). Kept for the record; the numbers above replace them.
+
+### Method
 
 - **Run it:** in MyTools, **Tools > UI Scroller > Run Benchmarks**. It opens a new empty scene, enters Play mode, runs every case, writes the results to `Logs/ScrollerBench.md` and the console, and leaves Play mode.
 - **On a phone:** add `BenchRunner` to an empty scene with a camera, make an IL2CPP development build, and read the table from the device log (it's also written to `Application.persistentDataPath/ScrollerBench.md`).

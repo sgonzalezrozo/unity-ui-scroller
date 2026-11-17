@@ -34,18 +34,18 @@ UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a sl
   - pooled slots stay active out of view, so reusing one doesn't wake its graphics;
   - scrolling rebatches only the list, not the rest of the screen.
 
-Measured on a low-end phone (Galaxy A02s) and a mid-range one (Pixel 5), with a real list (TMP text, 100 px rows):
+Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, scrolling 100,000 items (development players, every case in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md)):
 
-| | Galaxy A02s (60 Hz) | Pixel 5 (90 Hz) |
-|---|---|---|
-| The list's own work per frame, scrolling 100,000 items | 0.28 ms | 0.12 ms |
-| Whole frame CPU while scrolling, the app included | 7.6 of 16.7 ms | 2.9 of 11.1 ms |
-| Fast fling (16,000 px/s), whole frame | 8.3 ms | 4.0 ms |
-| Memory allocated while scrolling | 0 B | 0 B |
-| Opening slots while scrolling (TMP text, up to six sentences), slowest frame | 25 ms, no missed frame at 4 opens a second | 8.9 ms |
-| Slowdown or memory growth over 2 minutes | none | none |
+| | Galaxy A02s | Pixel 2 XL | Pixel 5 | iPhone 13 mini | iPhone Air |
+|---|---|---|---|---|---|
+| The list's own work per scroll event | 0.19 ms | 0.20 ms | 0.10 ms | 0.25 ms | 0.07 ms |
+| …with slots measured by layout (text of any length) | 0.82 ms | 0.74 ms | 0.33 ms | 0.81 ms | 0.22 ms |
+| Whole frame CPU, app included, of the frame budget | 8.0 of 16.7 ms | 5.2 of 16.7 ms | 3.5 of 11.1 ms | 4.6 of 16.7 ms | 2.0 of 8.3 ms |
+| Missed frames scrolling, flinging, snapping, paging | ≤ 1.4 % | ≤ 0.3 % | 0 % | ≤ 0.3 % | ≤ 0.3 % |
 
-Every run is in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). A fully automated bench on more devices (iPhone, WebGL) is in progress: see [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md).
+- **Allocates nothing while scrolling**: tests check it on every run, and on the phones every case allocates what the same screen with no list does.
+- **Leaves nothing behind**: on all five phones, every list's items and slots were collected after it was destroyed.
+- **Long lists cost the same as short ones**: a measured list of 100,000 items scrolls as cheaply as one of 1,000.
 
 ## Is it right for your project?
 
@@ -85,8 +85,8 @@ See [Project status](#project-status).
 | Requirement | Supported |
 |---|---|
 | Unity | Tested on Unity 2022.3 LTS, Unity 6000.0 LTS and Unity 6000.3. |
-| Scripting backend | Mono (Editor) and IL2CPP (Android, 32-bit ARMv7 and 64-bit ARM64) |
-| Platforms | macOS Editor; Android, tested on a Samsung Galaxy A02s and a Google Pixel 5. iOS and WebGL runs are planned (see the performance plan); desktop players aren't tested yet. |
+| Scripting backend | Mono (Editor) and IL2CPP (Android 32-bit ARMv7 and 64-bit ARM64, iOS ARM64) |
+| Platforms | macOS Editor; Android (Galaxy A02s, Pixel 2 XL, Pixel 5) and iOS (iPhone 13 mini, iPhone Air), each running the full device bench. WebGL and desktop players aren't tested yet. |
 | UI framework | uGUI only |
 | Enter Play Mode with domain reload disabled | Supported and checked: the runtime keeps no static state between plays (its only static field is an internal switch for tests). |
 | Dependencies | [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core) and uGUI. The Quick Start and Extras samples use TextMeshPro; the Examples sample doesn't. |
@@ -597,7 +597,9 @@ The matching items are worked out once and cached. `SetPredicate` and `ClearPred
 - Keep measured slots shallow. Nested layout groups make each first measurement slower.
 - With long TMP text that appears when a slot opens, pre-fill the font asset or use a static atlas.
 
-Numbers per device, and how to run the bench, are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md). The zero-GC audit and the automated device bench are planned in [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md). Measure at your own list sizes on your target devices.
+Numbers per device, and how the bench runs, are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md); the zero-GC audit and what each optimization measured are in [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md). Measure at your own list sizes on your target devices.
+
+**What still costs a frame:** opening a list creates the slots that fill the screen (42–94 ms in the bench, for a list opened every 0.25 s), and a `Refresh()` with a new count rebuilds the whole layout (about 3 ms at 10,000 items on a low-end phone). Open lists before they're shown, and batch data changes into one `Refresh()`.
 
 ## Inspector
 
@@ -744,7 +746,7 @@ Yes, with `PagedSource<T>` and an `IPageLoader<T>`. See [Paging](#paging).
 
 ### Does it work with IL2CPP and mobile?
 
-Yes on Android: it's tested with IL2CPP (32-bit and 64-bit) on a Galaxy A02s and a Pixel 5. iOS and WebGL runs are planned. See [Compatibility](#compatibility).
+Yes: it's tested with IL2CPP on Android (Galaxy A02s, Pixel 2 XL, Pixel 5) and iOS (iPhone 13 mini, iPhone Air), with a 45-case bench on each. See [Compatibility](#compatibility) and [`benchmarks.md`](Documentation~/benchmarks.md).
 
 ### Why doesn't my slot update when I scroll?
 

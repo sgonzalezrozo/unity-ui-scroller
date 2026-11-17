@@ -193,7 +193,7 @@ The written assessment comes last, so it can quote the measurements. These are t
 |---|---|---|
 | Single author, preview version, not used in a shipped game | Stated in the README | The first release, then time and users |
 | Installing it needs Tools Core first, as a Git URL (UPM doesn't resolve Git dependencies) | Two manual steps | Publish on OpenUPM (it resolves dependencies), or make Tools Core optional |
-| Platforms: Editor and Android (IL2CPP) only | — | An iOS and a WebGL check |
+| Platforms | Android and iOS: five phones ran the full device bench (2026-11-17, `benchmarks.md`) | A WebGL check |
 | Items must be classes | `where T : class` everywhere | Probably never; a struct wrapped in a class covers it |
 | No proof of performance a third party can reproduce | A bench in a private project | This plan |
 
