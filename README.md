@@ -625,7 +625,7 @@ The matching items are worked out once and cached. `SetPredicate` and `ClearPred
 - Keep measured slots shallow. Nested layout groups make each first measurement slower.
 - With long TMP text that appears when a slot opens, pre-fill the font asset or use a static atlas.
 
-Numbers per device, and how the bench runs, are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md); the zero-GC audit and what each optimization measured are in [`Documentation~/performance-plan.md`](Documentation~/performance-plan.md). Measure at your own list sizes on your target devices.
+Numbers per device, what allocated and how it stopped, and what each optimization measured are in [`Documentation~/benchmarks.md`](Documentation~/benchmarks.md).
 
 **What still costs a frame:** opening a list creates the slots that fill the screen (42–94 ms in the bench, for a list opened every 0.25 s), and a `Refresh()` with a new count rebuilds the whole layout (about 3 ms at 10,000 items on a low-end phone). Open lists before they're shown, and batch data changes into one `Refresh()`.
 
@@ -730,7 +730,7 @@ If your UI is in UI Toolkit, start with `ListView`.
 
 | Limitation | Status |
 |---|---|
-| Nested lists on the same axis (a vertical list inside a vertical one) don't hand the drag over at their edges | When a screen needs it: [`nested-scrolling-plan.md`](Documentation~/nested-scrolling-plan.md) (N3) |
+| Nested lists on the same axis (a vertical list inside a vertical one) don't hand the drag over at their edges | When a screen needs it |
 | One slot prefab per list (plus a header prefab in sectioned lists) | Slot types (several prefabs, one pool each) are planned for a later version. Measured sizes and expanding already cover slots of different heights |
 | No sticky headers | Planned as a separate component in the Extras sample, built on the public queries |
 | Items must be reference types | By design |
@@ -801,7 +801,7 @@ Yes, it's MIT licensed.
 This is a preview, version `1.0.0-preview.1`. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
 - Until `1.0.0`, a new preview can include breaking changes. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
-- Planned work: [Limitations and roadmap](#limitations-and-roadmap), the plans in [`Documentation~`](Documentation~), and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
+- Planned work: [Limitations and roadmap](#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
 
 ### Why I built it
 
