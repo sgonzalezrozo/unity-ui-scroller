@@ -1,6 +1,0 @@
-using UIScroller;
-
-/// <summary>The #NAME# list. A concrete subclass so it can be added to a GameObject; its settings are in the Inspector.</summary>
-public class #NAME#Scroller : Scroller<#NAME#Item>
-{
-}

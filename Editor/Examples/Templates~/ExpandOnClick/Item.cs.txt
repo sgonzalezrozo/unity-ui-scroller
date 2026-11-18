@@ -1,6 +1,0 @@
-/// <summary>A question in the #NAME# list, with an answer of any length shown when it's opened.</summary>
-public class #NAME#Item
-{
-    public string Question;
-    public string Answer;
-}

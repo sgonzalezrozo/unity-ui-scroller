@@ -1,6 +1,0 @@
-using UIScroller;
-
-/// <summary>The #NAME# grid. Auto Slots Per Line fits as many columns as the width allows (see its Inspector).</summary>
-public class #NAME#Scroller : Scroller<#NAME#Item>
-{
-}

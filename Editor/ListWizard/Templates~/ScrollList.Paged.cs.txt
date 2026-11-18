@@ -1,0 +1,9 @@
+using UIScroller;
+
+/// <summary>
+/// The #NAME# scroll list, fed one page at a time by #NAME#PageLoader as you scroll near the end. Direction, spacing,
+/// grid and bento are in its Inspector. #NAME#Instantiator starts and restarts the loading.
+/// </summary>
+public class #NAME#ScrollList : Scroller<#NAME#ItemModel>
+{
+}

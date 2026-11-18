@@ -1,9 +1,0 @@
-using UIScroller;
-
-/// <summary>
-/// The #NAME# bento list. Bento is on in its settings, and Bento Layout JSON points at #NAME#Layout.json: edit that file
-/// with its Edit Layout button (the Bento Layout Editor) to change where tiles go.
-/// </summary>
-public class #NAME#Scroller : Scroller<#NAME#Item>
-{
-}

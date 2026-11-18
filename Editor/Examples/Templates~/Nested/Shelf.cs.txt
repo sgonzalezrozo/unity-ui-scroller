@@ -1,8 +1,0 @@
-using UIScroller;
-
-/// <summary>A shelf: a title and its own source of cards, kept with the shelf so its carousel can show it again.</summary>
-public class #NAME#Shelf
-{
-    public string Title;
-    public ListSource<#NAME#Item> Cards;
-}

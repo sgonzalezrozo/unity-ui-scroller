@@ -1,6 +1,0 @@
-using UIScroller;
-
-/// <summary>The #NAME# feed. Its slots are measured with layout, so each post is as tall as its content.</summary>
-public class #NAME#Scroller : Scroller<#NAME#Item>
-{
-}

@@ -1,0 +1,22 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using UIScroller;
+
+/// <summary>
+/// Loads the #NAME#ScrollList's pages. The list asks for page 0 when it starts and for the next page as you get near the
+/// end. Return the page's items and whether more pages follow; throw to report a failure (PageFailed).
+/// </summary>
+public class #NAME#PageLoader : IPageLoader<#NAME#ItemModel>
+{
+    public async Task<PageResult<#NAME#ItemModel>> LoadAsync(int page, CancellationToken cancellation)
+    {
+        // Replace with your request (a web call, a database, a save file), passing the cancellation token along.
+        await Task.Yield();
+        cancellation.ThrowIfCancellationRequested();
+
+        List<#NAME#ItemModel> items = new();
+        bool hasMorePages = false;
+        return new PageResult<#NAME#ItemModel>(items, hasMorePages);
+    }
+}

@@ -1,9 +1,0 @@
-using UIScroller;
-
-/// <summary>
-/// The #NAME# carousel: horizontal (Left To Right), Loop on so it never ends, and Snap: Item with Snap Align: Center so
-/// a card always settles in the middle.
-/// </summary>
-public class #NAME#Scroller : Scroller<#NAME#Item>
-{
-}

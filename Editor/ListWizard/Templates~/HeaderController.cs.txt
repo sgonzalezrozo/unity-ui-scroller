@@ -1,0 +1,24 @@
+#TMP_USING#using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>A section header of the #NAME#ScrollList. Every header is Size pixels along the scroll axis.</summary>
+public class #NAME#HeaderController : MonoBehaviour, ISlot<#NAME#HeaderModel>
+{
+    [SerializeField, Min(1f)] private float size = 72f;
+    [SerializeField] private #TEXT_TYPE# title;
+
+    private #NAME#HeaderModel data;
+
+    public float DefaultExtent => size;
+
+    public #NAME#HeaderModel Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            title.text = value.Title;
+        }
+    }
+}

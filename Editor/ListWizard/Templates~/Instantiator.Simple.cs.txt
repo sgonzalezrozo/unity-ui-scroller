@@ -1,0 +1,54 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Gives the #NAME#ScrollList its items. Call Show with your models (from a service, a save, a server response);
+/// the list then creates only the #NAME#ItemController slots that fit on screen and reuses them as you scroll.
+/// </summary>
+public class #NAME#Instantiator : MonoBehaviour
+{
+    [SerializeField] private #NAME#ScrollList scrollList;
+
+    private readonly ListSource<#NAME#ItemModel> source = new();
+
+    /// <summary>The items shown, in order.</summary>
+    public IReadOnlyList<#NAME#ItemModel> Items => source.GetAllItems();
+
+    /// <summary>Shows these items, replacing the ones shown.</summary>
+    public void Show(IEnumerable<#NAME#ItemModel> items)
+    {
+        source.SetItems(items);
+        Apply();
+    }
+
+    public void Add(#NAME#ItemModel item)
+    {
+        source.AddItem(item);
+        Apply();
+    }
+
+    public void Insert(int index, #NAME#ItemModel item)
+    {
+        source.InsertItem(index, item);
+        Apply();
+    }
+
+    public void RemoveAt(int index)
+    {
+        source.RemoveItemAt(index);
+        Apply();
+    }
+
+    /// <summary>Shows the current items again, after you changed fields of models already shown.</summary>
+    public void Refresh()
+        => Apply();
+
+    private void Apply()
+    {
+        if (scrollList.IsInitialized)
+            scrollList.Refresh();
+        else
+            scrollList.Initialize(source);
+    }
+}

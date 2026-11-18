@@ -1,0 +1,9 @@
+using UIScroller;
+
+/// <summary>
+/// The #NAME# scroll list: recycles #NAME#ItemController slots to show #NAME#ItemModel items. Direction, spacing,
+/// grid, bento, loop and snap are in its Inspector. Give it items through #NAME#Instantiator.
+/// </summary>
+public class #NAME#ScrollList : Scroller<#NAME#ItemModel>
+{
+}

@@ -1,0 +1,9 @@
+using UIScroller;
+
+/// <summary>
+/// The #NAME# scroll list: several sources, each under a #NAME#HeaderController. Direction and spacing are in its
+/// Inspector, along with the item and header prefabs. Give it sections through #NAME#Instantiator.
+/// </summary>
+public class #NAME#ScrollList : SectionedScroller<#NAME#ItemModel, #NAME#HeaderModel>
+{
+}

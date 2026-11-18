@@ -1,6 +1,0 @@
-/// <summary>A section header in the #NAME# list: the letter and how many contacts are under it.</summary>
-public class #NAME#Header
-{
-    public string Letter;
-    public int Count;
-}

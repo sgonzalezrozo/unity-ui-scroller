@@ -1,0 +1,31 @@
+#TMP_USING#using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// One item of the #NAME#ScrollList, as big as its content. DefaultExtent is 0 or less, so the list asks the item's
+/// VerticalLayoutGroup for its preferred size every time it shows an item: longer text makes a taller item. When
+/// the size changes later (an image that loads, a text set afterwards) the list notices on its own.
+/// </summary>
+public class #NAME#ItemController : MonoBehaviour, ISlot<#NAME#ItemModel>
+{
+    [SerializeField] private #TEXT_TYPE# title;
+    [SerializeField] private #TEXT_TYPE# description;
+
+    private #NAME#ItemModel data;
+
+    /// <summary>0 or less: measured with layout.</summary>
+    public float DefaultExtent => -1f;
+
+    public #NAME#ItemModel Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            title.text = value.Title;
+            description.text = value.Description;
+            description.gameObject.SetActive(!string.IsNullOrEmpty(value.Description));
+        }
+    }
+}

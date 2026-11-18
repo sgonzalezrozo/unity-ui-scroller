@@ -4,7 +4,7 @@
 
 Step-by-step setups for every kind of list, from the simplest to nested carousels. Each one has the scripts, how to build the slot prefab and the scene, and a picture of the Inspector. The orange numbers on each picture match the numbered steps under it.
 
-The snippets use TextMeshPro (`TMP_Text`) for labels and assume `using UIScroller;`. The **Examples** sample in the Package Manager builds several of these in code, so you can press Play before building your own. To get one of these as scripts and prefabs in your project, right-click a folder and pick it from the **UI Scroller** menu (see [Create an example from the Assets menu](getting-started.md#create-an-example-from-the-assets-menu)).
+The snippets use TextMeshPro (`TMP_Text`) for labels and assume `using UIScroller;`. The **Examples** sample in the Package Manager builds several of these in code, so you can press Play before building your own. To start a list of your own with its scripts and prefabs already made, use **UI Scroller > New Scroll List** in the Project window (see [Create a list from the Assets menu](getting-started.md#create-a-list-from-the-assets-menu)).
 
 **Lists**
 - [Simple list with fixed-size slots](#simple-list-with-fixed-size-slots)

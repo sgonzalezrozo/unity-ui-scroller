@@ -1,9 +1,0 @@
-using UnityEngine;
-
-/// <summary>A card in the #NAME# carousel.</summary>
-public class #NAME#Item
-{
-    public string Title;
-    public string Subtitle;
-    public Color Color;
-}

@@ -71,5 +71,5 @@ __MACOSX/
 !Samples~/**
 !Documentation~/
 !Documentation~/**
-!Editor/Examples/Templates~/
-!Editor/Examples/Templates~/**
+!Editor/ListWizard/Templates~/
+!Editor/ListWizard/Templates~/**

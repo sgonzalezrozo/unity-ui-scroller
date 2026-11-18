@@ -1,0 +1,50 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Gives the #NAME#ScrollList its sections. Call AddSection once per group (a header model and its items), or Show
+/// to replace them all. An empty section is skipped, header included.
+/// </summary>
+public class #NAME#Instantiator : MonoBehaviour
+{
+    [SerializeField] private #NAME#ScrollList scrollList;
+
+    private readonly SectionedSource<#NAME#ItemModel, #NAME#HeaderModel> source = new();
+
+    public int SectionCount => source.SectionCount;
+
+    /// <summary>Shows these sections, replacing the ones shown.</summary>
+    public void Show(IEnumerable<(#NAME#HeaderModel header, IEnumerable<#NAME#ItemModel> items)> sections)
+    {
+        source.ClearSections();
+        foreach ((#NAME#HeaderModel header, IEnumerable<#NAME#ItemModel> items) in sections)
+            source.AddSection(header, new ListSource<#NAME#ItemModel>(items));
+        Apply();
+    }
+
+    public void AddSection(#NAME#HeaderModel header, IEnumerable<#NAME#ItemModel> items)
+    {
+        source.AddSection(header, new ListSource<#NAME#ItemModel>(items));
+        Apply();
+    }
+
+    public void RemoveSection(int sectionIndex)
+    {
+        source.RemoveSection(sectionIndex);
+        Apply();
+    }
+
+    public void Clear()
+    {
+        source.ClearSections();
+        Apply();
+    }
+
+    /// <summary>Scrolls a section's header to the start, at once or animated over <paramref name="duration"/> seconds.</summary>
+    public void ScrollToSection(int sectionIndex, float duration = 0f)
+        => scrollList.ScrollToSection(sectionIndex, duration);
+
+    private void Apply()
+        => scrollList.SetSource(source);
+}

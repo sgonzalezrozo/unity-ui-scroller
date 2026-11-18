@@ -4,6 +4,16 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-18
+
+### Added
+
+- **Assets > UI Scroller > New Scroll List**: a wizard that creates a list for a feature, ready for real data. It asks only what needs different scripts: the feature name, the source (Simple or Multisource with headers), whether it's paginated, the size behaviour (Static, Dynamic or Expandable), a bento layout JSON and TextMeshPro or Unity's Text. For `Store` it writes `StoreItemModel`, `StoreItemController`, `StoreScrollList` and `StoreInstantiator` (plus a header model and controller, or a page loader), then builds `StoreItem.prefab` and `StoreList.prefab`. Everything else is a setting in the list's Inspector.
+
+### Removed
+
+- The 11 example menu items added in 0.6.0. They created demos with made-up data, a Canvas and an EventSystem; the wizard creates the real pieces instead. The **Examples** sample still has demos to try.
+
 ## [0.6.0] - 2026-11-18
 
 ### Added

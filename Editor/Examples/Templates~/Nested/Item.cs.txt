@@ -1,9 +1,0 @@
-using UnityEngine;
-
-/// <summary>A card on a #NAME# shelf.</summary>
-public class #NAME#Item
-{
-    public string Title;
-    public float Rating;
-    public Color Color;
-}

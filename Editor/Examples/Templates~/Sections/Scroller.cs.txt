@@ -1,9 +1,0 @@
-using UIScroller;
-
-/// <summary>
-/// The #NAME# list: contacts under letter headers. A SectionedScroller has two templates, Slot Prefab for items and
-/// Header Prefab for headers, and its source is a SectionedSource (one ListSource per section).
-/// </summary>
-public class #NAME#Scroller : SectionedScroller<#NAME#Item, #NAME#Header>
-{
-}

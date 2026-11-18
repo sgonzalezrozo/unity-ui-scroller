@@ -1,0 +1,53 @@
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Starts the #NAME#ScrollList's paged loading: page 0 on Load, the next pages as you scroll near the end. Hook the
+/// events to show a spinner, an error or an end-of-list message.
+/// </summary>
+public class #NAME#Instantiator : MonoBehaviour
+{
+    [SerializeField] private #NAME#ScrollList scrollList;
+    [SerializeField] private bool loadOnStart = true;
+
+    private void Start()
+    {
+        scrollList.PageRequested += OnPageRequested;
+        scrollList.PageLoaded += OnPageLoaded;
+        scrollList.PageFailed += OnPageFailed;
+        scrollList.ReachedEnd += OnReachedEnd;
+
+        if (loadOnStart)
+            Load();
+    }
+
+    private void OnDestroy()
+    {
+        scrollList.PageRequested -= OnPageRequested;
+        scrollList.PageLoaded -= OnPageLoaded;
+        scrollList.PageFailed -= OnPageFailed;
+        scrollList.ReachedEnd -= OnReachedEnd;
+    }
+
+    /// <summary>Starts again from page 0, dropping the items loaded so far.</summary>
+    public void Load()
+        => scrollList.SetSource(new PagedSource<#NAME#ItemModel>(new #NAME#PageLoader()));
+
+    private void OnPageRequested()
+    {
+        // A page started loading: show a spinner.
+    }
+
+    private void OnPageLoaded(int count)
+    {
+        // A page of count items arrived: hide the spinner.
+    }
+
+    private void OnPageFailed(System.Exception exception)
+        => Debug.LogException(exception, this);
+
+    private void OnReachedEnd()
+    {
+        // The last page arrived: nothing more to load.
+    }
+}

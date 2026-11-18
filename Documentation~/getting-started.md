@@ -57,37 +57,40 @@ Import them from the package's page in the Package Manager (**Samples** tab):
 | **Quick Start** | The scripts for [Simple list with fixed-size slots](examples.md#simple-list-with-fixed-size-slots). |
 | **Extras** | A pull-to-refresh indicator and an empty-state panel. |
 
-## Create an example from the Assets menu
+## Create a list from the Assets menu
 
-Right-click a folder in the Project window, open **UI Scroller** and pick an example. Type a name (for example `Inventory`) and click **Create**. A folder with that name gets the example's scripts and prefabs:
+Right-click a folder in the Project window and select **UI Scroller > New Scroll List**. The wizard asks only what needs different scripts; everything else (direction, spacing, grid, loop, snap) is a setting in the list's Inspector.
 
-```
-Inventory/
-├── InventoryItem.cs       the data
-├── InventorySlot.cs       shows one item; reused as you scroll
-├── InventoryScroller.cs   the list class
-├── InventoryScreen.cs     makes up items and gives them to the list
-├── InventorySlot.prefab   the slot template
-└── Inventory.prefab       a Canvas with the screen and the list
-```
-
-Drop `Inventory.prefab` in a scene, or under a Canvas, and press Play. The scripts are written first and the prefabs are built once Unity has compiled them. Labels use Unity's built-in `Text`; swap them for TextMeshPro when you make the example your own.
-
-| Menu item | What it builds |
+| Option | Choices |
 |---|---|
-| **Basic List** | Rows with an avatar, a title, a subtitle and an unread badge |
-| **Grid** | A shop grid that fits as many columns as the width allows |
-| **Dynamic Size** | A feed where each post is as tall as its text, measured with layout |
-| **Dynamic Size on Click** | Rows measured with layout that grow to show their answer when tapped |
-| **Expandable Row** | Fixed-height rows with a hitbox that asks the list to open them to a taller size, with stat bars and a button inside |
-| **Bento** | Tiles of different sizes from a bento layout JSON, created next to the scripts and set on the list |
-| **Bento with Paging** | A bento list fed page by page by a page loader, with a loading status |
-| **Grid Carousel** | A two-row grid that scrolls sideways a page at a time, with page buttons |
-| **Looping Carousel** | A carousel that loops both ways and centres a card that scales and fades with its position |
-| **Sections** | Contacts under letter headers, with a `SectionedScroller` |
-| **Nested Shelves** | A vertical list of shelves, each a horizontal carousel of cards |
+| **Feature Name** | Prefixes every script and prefab, for example `Store` |
+| **Source** | **Simple**: one list of items. **Multisource**: several lists, each under a header |
+| **Paginated** | Items arrive a page at a time as you scroll near the end. Simple source only |
+| **Size Behaviour** | **Static**: every item the same size. **Dynamic**: each item as big as its content, measured with layout. **Expandable**: items open to a bigger size when their hitbox is tapped |
+| **Create Bento JSON** | Turns bento on and creates a layout JSON for the list. Static size only |
+| **Use TextMeshPro** | Labels use TextMeshPro when it's installed, Unity's `Text` otherwise |
 
-With Screen System installed, its **Screen System** menu sits right above this one.
+For `Store` it creates, in that folder:
+
+```
+StoreItemModel.cs        the data of one item
+StoreItemController.cs   shows one item; reused as you scroll
+StoreScrollList.cs       the list component
+StoreInstantiator.cs     gives the list its items
+StoreItem.prefab         the item template
+StoreList.prefab         the list and the instantiator
+```
+
+Multisource adds `StoreHeaderModel`, `StoreHeaderController` and `StoreHeader.prefab`; Paginated adds `StorePageLoader`, where your request goes; the bento option adds `StoreLayout.json`. The scripts are written first and the prefabs are built once Unity has compiled them.
+
+Place `StoreList.prefab` under a Canvas and give it your data:
+
+```csharp
+[SerializeField] private StoreInstantiator store;
+
+private void Start()
+    => store.Show(items); // a list of StoreItemModel
+```
 
 ## Your first list
 
