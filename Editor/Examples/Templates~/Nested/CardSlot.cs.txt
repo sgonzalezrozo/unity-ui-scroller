@@ -1,0 +1,34 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>A card in a shelf: artwork with a big initial, a title and a star rating.</summary>
+public class #NAME#CardSlot : MonoBehaviour, ISlot<#NAME#Item>
+{
+    [SerializeField] private Image art;
+    [SerializeField] private Text initial;
+    [SerializeField] private Text title;
+    [SerializeField] private Text rating;
+    [SerializeField] private Button button;
+
+    private #NAME#Item data;
+
+    /// <summary>The card's width (the carousel scrolls sideways).</summary>
+    public float DefaultExtent => 280f;
+
+    public #NAME#Item Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            art.color = value.Color;
+            initial.text = value.Title.Substring(0, 1);
+            title.text = value.Title;
+            rating.text = $"★ {value.Rating:0.0}";
+        }
+    }
+
+    private void Awake()
+        => button.onClick.AddListener(() => Debug.Log($"[#NAME#] Play {data?.Title}"));
+}

@@ -1,0 +1,37 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Fills the #NAME# bento with made-up tiles. The layout comes from #NAME#Layout.json (Bento Layout JSON, on the
+/// list): a hero block, a strip of four and a mirrored block, repeating from the strip. Drop the prefab in a scene and press Play.
+/// </summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private static readonly string[] Categories = { "Featured", "Daily", "Event", "Bundle", "New" };
+    private static readonly string[] Titles = { "Starter Pack", "Golden Chest", "Weekend Raid", "Dragon Skin", "Energy Refill", "Season Pass" };
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int itemCount = 300;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+    {
+        List<#NAME#Item> items = new(itemCount);
+        for (int i = 0; i < itemCount; i++)
+        {
+            items.Add(new #NAME#Item
+            {
+                Title = Titles[i % Titles.Length],
+                Category = Categories[i * 3 % Categories.Length],
+                Value = i,
+                Color = Color.HSVToRGB(i * 0.618034f % 1f, 0.5f, 0.75f)
+            });
+        }
+
+        scroller.Initialize(new ListSource<#NAME#Item>(items));
+    }
+#EVENTSYSTEM#
+}

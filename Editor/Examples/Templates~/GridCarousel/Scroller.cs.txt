@@ -1,0 +1,9 @@
+using UIScroller;
+
+/// <summary>
+/// The #NAME# carousel: a grid that scrolls sideways (Left To Right, 2 slots per line, so 2 rows) and snaps a page
+/// at a time (Snap: Page). Change the rows with Slots Per Line in the Inspector.
+/// </summary>
+public class #NAME#Scroller : Scroller<#NAME#Item>
+{
+}

@@ -1,0 +1,40 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Fills the #NAME# list with made-up rows. Replace BuildItems with your data, then call scroller.SetSource again
+/// whenever it changes. Drop the #NAME# prefab in a scene (or under a Canvas) and press Play.
+/// </summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private static readonly string[] Names = { "Ada", "Grace", "Linus", "Margaret", "Alan", "Hedy", "Dennis", "Barbara", "Ken", "Radia" };
+    private static readonly string[] Messages = { "See you tomorrow!", "Sent you the build", "Can you review my PR?", "Lunch?", "The tests pass now", "Ship it" };
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int itemCount = 1000;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+        => scroller.Initialize(new ListSource<#NAME#Item>(BuildItems()));
+
+    private List<#NAME#Item> BuildItems()
+    {
+        List<#NAME#Item> items = new(itemCount);
+        for (int i = 0; i < itemCount; i++)
+        {
+            items.Add(new #NAME#Item
+            {
+                Title = $"{Names[i % Names.Length]} #{i}",
+                Subtitle = Messages[i * 7 % Messages.Length],
+                Unread = i % 4 == 0 ? i % 13 + 1 : 0,
+                Color = Color.HSVToRGB(i * 0.618034f % 1f, 0.45f, 0.8f)
+            });
+        }
+
+        return items;
+    }
+#EVENTSYSTEM#
+}

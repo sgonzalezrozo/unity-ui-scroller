@@ -1,0 +1,33 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>Fills the #NAME# list with questions. Tap one to open it. Drop the #NAME# prefab in a scene and press Play.</summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private const string LONG_ANSWER =
+        "The list keeps only the rows on screen. When a row opens, its layout group asks for more height, the list " +
+        "measures it again and moves everything below, keeping what's above still. Scroll away and back: it stays open.";
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int itemCount = 200;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+    {
+        List<#NAME#Item> items = new(itemCount);
+        for (int i = 0; i < itemCount; i++)
+        {
+            items.Add(new #NAME#Item
+            {
+                Question = $"Question {i + 1}: how does an open row work?",
+                Answer = i % 3 == 0 ? "Short answer: it grows." : LONG_ANSWER
+            });
+        }
+
+        scroller.Initialize(new ListSource<#NAME#Item>(items));
+    }
+#EVENTSYSTEM#
+}

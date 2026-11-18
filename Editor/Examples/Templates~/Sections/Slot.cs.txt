@@ -1,0 +1,36 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>A contact row: avatar with initials, an online dot, the name and the phone number.</summary>
+public class #NAME#Slot : MonoBehaviour, ISlot<#NAME#Item>
+{
+    [SerializeField] private Image avatar;
+    [SerializeField] private Text initials;
+    [SerializeField] private GameObject onlineDot;
+    [SerializeField] private Text contactName;
+    [SerializeField] private Text phone;
+    [SerializeField] private Button button;
+
+    private #NAME#Item data;
+
+    public float DefaultExtent => 130f;
+
+    public #NAME#Item Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            avatar.color = value.Color;
+            string[] parts = value.Name.Split(' ');
+            initials.text = parts.Length > 1 ? $"{parts[0][0]}{parts[1][0]}" : value.Name.Substring(0, 1);
+            onlineDot.SetActive(value.Online);
+            contactName.text = value.Name;
+            phone.text = value.Phone;
+        }
+    }
+
+    private void Awake()
+        => button.onClick.AddListener(() => Debug.Log($"[#NAME#] Call {data?.Name}"));
+}

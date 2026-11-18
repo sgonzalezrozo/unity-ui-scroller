@@ -1,0 +1,13 @@
+using UnityEngine;
+
+/// <summary>A hero in the #NAME# list: a summary row, and stats shown when the row is opened.</summary>
+public class #NAME#Item
+{
+    public string Name;
+    public string Role;
+    public int Level;
+    public float Attack;
+    public float Defense;
+    public float Speed;
+    public Color Color;
+}

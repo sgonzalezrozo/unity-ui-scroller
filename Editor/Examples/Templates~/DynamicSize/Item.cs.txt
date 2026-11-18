@@ -1,0 +1,12 @@
+using UnityEngine;
+
+/// <summary>A post in the #NAME# feed. Its body text has any length, so every post has its own height.</summary>
+public class #NAME#Item
+{
+    public string Author;
+    public string Time;
+    public string Body;
+    public bool HasPicture;
+    public int Likes;
+    public Color Color;
+}

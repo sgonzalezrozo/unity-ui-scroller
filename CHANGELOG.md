@@ -4,6 +4,17 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-18
+
+### Added
+
+- **Assets > UI Scroller** menu (right-click a folder in the Project window) with 11 examples: Basic List, Grid, Dynamic Size, Dynamic Size on Click, Expandable Row, Bento, Bento with Paging, Grid Carousel, Looping Carousel, Sections and Nested Shelves. Each asks for a name and creates a folder with the example's scripts (item, slot, list, screen, and a page loader or header slot where needed), its slot prefabs and a screen prefab ready to press Play. The bento examples also get their layout JSON, set on the list.
+
+### Documentation
+
+- The README's description is plain text instead of a quote, and short enough for two lines.
+- Getting Started describes the new example menu.
+
 ## [0.5.4] - 2026-11-18
 
 ### Documentation

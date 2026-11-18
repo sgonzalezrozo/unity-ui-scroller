@@ -1,0 +1,10 @@
+using UnityEngine;
+
+/// <summary>A contact in the #NAME# list.</summary>
+public class #NAME#Item
+{
+    public string Name;
+    public string Phone;
+    public bool Online;
+    public Color Color;
+}

@@ -1,0 +1,66 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// A row that changes size when tapped. It's measured with layout (DefaultExtent of 0 or less): opening it shows the
+/// answer, the VerticalLayoutGroup gets taller and the list moves the rows below. Owner.Expand records which rows
+/// are open, so a row scrolled away and back comes back open (the list sets IsExpanded when it shows the item).
+/// </summary>
+public class #NAME#Slot : MonoBehaviour, IExpandableSlot<#NAME#Item>
+{
+    [SerializeField] private Text question;
+    [SerializeField] private Text chevron;
+    [SerializeField] private Text answer;
+    [SerializeField] private Button hitbox;
+
+    private #NAME#Item data;
+    private bool isExpanded;
+
+    /// <summary>0 or less: measured with layout, closed or open.</summary>
+    public float DefaultExtent => -1f;
+
+    public IScroller Owner { get; set; }
+    public int ItemIndex { get; set; }
+
+    public #NAME#Item Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            question.text = value.Question;
+            answer.text = value.Answer;
+        }
+    }
+
+    public bool IsExpanded
+    {
+        get => isExpanded;
+        set
+        {
+            isExpanded = value;
+            answer.gameObject.SetActive(value);
+            chevron.text = value ? "–" : "+";
+        }
+    }
+
+    public void OnCollapsed()
+        => IsExpanded = false;
+
+    private void Awake()
+        => hitbox.onClick.AddListener(Toggle);
+
+    private void Toggle()
+    {
+        if (Owner == null)
+            return;
+
+        if (Owner.IsExpanded(ItemIndex))
+            Owner.Collapse(ItemIndex);
+        else
+            Owner.Expand(ItemIndex);
+
+        IsExpanded = Owner.IsExpanded(ItemIndex);
+    }
+}

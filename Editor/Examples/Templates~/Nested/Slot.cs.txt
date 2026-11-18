@@ -1,0 +1,39 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// A shelf row: a title, a See All button and a horizontal carousel of cards. Shelves are pooled like any slot, so a
+/// reused shelf gives its carousel the new shelf's cards and goes back to the first card.
+/// </summary>
+public class #NAME#Slot : MonoBehaviour, ISlot<#NAME#Shelf>
+{
+    [SerializeField] private Text title;
+    [SerializeField] private Button seeAll;
+    [SerializeField] private #NAME#ShelfScroller carousel;
+
+    private #NAME#Shelf data;
+
+    public float DefaultExtent => 470f;
+
+    public #NAME#Shelf Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            title.text = value.Title;
+            if (!carousel.IsInitialized)
+            {
+                carousel.Initialize(value.Cards);
+                return;
+            }
+
+            carousel.SetSource(value.Cards);
+            carousel.ScrollToStart();
+        }
+    }
+
+    private void Awake()
+        => seeAll.onClick.AddListener(() => Debug.Log($"[#NAME#] See all {data?.Title}"));
+}

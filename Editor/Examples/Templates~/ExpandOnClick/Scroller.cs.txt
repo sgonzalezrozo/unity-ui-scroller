@@ -1,0 +1,6 @@
+using UIScroller;
+
+/// <summary>The #NAME# list: rows measured with layout that grow to show their answer when tapped.</summary>
+public class #NAME#Scroller : Scroller<#NAME#Item>
+{
+}

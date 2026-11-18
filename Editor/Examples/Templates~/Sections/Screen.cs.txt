@@ -1,0 +1,48 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Builds made-up contacts, groups them by first letter and shows one section per letter. Drop the #NAME# prefab in
+/// a scene and press Play.
+/// </summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private static readonly string[] FirstNames = { "Ada", "Barbara", "Claude", "Dennis", "Edsger", "Frances", "Grace", "Hedy", "Ivan", "John", "Ken", "Linus", "Margaret", "Niklaus", "Radia", "Tim", "Vint", "Whitfield" };
+    private static readonly string[] LastNames = { "Lovelace", "Liskov", "Shannon", "Ritchie", "Dijkstra", "Allen", "Hopper", "Lamarr", "Sutherland", "Backus", "Thompson", "Torvalds", "Hamilton", "Wirth", "Perlman", "Berners-Lee", "Cerf", "Diffie" };
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int contactCount = 300;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+    {
+        SortedDictionary<char, List<#NAME#Item>> byLetter = new();
+        for (int i = 0; i < contactCount; i++)
+        {
+            string name = $"{FirstNames[i * 7 % FirstNames.Length]} {LastNames[i % LastNames.Length]}";
+            if (!byLetter.TryGetValue(name[0], out List<#NAME#Item> group))
+                byLetter[name[0]] = group = new List<#NAME#Item>();
+
+            group.Add(new #NAME#Item
+            {
+                Name = name,
+                Phone = $"+1 555 {100 + i * 37 % 900:000} {1000 + i * 97 % 9000:0000}",
+                Online = i % 3 == 0,
+                Color = Color.HSVToRGB(i * 0.618034f % 1f, 0.45f, 0.8f)
+            });
+        }
+
+        SectionedSource<#NAME#Item, #NAME#Header> source = new();
+        foreach (KeyValuePair<char, List<#NAME#Item>> pair in byLetter)
+        {
+            pair.Value.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+            source.AddSection(new #NAME#Header { Letter = pair.Key.ToString(), Count = pair.Value.Count }, new ListSource<#NAME#Item>(pair.Value));
+        }
+
+        scroller.SetSource(source);
+    }
+#EVENTSYSTEM#
+}

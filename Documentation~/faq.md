@@ -37,13 +37,13 @@
 - need features from [Limitations and roadmap](troubleshooting.md#limitations-and-roadmap) that aren't there yet, such as several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
-- it's an early release (0.5.4), by a single author, not yet used in a shipped game;
+- it's an early release (0.6.0), by a single author, not yet used in a shipped game;
 - it's covered by about 520 automated tests (EditMode and PlayMode) that run in batch mode, and by a 45-case benchmark measured on five phones and in WebGL;
 - it's MIT licensed, with a [changelog](../CHANGELOG.md) that marks every breaking change.
 
 ### Is it production-ready?
 
-It's an early release (`0.5.4`): tested in depth (about 520 automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome. See [Project Status](project-status.md).
+It's an early release (`0.6.0`): tested in depth (about 520 automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome. See [Project Status](project-status.md).
 
 ### Why was it built?
 

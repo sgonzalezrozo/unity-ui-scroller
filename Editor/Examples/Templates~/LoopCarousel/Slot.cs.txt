@@ -1,0 +1,46 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// A carousel card. IViewportPositionListener tells it where it sits every time the list moves (0 at the centre,
+/// ±0.5 at the edges), so it shrinks and fades as it leaves the centre. The list sizes the root; the Face inside it
+/// is what scales, so the list's layout never changes.
+/// </summary>
+public class #NAME#Slot : MonoBehaviour, ISlot<#NAME#Item>, IViewportPositionListener
+{
+    private const float SMALLEST_SCALE = 0.78f;
+    private const float FADED_ALPHA = 0.45f;
+    private const float EDGE = 0.5f;
+
+    [SerializeField] private RectTransform face;
+    [SerializeField] private CanvasGroup faceGroup;
+    [SerializeField] private Image art;
+    [SerializeField] private Text title;
+    [SerializeField] private Text subtitle;
+
+    private #NAME#Item data;
+
+    /// <summary>The card's width (the scroll axis is horizontal).</summary>
+    public float DefaultExtent => 560f;
+
+    public #NAME#Item Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            art.color = value.Color;
+            title.text = value.Title;
+            subtitle.text = value.Subtitle;
+        }
+    }
+
+    public void OnViewportPosition(float position)
+    {
+        float distance = Mathf.Clamp01(Mathf.Abs(position) / EDGE);
+        float scale = Mathf.Lerp(1f, SMALLEST_SCALE, distance);
+        face.localScale = new Vector3(scale, scale, 1f);
+        faceGroup.alpha = Mathf.Lerp(1f, FADED_ALPHA, distance);
+    }
+}

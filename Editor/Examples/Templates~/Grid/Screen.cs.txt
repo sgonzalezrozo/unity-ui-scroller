@@ -1,0 +1,33 @@
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>Fills the #NAME# grid with made-up products. Drop the #NAME# prefab in a scene and press Play.</summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private static readonly string[] Names = { "Sword", "Shield", "Potion", "Bow", "Helmet", "Ring", "Scroll", "Boots", "Amulet", "Staff" };
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int itemCount = 1000;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+    {
+        List<#NAME#Item> items = new(itemCount);
+        for (int i = 0; i < itemCount; i++)
+        {
+            items.Add(new #NAME#Item
+            {
+                Name = $"{Names[i % Names.Length]} {i}",
+                Price = 50 + i * 37 % 4950,
+                Rarity = i * 13 % 5,
+                Color = Color.HSVToRGB(i * 0.618034f % 1f, 0.5f, 0.75f)
+            });
+        }
+
+        scroller.Initialize(new ListSource<#NAME#Item>(items));
+    }
+#EVENTSYSTEM#
+}

@@ -1,0 +1,6 @@
+using UIScroller;
+
+/// <summary>The #NAME# list: fixed-height rows that open to a fixed taller size. Opening one closes the others.</summary>
+public class #NAME#Scroller : Scroller<#NAME#Item>
+{
+}

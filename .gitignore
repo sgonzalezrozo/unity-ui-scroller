@@ -71,3 +71,5 @@ __MACOSX/
 !Samples~/**
 !Documentation~/
 !Documentation~/**
+!Editor/Examples/Templates~/
+!Editor/Examples/Templates~/**

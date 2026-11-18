@@ -1,0 +1,6 @@
+using UIScroller;
+
+/// <summary>The #NAME# page: a vertical list of shelves. A drag across a shelf's axis comes here, so the page scrolls.</summary>
+public class #NAME#Scroller : Scroller<#NAME#Shelf>
+{
+}

@@ -1,0 +1,6 @@
+using UIScroller;
+
+/// <summary>The horizontal carousel inside each #NAME# shelf. It snaps a card to the start.</summary>
+public class #NAME#ShelfScroller : Scroller<#NAME#Item>
+{
+}

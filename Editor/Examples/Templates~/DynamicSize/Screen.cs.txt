@@ -1,0 +1,51 @@
+using System.Collections.Generic;
+using System.Text;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>Fills the #NAME# feed with posts of random lengths. Drop the #NAME# prefab in a scene and press Play.</summary>
+public class #NAME#Screen : MonoBehaviour
+{
+    private static readonly string[] Authors = { "Ada", "Grace", "Linus", "Margaret", "Alan", "Hedy" };
+    private static readonly string[] Sentences =
+    {
+        "Shipped the new inventory screen today.",
+        "The recycling list keeps a handful of slots and reuses them as you scroll.",
+        "Each post here is as tall as its text, measured by its layout group.",
+        "Short one.",
+        "Turns out the bug was a missing null check, as always.",
+        "Pictures make some posts taller too, and the list just handles it."
+    };
+
+    [SerializeField] private #NAME#Scroller scroller;
+    [SerializeField] private int itemCount = 500;
+
+    private void Awake()
+        => EnsureEventSystem();
+
+    private void Start()
+    {
+        List<#NAME#Item> items = new(itemCount);
+        StringBuilder body = new();
+        for (int i = 0; i < itemCount; i++)
+        {
+            body.Clear();
+            int sentences = 1 + i * 7 % 6;
+            for (int s = 0; s < sentences; s++)
+                body.Append(Sentences[(i + s) % Sentences.Length]).Append(' ');
+
+            items.Add(new #NAME#Item
+            {
+                Author = Authors[i % Authors.Length],
+                Time = $"{i % 59 + 1} min ago",
+                Body = body.ToString().TrimEnd(),
+                HasPicture = i % 5 == 2,
+                Likes = i * 31 % 400,
+                Color = Color.HSVToRGB(i * 0.618034f % 1f, 0.45f, 0.8f)
+            });
+        }
+
+        scroller.Initialize(new ListSource<#NAME#Item>(items));
+    }
+#EVENTSYSTEM#
+}

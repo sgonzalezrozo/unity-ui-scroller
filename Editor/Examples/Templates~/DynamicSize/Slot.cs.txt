@@ -1,0 +1,41 @@
+using UIScroller;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// A post measured with layout: DefaultExtent is 0 or less, so the list asks the slot's VerticalLayoutGroup for its
+/// preferred height every time it shows an item. Text that wraps to more lines, or the picture turned on, makes the
+/// post taller with no code. If something changes the size later (an image that loads), the list notices on its own.
+/// </summary>
+public class #NAME#Slot : MonoBehaviour, ISlot<#NAME#Item>
+{
+    [SerializeField] private Image avatar;
+    [SerializeField] private Text initial;
+    [SerializeField] private Text author;
+    [SerializeField] private Text time;
+    [SerializeField] private Text body;
+    [SerializeField] private Image picture;
+    [SerializeField] private Text likes;
+
+    private #NAME#Item data;
+
+    /// <summary>0 or less: measured with layout.</summary>
+    public float DefaultExtent => -1f;
+
+    public #NAME#Item Data
+    {
+        get => data;
+        set
+        {
+            data = value;
+            avatar.color = value.Color;
+            initial.text = value.Author.Substring(0, 1);
+            author.text = value.Author;
+            time.text = value.Time;
+            body.text = value.Body;
+            picture.gameObject.SetActive(value.HasPicture);
+            picture.color = value.Color * 0.7f + Color.black * 0.3f;
+            likes.text = $"♥ {value.Likes}";
+        }
+    }
+}

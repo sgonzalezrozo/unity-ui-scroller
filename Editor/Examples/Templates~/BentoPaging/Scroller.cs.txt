@@ -1,0 +1,9 @@
+using UIScroller;
+
+/// <summary>
+/// The #NAME# bento list, fed one page at a time. Bento is on in its settings and Bento Layout JSON points at
+/// #NAME#Layout.json, a span sequence: each tile goes in the first gap where it fits.
+/// </summary>
+public class #NAME#Scroller : Scroller<#NAME#Item>
+{
+}

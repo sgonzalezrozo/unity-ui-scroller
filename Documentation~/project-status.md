@@ -12,7 +12,7 @@
 
 ## Status
 
-Version `0.5.4`; UI Scroller was first released as 0.5.0. Its API and behaviour may still change before `1.0.0`. It's by a single author and isn't used in a shipped game yet. Planned work is in [Limitations and roadmap](troubleshooting.md#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
+Version `0.6.0`; UI Scroller was first released as 0.5.0. Its API and behaviour may still change before `1.0.0`. It's by a single author and isn't used in a shipped game yet. Planned work is in [Limitations and roadmap](troubleshooting.md#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
 
 ## Versioning
 

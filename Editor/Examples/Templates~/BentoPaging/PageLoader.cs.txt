@@ -1,0 +1,38 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using UIScroller;
+using UnityEngine;
+
+/// <summary>
+/// Makes up pages of tiles after a short delay, as a server would. Replace LoadAsync with your request: return the
+/// page's items and whether there are more pages. The list asks for the next page as you get near the end.
+/// </summary>
+public class #NAME#PageLoader : IPageLoader<#NAME#Item>
+{
+    private const int PAGE_SIZE = 24;
+    private const int PAGE_COUNT = 8;
+    private const int DELAY_MILLISECONDS = 700;
+    private static readonly string[] Categories = { "Featured", "Daily", "Event", "Bundle", "New" };
+    private static readonly string[] Titles = { "Starter Pack", "Golden Chest", "Weekend Raid", "Dragon Skin", "Energy Refill", "Season Pass" };
+
+    public async Task<PageResult<#NAME#Item>> LoadAsync(int page, CancellationToken cancellation)
+    {
+        await Task.Delay(DELAY_MILLISECONDS, cancellation);
+
+        List<#NAME#Item> items = new(PAGE_SIZE);
+        for (int i = 0; i < PAGE_SIZE; i++)
+        {
+            int id = page * PAGE_SIZE + i;
+            items.Add(new #NAME#Item
+            {
+                Title = Titles[id % Titles.Length],
+                Category = $"{Categories[id * 3 % Categories.Length]} · page {page + 1}",
+                Value = id,
+                Color = Color.HSVToRGB(id * 0.618034f % 1f, 0.5f, 0.75f)
+            });
+        }
+
+        return new PageResult<#NAME#Item>(items, page < PAGE_COUNT - 1);
+    }
+}

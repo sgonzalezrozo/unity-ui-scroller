@@ -5,10 +5,10 @@
 <sub>DESIGNED & BUILT BY</sub><br>
 **✦ [`SANTIAGO GONZÁLEZ ROZO (@sgonzalezrozo)`](https://github.com/sgonzalezrozo) ✦**
 
-> A recycling (virtualized) scroll view for uGUI: lists, grids and bento layouts of any length. Its cost depends on what's on screen, never on how many items there are. On five phones and WebGL: zero allocations while scrolling 100,000 items, and 0.07–0.25 ms of list work per scroll event.
+A recycling (virtualized) scroll view for uGUI: lists, grids and bento layouts of any length, costing only what's on screen. Zero allocations scrolling 100,000 items on phones and WebGL.
 
 [![Unity](https://img.shields.io/badge/Unity-2022.3%20%7C%206000.3%20tested-black?style=for-the-badge&logo=unity)](Documentation~/getting-started.md#requirements)
-[![Version](https://img.shields.io/badge/version-0.5.4-blue?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [**Installation**](#installation) • [**Key Features**](#key-features) • [**Quickstart**](#quickstart) • [**Examples**](Documentation~/examples.md) • [**Layouts**](Documentation~/layouts.md) • [**Scrolling**](Documentation~/scrolling.md) • [**API Reference**](Documentation~/api-reference.md)
