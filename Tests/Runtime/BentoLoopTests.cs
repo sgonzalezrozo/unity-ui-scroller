@@ -199,8 +199,9 @@ namespace UIScroller.Tests.PlayMode
         [UnityTest]
         public IEnumerator ABentoLoopTooLongForCopies_WarnsAndDoesntLoop()
         {
-            LogAssert.Expect(LogType.Warning, new Regex("too long"));
+            using LogCapture log = new();
             yield return Start(count: 5_000);
+            log.AssertLogged(LogType.Warning, "too long");
 
             yield return rig.ScrollToOffset(0f);
             Assert.AreEqual(0, rig.List.VisibleStartIndex, "a plain bento list starts at its first item");

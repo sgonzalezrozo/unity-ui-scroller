@@ -205,8 +205,9 @@ namespace UIScroller.Tests.PlayMode
         {
             yield return Start(BigFirst());
 
-            LogAssert.Expect(LogType.Warning, new Regex("bento tiles don't expand"));
+            using LogCapture log = new();
             rig.List.Expand(0);
+            log.AssertLogged(LogType.Warning, "bento tiles don't expand");
 
             Assert.IsFalse(rig.List.IsExpanded(0));
             AssertTile(0, 0f, 0f, 200f, 200f);
@@ -217,8 +218,9 @@ namespace UIScroller.Tests.PlayMode
         {
             rig = ScrollerRig.Create(new RigOptions { Bento = true, SlotsPerLine = 4, BentoLayout = BentoLayout.FromJson("{ columns: ") });
 
-            LogAssert.Expect(LogType.Error, new Regex("the bento layout has errors"));
+            using LogCapture log = new();
             yield return rig.Initialize(20);
+            log.AssertLogged(LogType.Error, "the bento layout has errors");
 
             AssertTile(1, 100f, 0f, 100f, 100f);
             AssertTile(4, 0f, -100f, 100f, 100f);

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using UIScroller;
+using UIScroller.Tests.PlayMode;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -42,6 +43,7 @@ namespace UIScroller.Tests.Editor
         public void Nulls_AreSkipped_WithAWarning()
         {
             ListSource<Item> source = new();
+            using LogCapture log = new();
 
             source.AddItem(null);
             source.AddItems(new Item[] { null, new Item(1) });
@@ -49,6 +51,9 @@ namespace UIScroller.Tests.Editor
 
             Assert.AreEqual(1, source.ItemCount);
             Assert.AreEqual(5, source.GetItem(0).Id);
+            log.AssertLogged(LogType.Warning, "Attempted to add null item");
+            log.AssertLogged(LogType.Warning, "Filtered out 1 null items when adding");
+            log.AssertLogged(LogType.Warning, "Filtered out 1 null items when setting");
         }
 
         [Test]

@@ -101,7 +101,7 @@ namespace UIScroller.Tests.PlayMode
         {
             // DefaultExtent <= 0 but the root reports no preferred size (no layout group): measuring gives 0.
             rig = ScrollerRig.Create(new RigOptions { ItemSize = -1f, LayoutContent = false });
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("preferred size"));
+            using LogCapture log = new();
 
             yield return rig.Initialize(new ListSource<TestItem>(Items(20, 300f)));
             yield return null;
@@ -109,7 +109,7 @@ namespace UIScroller.Tests.PlayMode
             Assert.AreEqual(100f, rig.ItemFor(0).sizeDelta.y, 0.01f);
             Assert.AreEqual(-100f, rig.ItemFor(1).anchoredPosition.y, 0.01f);
             Assert.AreEqual(2000f, rig.ContentSize, 0.01f);
-            LogAssert.NoUnexpectedReceived();
+            log.AssertOnlyLogged(LogType.Warning, "preferred size");
         }
 
         [UnityTest]

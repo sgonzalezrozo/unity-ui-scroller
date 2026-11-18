@@ -202,9 +202,10 @@ namespace UIScroller.Tests.PlayMode
         {
             rig = ScrollerRig.Create(new RigOptions { Sectioned = true });
             rig.Sectioned.HeaderPrefab = null;
-            LogAssert.Expect(LogType.Error, new Regex("Header Prefab"));
+            using LogCapture log = new();
 
             rig.Sectioned.SetSource(ScrollerRig.MakeSections(2));
+            log.AssertLogged(LogType.Error, "Header Prefab");
             yield return ScrollerRig.Frames(2);
 
             Assert.IsFalse(rig.Sectioned.IsInitialized);

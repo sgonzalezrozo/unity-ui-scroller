@@ -52,9 +52,10 @@ namespace UIScroller.Tests.Editor
         [Test]
         public void AddingAContentSizeFitterToContent_InTheEditor_WarnsThatItIsRemoved()
         {
-            LogAssert.Expect(LogType.Warning, new Regex("Removed ContentSizeFitter from Content"));
+            using LogCapture log = new();
 
             ObjectFactory.AddComponent<ContentSizeFitter>(list.content.gameObject);
+            log.AssertLogged(LogType.Warning, "Removed ContentSizeFitter from Content");
         }
     }
 }

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
+using UIScroller.Tests.PlayMode;
 using UnityEngine.TestTools;
+using UnityEngine;
 
 namespace UIScroller.Tests.Editor
 {
@@ -129,9 +130,10 @@ namespace UIScroller.Tests.Editor
         [Test]
         public void Expand_IsIgnoredInAGrid()
         {
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("grid"));
+            using LogCapture log = new();
 
             bool changed = expansion.Expand(2, 300f, false, 2);
+            log.AssertLogged(LogType.Warning, "grid");
 
             Assert.IsFalse(changed);
             Assert.IsFalse(expansion.IsExpanded(2));
@@ -140,12 +142,12 @@ namespace UIScroller.Tests.Editor
         [Test]
         public void Bug_6_12_Expand_InAGrid_WarnsOnlyOnce()
         {
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("grid"));
+            using LogCapture log = new();
 
             expansion.Expand(2, 300f, false, 2);
             expansion.Expand(3, 300f, false, 2);
 
-            LogAssert.NoUnexpectedReceived();
+            log.AssertOnlyLogged(LogType.Warning, "grid");
         }
 
         [TestCase(-2)]
@@ -198,9 +200,10 @@ namespace UIScroller.Tests.Editor
         [Test]
         public void SetExpandedSize_OnACollapsedItem_WarnsAndDoesNothing()
         {
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("not expanded"));
+            using LogCapture log = new();
 
             Assert.IsFalse(expansion.SetExpandedSize(2, 400f, 1));
+            log.AssertLogged(LogType.Warning, "not expanded");
             Assert.AreEqual(100f, layout.Lines[2].Size);
         }
 
@@ -208,9 +211,10 @@ namespace UIScroller.Tests.Editor
         public void SetExpandedSize_InAGrid_WarnsAndDoesNothing()
         {
             expansion.Expand(2, 300f, false, 1);
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("not supported"));
+            using LogCapture log = new();
 
             Assert.IsFalse(expansion.SetExpandedSize(2, 400f, 2));
+            log.AssertLogged(LogType.Warning, "not supported");
         }
 
         [Test]

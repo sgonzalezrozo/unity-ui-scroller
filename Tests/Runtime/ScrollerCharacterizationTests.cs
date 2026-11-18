@@ -313,12 +313,14 @@ namespace UIScroller.Tests.PlayMode
         {
             rig = ScrollerRig.Create(new RigOptions { Expandable = true, SlotsPerLine = 2 });
             yield return rig.Initialize(20);
+            using LogCapture log = new();
 
             rig.Scroller.Expand(2, 300f);
             yield return null;
 
             Assert.IsFalse(rig.Scroller.IsExpanded(2));
             Assert.AreEqual(1000f, rig.ContentSize, 0.01f);
+            log.AssertLogged(LogType.Warning, "Expand is ignored in a grid");
         }
 
         // ---------- Navigation and visibility ----------

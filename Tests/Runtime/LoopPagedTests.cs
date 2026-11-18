@@ -31,8 +31,9 @@ namespace UIScroller.Tests.PlayMode
                 BentoLayout = bento ? BentoLayout.FromSpans(4, new[] { new BentoSpan(2, 2), BentoSpan.One, BentoSpan.One, BentoSpan.One, BentoSpan.One }) : null,
             });
             rig.List.Settings.loop = true;
-            LogAssert.Expect(LogType.Warning, new Regex("Loop turns paging off"));
+            using LogCapture log = new();
             yield return rig.Initialize(new PagedSource<TestItem>(loader));
+            log.AssertLogged(LogType.Warning, "Loop turns paging off");
             yield return ScrollerRig.WaitUntil(HasItems, "the first page never arrived");
         }
 

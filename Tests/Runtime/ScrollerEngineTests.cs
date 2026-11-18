@@ -74,9 +74,10 @@ namespace UIScroller.Tests.PlayMode
         {
             rig = ScrollerRig.Create();
             rig.Scroller.content = null;
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("Content"));
+            using LogCapture log = new();
 
             Assert.DoesNotThrow(() => rig.Scroller.Initialize(new ListSource<TestItem>(ScrollerRig.MakeItems(10))));
+            log.AssertLogged(LogType.Error, "Content");
             Assert.IsFalse(rig.Scroller.IsInitialized);
         }
 
@@ -85,9 +86,10 @@ namespace UIScroller.Tests.PlayMode
         {
             rig = ScrollerRig.Create();
             rig.Content.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("ContentSizeFitter on Content"));
+            using LogCapture log = new();
 
             rig.Scroller.Initialize(new ListSource<TestItem>(ScrollerRig.MakeItems(10)));
+            log.AssertLogged(LogType.Error, "ContentSizeFitter on Content");
 
             Assert.IsFalse(rig.Scroller.IsInitialized);
         }

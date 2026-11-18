@@ -81,14 +81,14 @@ namespace UIScroller.Tests.PlayMode
         public IEnumerator AGivenSize_IsIgnored_AndWarnsOnce()
         {
             yield return Start(allowMultiple: true);
-            LogAssert.Expect(LogType.Warning, new Regex("measured with layout"));
+            using LogCapture log = new();
 
             rig.Scroller.Expand(2, 999f);
             rig.Scroller.Expand(4, 999f);
 
             Assert.AreEqual(EXPANDED, rig.ItemFor(2).sizeDelta.y, 0.01f);
             Assert.AreEqual(EXPANDED, rig.ItemFor(4).sizeDelta.y, 0.01f);
-            LogAssert.NoUnexpectedReceived();
+            log.AssertOnlyLogged(LogType.Warning, "measured with layout");
         }
 
         [UnityTest]
@@ -96,9 +96,10 @@ namespace UIScroller.Tests.PlayMode
         {
             yield return Start();
             rig.Scroller.Expand(2);
-            LogAssert.Expect(LogType.Warning, new Regex("measured with layout"));
+            using LogCapture log = new();
 
             rig.Scroller.SetExpandedSize(2, 999f);
+            log.AssertLogged(LogType.Warning, "measured with layout");
 
             Assert.AreEqual(EXPANDED, rig.ItemFor(2).sizeDelta.y, 0.01f);
         }

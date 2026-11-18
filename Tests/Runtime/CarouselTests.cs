@@ -165,8 +165,9 @@ namespace UIScroller.Tests.PlayMode
         {
             yield return Start(options: new RigOptions { Expandable = true });
 
-            LogAssert.Expect(LogType.Warning, new Regex("doesn't expand items"));
+            using LogCapture log = new();
             rig.List.Expand(1, 250f);
+            log.AssertLogged(LogType.Warning, "doesn't expand items");
 
             Assert.IsFalse(rig.List.IsExpanded(1));
         }
@@ -174,8 +175,9 @@ namespace UIScroller.Tests.PlayMode
         [UnityTest]
         public IEnumerator Grid_IsRejected_WithAnError()
         {
-            LogAssert.Expect(LogType.Error, new Regex("Loop doesn't work with a grid"));
+            using LogCapture log = new();
             yield return Start(count: 10, options: new RigOptions { SlotsPerLine = 2 });
+            log.AssertLogged(LogType.Error, "Loop doesn't work with a grid");
 
             Assert.IsTrue(rig.List.IsFirstItemVisible, "a plain grid, with a start");
             Assert.AreEqual(500f, rig.List.ContentSize, 0.01f);
@@ -187,8 +189,9 @@ namespace UIScroller.Tests.PlayMode
             rig = ScrollerRig.Create(new RigOptions { Sectioned = true });
             rig.List.Settings.loop = true;
 
-            LogAssert.Expect(LogType.Error, new Regex("Loop doesn't work with sections"));
+            using LogCapture log = new();
             yield return rig.InitializeSections(ScrollerRig.MakeSections(3, 3));
+            log.AssertLogged(LogType.Error, "Loop doesn't work with sections");
 
             Assert.IsTrue(rig.List.IsFirstItemVisible);
         }
@@ -418,7 +421,11 @@ namespace UIScroller.Tests.PlayMode
 
         // ---------- Inertia matches a plain ScrollRect ----------
 
-        /// <summary>A plain Unity ScrollRect next to the list: same size, settings, content height and position.</summary>
+        // Room the plain ScrollRect gets on each side of where it starts. The list loops, so it never reaches an end; a
+        // fast flick took the twin past its own content's start, and its elastic edge slowed it down.
+        private const float TWIN_ROOM = 100_000f;
+
+        /// <summary>A plain Unity ScrollRect next to the list: same size, settings and position, with room to coast either way.</summary>
         private UnityEngine.UI.ScrollRect BuildTwinScrollRect()
         {
             GameObject twinGo = new("TwinScrollRect", typeof(RectTransform));
@@ -439,8 +446,8 @@ namespace UIScroller.Tests.PlayMode
             content.anchorMin = rig.Content.anchorMin;
             content.anchorMax = rig.Content.anchorMax;
             content.pivot = rig.Content.pivot;
-            content.sizeDelta = rig.Content.sizeDelta;
-            content.anchoredPosition = rig.Content.anchoredPosition;
+            content.sizeDelta = rig.Content.sizeDelta + new Vector2(0f, 2f * TWIN_ROOM);
+            content.anchoredPosition = rig.Content.anchoredPosition + new Vector2(0f, TWIN_ROOM);
 
             UnityEngine.UI.ScrollRect twin = twinGo.AddComponent<UnityEngine.UI.ScrollRect>();
             twin.viewport = viewport;
@@ -477,24 +484,29 @@ namespace UIScroller.Tests.PlayMode
             rig.List.OnEndDrag(listPointer);
             twin.OnEndDrag(twinPointer);
 
-            // Travel in items, unwrapped: the list may loop round, the twin just moves.
+            // The list's travel, from how far an item near the middle of the viewport moves each frame. ScrollDistance
+            // can't tell it: a big loop recentres its short window by whole items, which moves ScrollDistance and
+            // Content but nothing on screen. Frames are short in batch mode, so the window rarely moved there.
             float listTravel = 0f;
-            float lastDistance = rig.ScrollDistance;
             float twinStart = twin.content.anchoredPosition.y;
             for (int i = 0; i < coastFrames; i++)
             {
+                int id = (rig.List.VisibleStartIndex + 3) % TEN_THOUSAND;
+                float before = PositionInViewport(id);
                 yield return null;
-                float now = rig.ScrollDistance;
-                float step = now - lastDistance;
-                float period = TEN_THOUSAND * 120f;
-                if (Mathf.Abs(step) > period * 0.5f)
-                    step -= Mathf.Sign(step) * period;
-                listTravel += step;
-                lastDistance = now;
+                listTravel += PositionInViewport(id) - before;
             }
 
             result[2] = listTravel;
             result[3] = twin.content.anchoredPosition.y - twinStart;
+        }
+
+        /// <summary>Where the item with this id is, up the viewport. It moves up as the list scrolls forward.</summary>
+        private float PositionInViewport(int id)
+        {
+            RectTransform item = rig.ItemFor(id);
+            Assert.IsNotNull(item, $"item {id} left the viewport in one frame, so its travel can't be measured");
+            return rig.Viewport.InverseTransformPoint(item.position).y;
         }
 
         [UnityTest]
@@ -508,7 +520,7 @@ namespace UIScroller.Tests.PlayMode
             yield return DragBoth(twin, pixelsPerFrame, 15, 40, result);
 
             // A big loop scrolls a short window, so its position stays small and moves in exact steps: it coasts as far.
-            Debug.Log($"[Inertia] drag {pixelsPerFrame}/frame: release speed list {result[0]:F0} vs plain {result[1]:F0}; coasting list {result[2]:F0} px vs plain {result[3]:F0} px");
+            TestContext.WriteLine($"[Inertia] drag {pixelsPerFrame}/frame: release speed list {result[0]:F0} vs plain {result[1]:F0}; coasting list {result[2]:F0} px vs plain {result[3]:F0} px");
             Assert.AreEqual(result[1], result[0], Mathf.Abs(result[1]) * 0.01f + 1f, "release speed");
             Assert.AreEqual(result[3], result[2], Mathf.Abs(result[3]) * 0.03f + 1f, "distance coasted after release");
             Object.Destroy(twin.gameObject);
