@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
-[![Version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue.svg)](CHANGELOG.md)
+[![Version 0.5.1](https://img.shields.io/badge/version-0.5.1-blue.svg)](CHANGELOG.md)
 
 UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
 
@@ -60,7 +60,7 @@ Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, and in 
 - need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
-- it's a first release (0.5.0), by a single author, not yet used in a shipped game;
+- it's an early release (0.5.1), by a single author, not yet used in a shipped game;
 - it's covered by about 470 automated tests (EditMode and PlayMode) that run in batch mode, and by a benchmark measured on Android phones;
 - it's MIT licensed, with a [changelog](CHANGELOG.md) that marks every breaking change.
 
@@ -107,7 +107,7 @@ UI Scroller needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
 
-UI Scroller 0.5.0 is tested with Tools Core 0.4.0. To pin it: `https://github.com/sgonzalezrozo/unity-tools-core.git#v0.4.0`.
+UI Scroller 0.5.1 is tested with Tools Core 0.4.0. To pin it: `https://github.com/sgonzalezrozo/unity-tools-core.git#v0.4.0`.
 
 ### 2. Install UI Scroller
 
@@ -120,7 +120,7 @@ https://github.com/sgonzalezrozo/unity-ui-scroller.git
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-ui-scroller.git#v0.5.0
+https://github.com/sgonzalezrozo/unity-ui-scroller.git#v0.5.1
 ```
 
 The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's part of uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
@@ -157,7 +157,9 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
 
     private InventoryItem data;
 
-    public float DefaultExtent => 80f; // a fixed height; -1 measures it with layout
+    // 80 is a fixed height: the slot is always 80 px and its layout group is never measured.
+    // Return -1 (0 or less) to size each slot from its layout instead. See "Item sizes".
+    public float DefaultExtent => 80f;
 
     public InventoryItem Data
     {
@@ -172,6 +174,8 @@ public class InventorySlot : MonoBehaviour, ISlot<InventoryItem>
 ```
 
 Save the slot as a prefab, with a `RectTransform` on its root.
+
+> **Slots with a layout group:** if the slot's root has a `VerticalLayoutGroup` and should grow with its text, return `-1` from `DefaultExtent`. Any positive value is a fixed size: the slot keeps it and doesn't grow, even with a layout group. See [Building a slot that sizes itself](#building-a-slot-that-sizes-itself).
 
 ### 2. A list class
 
@@ -244,12 +248,24 @@ list.Refresh();
 
 Each slot decides how big it is through `DefaultExtent` (the height in a vertical list, the width in a horizontal one):
 
-- **A positive number is a fixed size.** Nothing is measured. This is the fastest option.
+- **A positive number is a fixed size.** Nothing is measured, not even a layout group on the slot: every item gets exactly that size. This is the fastest option.
 - **0 or less (for example `-1`) measures the slot with Unity's layout.** Text, localized strings and images decide each item's size.
+
+A slot with a layout group that should grow with its content needs `-1`. With `80`, it stays 80 px.
 
 ### Building a slot that sizes itself
 
-- On the prefab's root, add a `VerticalLayoutGroup` (a `HorizontalLayoutGroup` in a horizontal list) with **Control Child Size > Height** on (**Width** in a horizontal list) and **Child Force Expand > Height** off.
+- Return `-1` from `DefaultExtent`.
+- On the prefab's root, add a `VerticalLayoutGroup` (a `HorizontalLayoutGroup` in a horizontal list). These settings work for a vertical list:
+
+  | Setting | Value |
+  |---|---|
+  | Child Alignment | Upper Center |
+  | Control Child Size | **Width** and **Height** on |
+  | Use Child Scale | Width and Height off |
+  | Child Force Expand | Width and Height off |
+
+  **Control Child Size > Height** is the one that lets the list read the slot's height (**Width** in a horizontal list); with it off, the slot keeps the prefab's size. **Child Force Expand > Height** on stretches children to fill the slot instead of fitting them.
 - Inside it, use text with wrapping on, images with a `LayoutElement` or an `AspectRatioFitter`, and nested layout groups.
 - **Don't put a `ContentSizeFitter` on the root.** The list sets the root's size, and a fitter would fight it. Fitters on children are fine.
 - The list always sets the width: the full width in a list, the column width in a grid. That's what makes text wrap correctly.
@@ -755,7 +771,8 @@ If your UI is in UI Toolkit, start with `ListView`.
 | `Cannot initialize inactive GameObject` | Activate the list before calling `Initialize` |
 | `Header Prefab is not assigned` | Assign a Header Prefab before the first `SetSource` |
 | `Expand` does nothing | Expanding works in lists only, not in grids, bento or looping lists |
-| Measured slots all keep the prefab's size, with a warning | Add a layout group to the slot's root (see [Item sizes](#item-sizes)) |
+| A slot with a layout group doesn't grow with its content | `DefaultExtent` returns a positive number, which is a fixed size. Return `-1` (see [Item sizes](#item-sizes)) |
+| Measured slots all keep the prefab's size, with a warning | Add a layout group to the slot's root with **Control Child Size > Height** on (see [Item sizes](#item-sizes)) |
 | Measured slots are too tall or collapse | Remove the `ContentSizeFitter` from the slot's root, and turn off **Child Force Expand > Height** |
 | The bento list shows 1x1 tiles | The layout has errors: the inspector and the console list them |
 | New pages don't appear | Check that the source is a `PagedSource<T>` (or another `IPagedSource<T>`), and subscribe to `PageFailed` to see load errors |
@@ -788,7 +805,7 @@ Slots are reused: reset every visual in the `Data` setter, not only the ones tha
 
 ### Is it production-ready?
 
-It's a first release (`0.5.0`): tested in depth (700+ automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome.
+It's an early release (`0.5.1`): tested in depth (700+ automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome.
 
 ### Does it work with AI coding agents?
 
@@ -800,7 +817,7 @@ Yes, it's MIT licensed.
 
 ## Project status
 
-This is version `0.5.0`, the first release as UI Scroller. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
+This is version `0.5.1`. UI Scroller was first released as 0.5.0. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
 - Until `1.0.0`, a minor version (0.6, 0.7…) can include breaking changes; patch versions (0.5.1) never do. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
 - Planned work: [Limitations and roadmap](#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).

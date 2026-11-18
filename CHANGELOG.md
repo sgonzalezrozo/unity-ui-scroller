@@ -4,6 +4,17 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-17
+
+### Added
+
+- After the package is imported, a dialog links to the documentation, once per project.
+- `documentationUrl` in `package.json`, so the Package Manager links to the documentation.
+
+### Documentation
+
+- README: a positive `DefaultExtent` is a fixed size even when the slot has a layout group; return `-1` for slots that grow with their content. Recommended `VerticalLayoutGroup` settings for measured slots, and a Troubleshooting entry.
+
 ## [0.5.0] - 2026-11-17
 
 The first release as UI Scroller: Recyclable Scroller 0.3.0, refactored and renamed. **Breaking** changes are marked below.

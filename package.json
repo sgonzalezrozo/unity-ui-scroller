@@ -1,8 +1,9 @@
 {
   "name": "com.sgonzalezrozo.ui-scroller",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "displayName": "UI Scroller",
   "description": "Recycling (virtualized) scroll view for Unity uGUI: lists, grids and bento layouts of any length that reuse a few slots, with zero allocations while scrolling. Measured sizes, sections with headers, expandable slots, looping carousels, pull to refresh and paged loading.",
+  "documentationUrl": "https://github.com/sgonzalezrozo/unity-ui-scroller#readme",
   "unity": "2022.3",
   "license": "MIT",
   "author": {
