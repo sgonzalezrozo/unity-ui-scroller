@@ -4,6 +4,16 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-17
+
+### Fixed
+
+- The **Examples** sample was missing the nested scrolling example the README describes: `NestedExample`, `NestedExampleList`, `ShelfCarouselList`, `ShelfSlot` and `CardSlot` never reached the repository.
+
+### Documentation
+
+- README: screenshots of the Inspector, of a sectioned list's Inspector and of a measured slot's `VerticalLayoutGroup`, and more detail on the Inspector settings: what each **Snap** mode does, **Snap Align**, the **Edit Layout…** button, an example of **Cell Aspect**, and the default **Pool Buffer**.
+
 ## [0.5.1] - 2026-11-17
 
 ### Added

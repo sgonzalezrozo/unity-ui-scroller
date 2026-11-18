@@ -10,4 +10,12 @@ Keep GIFs to 10–15 seconds, about 800 px wide and under 5 MB. Use lowercase na
 |---|---|---|
 | `demo.gif` | Scrolling 100,000 items with the Profiler open | Top of the README |
 | `expandable-and-pagination.gif` | Expanding a cell, then loading more pages | Expandable cells |
-| `hierarchy-and-inspector.png` | The scene hierarchy and scroller Inspector | Set up the scene |
+| `hierarchy-and-inspector.png` | The scene hierarchy | Set up the scene |
+
+## In use
+
+| File | README section |
+|---|---|
+| `scroller-inspector.png` | Inspector |
+| `sectioned-inspector.png` | Sections and headers |
+| `measured-slot-layout-group.png` | Building a slot that sizes itself |

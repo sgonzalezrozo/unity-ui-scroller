@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tested on Unity 6000.3](https://img.shields.io/badge/Unity-6000.3%20tested-black?logo=unity)](#compatibility)
-[![Version 0.5.1](https://img.shields.io/badge/version-0.5.1-blue.svg)](CHANGELOG.md)
+[![Version 0.5.2](https://img.shields.io/badge/version-0.5.2-blue.svg)](CHANGELOG.md)
 
 UI Scroller extends Unity's `ScrollRect`. You give it a source of items and a slot prefab; it creates only the slots that fit on screen, plus a small buffer, and moves and rebinds them as you scroll. Its cost depends on what's on screen, never on how many items there are: 300 or 100,000 items cost the same.
 
@@ -60,7 +60,7 @@ Measured on five phones, from a 2021 low-end Android to a 120 Hz iPhone, and in 
 - need features from [Limitations and roadmap](#limitations-and-roadmap) that aren't there yet, such as several slot prefabs per list or sticky headers.
 
 **Adopting it, honestly:**
-- it's an early release (0.5.1), by a single author, not yet used in a shipped game;
+- it's an early release (0.5.2), by a single author, not yet used in a shipped game;
 - it's covered by about 470 automated tests (EditMode and PlayMode) that run in batch mode, and by a benchmark measured on Android phones;
 - it's MIT licensed, with a [changelog](CHANGELOG.md) that marks every breaking change.
 
@@ -107,7 +107,7 @@ UI Scroller needs [Tools Core](https://github.com/sgonzalezrozo/unity-tools-core
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
 
-UI Scroller 0.5.1 is tested with Tools Core 0.4.0. To pin it: `https://github.com/sgonzalezrozo/unity-tools-core.git#v0.4.0`.
+UI Scroller 0.5.2 is tested with Tools Core 0.4.0. To pin it: `https://github.com/sgonzalezrozo/unity-tools-core.git#v0.4.0`.
 
 ### 2. Install UI Scroller
 
@@ -120,7 +120,7 @@ https://github.com/sgonzalezrozo/unity-ui-scroller.git
 To pin a release, add its tag:
 
 ```text
-https://github.com/sgonzalezrozo/unity-ui-scroller.git#v0.5.1
+https://github.com/sgonzalezrozo/unity-ui-scroller.git#v0.5.2
 ```
 
 The package itself doesn't need TextMeshPro. The Quick Start and Extras samples use it: it's part of uGUI in Unity 6, and on Unity 2022.3 you install it from the Package Manager.
@@ -260,11 +260,14 @@ A slot with a layout group that should grow with its content needs `-1`. With `8
 
   | Setting | Value |
   |---|---|
-  | Child Alignment | Upper Center |
+  | Child Alignment | Upper Left or Upper Center |
   | Control Child Size | **Width** and **Height** on |
   | Use Child Scale | Width and Height off |
   | Child Force Expand | Width and Height off |
 
+  <img src="Documentation~/images/measured-slot-layout-group.png" alt="A Vertical Layout Group on a measured slot: padding 10 at top and bottom, Child Alignment Upper Left, Control Child Size Width and Height on, Use Child Scale and Child Force Expand off" width="420">
+
+  Padding and spacing are counted in the measured height.
   **Control Child Size > Height** is the one that lets the list read the slot's height (**Width** in a horizontal list); with it off, the slot keeps the prefab's size. **Child Force Expand > Height** on stretches children to fill the slot instead of fitting them.
 - Inside it, use text with wrapping on, images with a `LayoutElement` or an `AspectRatioFitter`, and nested layout groups.
 - **Don't put a `ContentSizeFitter` on the root.** The list sets the root's size, and a fitter would fight it. Fitters on children are fine.
@@ -381,7 +384,9 @@ public class InventorySectionsList : SectionedScroller<InventoryItem, InventoryS
 }
 ```
 
-Assign **Slot Prefab** and **Header Prefab**, then build the sections:
+Assign **Slot Prefab** and **Header Prefab**, then build the sections. A sectioned list adds **Header Prefab**, **Section Spacing** and **Header To Content Spacing** to the Inspector:
+
+<img src="Documentation~/images/sectioned-inspector.png" alt="The Inspector of a sectioned bento list: Slot Prefab and Header Prefab, the bento layout settings, then Row Spacing, Section Spacing, Header To Content Spacing, padding, Snap, Reset Scroll On Enable and Override Pool Buffer" width="420">
 
 ```csharp
 SectionedSource<InventoryItem, InventorySection> source = new();
@@ -649,6 +654,8 @@ Numbers per device, what allocated and how it stopped, and what each optimizatio
 
 ## Inspector
 
+<img src="Documentation~/images/scroller-inspector.png" alt="The UI Scroller Inspector of a bento list: Slot Prefab, Direction, Layout set to Bento with its Layout JSON, Edit Layout button, Cell Aspect and Column Spacing, then Row Spacing, padding, and the Behaviour settings" width="420">
+
 Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Left" in a left-to-right one. The `ScrollRect` settings underneath are hidden and driven by these. Settings are read-only while playing.
 
 | Setting | Purpose |
@@ -658,16 +665,17 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 | Direction | Top to bottom, bottom to top, left to right or right to left |
 | Layout | List, Grid (a fixed count per line), Auto Grid (as many as fit) or Bento (tiles from a JSON layout) |
 | Columns / Rows, Target size, Min, Max | Grid settings, shown for the chosen layout |
-| Layout JSON, Cell Aspect | Bento settings: the layout, and row height divided by column width. Errors in the JSON are shown under the settings |
+| Layout JSON, Edit Layout…, Cell Aspect | Bento settings: the layout file, a button that opens it in the [Bento Layout Editor](#bento), and row height divided by column width (0.5 makes cells twice as wide as tall). Errors in the JSON are shown under the settings |
 | Row Spacing / Column Spacing | Space between lines, and between slots on a line |
 | Section Spacing | Space before every header except the first (sectioned lists only) |
 | Header To Content Spacing | Space between each header and its section's first line (sectioned lists only) |
 | Padding (start and end) | Space before the first line and after the last |
-| Loop | Goes round forever, like a carousel (lists only) |
-| Snap, Snap Align | After a drag, settle on the nearest item, or move one page at a time |
+| Loop | Goes round forever, like a carousel. Lists and bento only, not grids or sections, and items don't expand |
+| Snap | After a drag: **None** keeps scrolling freely, **Item** settles on the nearest item, **Page** moves one viewport at a time |
+| Snap Align | With **Item**: whether the item lines up with the start, center or end of the viewport. Pages always line up with the start |
 | Allow Multiple Expanded | Keeps more than one slot open (lists only) |
 | Reset Scroll On Enable | Goes back to the start when the list is enabled again |
-| Override Pool Buffer, Pool Buffer | How many extra slots to keep ready beyond the visible ones |
+| Override Pool Buffer, Pool Buffer | How many slots to keep, as a multiple of the ones that fit on screen. The default is 1.4; raise it if fast flings show empty space |
 
 ## API
 
@@ -805,7 +813,7 @@ Slots are reused: reset every visual in the `Data` setter, not only the ones tha
 
 ### Is it production-ready?
 
-It's an early release (`0.5.1`): tested in depth (700+ automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome.
+It's an early release (`0.5.2`): tested in depth (700+ automated tests, a 45-case bench on five phones and in WebGL) but by a single author and not yet used in a shipped game, so the API may still change before `1.0.0`. Bug reports are very welcome.
 
 ### Does it work with AI coding agents?
 
@@ -817,7 +825,7 @@ Yes, it's MIT licensed.
 
 ## Project status
 
-This is version `0.5.1`. UI Scroller was first released as 0.5.0. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
+This is version `0.5.2`. UI Scroller was first released as 0.5.0. Its API and behaviour may still change before `1.0.0`. It isn't used in a shipped game yet.
 
 - Until `1.0.0`, a minor version (0.6, 0.7…) can include breaking changes; patch versions (0.5.1) never do. From `1.0.0` on, only major versions will. Breaking changes are marked **Breaking** in the [changelog](CHANGELOG.md).
 - Planned work: [Limitations and roadmap](#limitations-and-roadmap) and the [issues](https://github.com/sgonzalezrozo/unity-ui-scroller/issues).
