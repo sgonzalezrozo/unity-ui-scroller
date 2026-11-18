@@ -33,7 +33,7 @@ namespace UIScroller.Tests.PlayMode
             rig.List.Settings.loop = true;
             using LogCapture log = new();
             yield return rig.Initialize(new PagedSource<TestItem>(loader));
-            log.AssertLogged(LogType.Warning, "Loop turns paging off");
+            log.AssertLogged(LogType.Log, "Loop turns paging off");
             yield return ScrollerRig.WaitUntil(HasItems, "the first page never arrived");
         }
 
