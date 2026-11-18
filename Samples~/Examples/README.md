@@ -15,4 +15,4 @@ To run one, create an empty scene, add an empty GameObject, add one of these com
 | `NestedExample` | A vertical list of shelves, each a horizontal carousel: drag sideways on a shelf to move it, up or down to move the page. Cards shrink away from the centre (`IViewportPositionListener`) |
 | `PagingExample` | A `PagedSource` that loads 5 pages as you scroll (the last has 3 items). Pull down past the top to start again |
 
-`ExampleUI` is the code that builds the Canvas, the list (with its Viewport and Content) and the slot templates. In your own project you'd build those in the editor instead, as the **Quick Start** sample and the README describe.
+`ExampleUI` is the code that builds the Canvas, the list (with its Viewport and Content) and the slot templates. In your own project you'd build those in the editor instead, as the **Quick Start** sample and the Getting Started guide describe.

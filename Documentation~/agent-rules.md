@@ -81,4 +81,4 @@ A list added from code at runtime builds nothing: create a Viewport (with `RectM
 - Don't refresh a slot in `OnEnable`. Pooled slots stay active, so `OnEnable` doesn't run when a slot is reused. Refresh from the `Data` setter (or an event it raises).
 - Don't keep per-item state in a slot. Keep it in the item or a Model, because the slot will show another item later.
 - Don't change the list without calling `Refresh()`.
-- Don't invent members. If one isn't listed here or in the README, read the package source.
+- Don't invent members. If one isn't listed here or in the [API Reference](api-reference.md), read the package source.

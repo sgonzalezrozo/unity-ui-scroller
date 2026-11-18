@@ -4,6 +4,21 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-18
+
+### Documentation
+
+- The README is now a short overview with installation, a quickstart and links. Its content moved into guides in `Documentation~/`: Getting Started, Data & Sizes, Layouts, Scrolling, API Reference, Performance, AI Coding Agents, Troubleshooting & Limitations, FAQ and Project Status.
+- Installation instructions no longer pin a release tag.
+
+### Removed
+
+- The welcome dialog shown once per project after the package is imported.
+
+### Changed
+
+- When Loop turns paging off, because the paged source's first page is the whole list, it's logged as a plain message instead of a warning.
+
 ## [0.5.2] - 2026-11-17
 
 ### Fixed
