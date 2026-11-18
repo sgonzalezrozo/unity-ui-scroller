@@ -8,10 +8,10 @@
 > A recycling (virtualized) scroll view for uGUI: lists, grids and bento layouts of any length. Its cost depends on what's on screen, never on how many items there are. On five phones and WebGL: zero allocations while scrolling 100,000 items, and 0.07–0.25 ms of list work per scroll event.
 
 [![Unity](https://img.shields.io/badge/Unity-2022.3%20%7C%206000.3%20tested-black?style=for-the-badge&logo=unity)](Documentation~/getting-started.md#requirements)
-[![Version](https://img.shields.io/badge/version-0.5.3-blue?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.4-blue?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-[**Installation**](#installation) • [**Key Features**](#key-features) • [**Quickstart**](#quickstart) • [**Layouts**](Documentation~/layouts.md) • [**Scrolling**](Documentation~/scrolling.md) • [**API Reference**](Documentation~/api-reference.md)
+[**Installation**](#installation) • [**Key Features**](#key-features) • [**Quickstart**](#quickstart) • [**Examples**](Documentation~/examples.md) • [**Layouts**](Documentation~/layouts.md) • [**Scrolling**](Documentation~/scrolling.md) • [**API Reference**](Documentation~/api-reference.md)
 
 <sub>[Getting Started](Documentation~/getting-started.md) • [Data & Sizes](Documentation~/data-and-sizes.md) • [Performance](Documentation~/performance.md) • [AI Agents](Documentation~/ai-agents.md) • [Troubleshooting](Documentation~/troubleshooting.md) • [FAQ](Documentation~/faq.md) • [Project Status](Documentation~/project-status.md)</sub>
 
@@ -41,12 +41,12 @@ There's nothing to set up after installing. Requirements, tested platforms and s
 
 ## Key Features
 
-* **[Every layout a game screen needs](Documentation~/layouts.md)**: vertical and horizontal lists in both directions, fixed and automatic grids, and **bento** tiles of different sizes described in JSON.
-  Sections with headers of any height, and expandable accordion slots.
-* **[Sizes the way you build slots](Documentation~/data-and-sizes.md#item-sizes)**: a fixed size, or the slot's own Unity layout, measured once and cached, with no `ContentSizeFitter`.
+* **[Every layout a game screen needs](Documentation~/layouts.md)**: [vertical](Documentation~/examples.md#simple-list-with-fixed-size-slots) and [horizontal](Documentation~/examples.md#horizontal-list) lists in both directions, [fixed](Documentation~/examples.md#grid-with-fixed-columns) and [automatic](Documentation~/examples.md#auto-grid) grids, and [**bento**](Documentation~/examples.md#bento-store) tiles of different sizes described in JSON.
+  [Sections with headers](Documentation~/examples.md#several-sources-in-one-list-sections) of any height, and [expandable accordion slots](Documentation~/examples.md#expandable-rows).
+* **[Sizes the way you build slots](Documentation~/data-and-sizes.md#item-sizes)**: a [fixed size](Documentation~/examples.md#simple-list-with-fixed-size-slots), or the [slot's own Unity layout](Documentation~/examples.md#slots-that-size-themselves), measured once and cached, with no `ContentSizeFitter`.
   Late text is followed without code, and what's on screen never jumps, even mid-drag.
-* **[Scrolling that feels right](Documentation~/scrolling.md)**: scroll to any item, snap to items or pages, looping carousels (bento ones too), and nested scrolling that hands drags to the right list.
-* **[Data that arrives in pages](Documentation~/scrolling.md#paging)**: the list asks for the next page by itself, appends it without a rebuild, and cancels loads it no longer needs.
+* **[Scrolling that feels right](Documentation~/scrolling.md)**: scroll to any item, snap to items or [pages](Documentation~/examples.md#pager), [looping carousels](Documentation~/examples.md#looping-carousel) (bento ones too), and [nested scrolling](Documentation~/examples.md#carousels-inside-a-vertical-list) that hands drags to the right list.
+* **[Data from anywhere](Documentation~/data-and-sizes.md#data-and-updates)**: [pages that load as you scroll](Documentation~/examples.md#infinite-scroll-with-paging), [several sources in one list](Documentation~/examples.md#several-sources-in-one-list-sections), [tabs](Documentation~/examples.md#switching-between-sources-tabs), [search](Documentation~/examples.md#search-and-filter) and [live updates](Documentation~/examples.md#updating-items-at-runtime), without a rebuild.
 * **[Built for phones](Documentation~/performance.md)**: scrolling allocates nothing, pooled slots stay active out of view, and the Viewport's nested Canvas rebatches only the list.
 
 ---
@@ -118,4 +118,4 @@ public class InventoryScreen : MonoBehaviour
 
 </details>
 
-The full walkthrough, including the scene setup, is in [Getting Started](Documentation~/getting-started.md#quick-start).
+The full walkthrough, with the prefab, the Hierarchy and the Inspector, is in [Simple list with fixed-size slots](Documentation~/examples.md#simple-list-with-fixed-size-slots). [Examples](Documentation~/examples.md) has the same for every other setup.

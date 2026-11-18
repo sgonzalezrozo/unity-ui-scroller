@@ -5,7 +5,8 @@
 ## Docs
 
 - [README](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/README.md): overview, installation, quickstart, links to every guide
-- [Getting Started](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/getting-started.md): requirements, installation, samples, quick start
+- [Getting Started](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/getting-started.md): requirements, installation, samples, your first list
+- [Examples](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/examples.md): step-by-step setups with scripts, prefabs and Inspector settings: fixed and measured slots, horizontal lists, grids, auto grids, bento, sections from several sources, tabs, paging and pull to refresh, search, runtime updates, expandable rows, looping carousels, pagers and nested carousels
 - [Data & Sizes](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/data-and-sizes.md): sources and updates, fixed and measured item sizes, filtering
 - [Layouts](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/layouts.md): lists, grids, bento, sections and headers, expandable slots
 - [Scrolling](https://github.com/sgonzalezrozo/unity-ui-scroller/blob/main/Documentation~/scrolling.md): scroll to item, snapping, looping carousels, nested scrolling, paging, pull to refresh

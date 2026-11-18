@@ -10,6 +10,8 @@
 
 ## Data and updates
 
+Full example: [Updating items at runtime](examples.md#updating-items-at-runtime).
+
 A list reads its items from a source (`IItemSource<T>`). Change the source, then call `Refresh()`:
 
 ```csharp
@@ -25,6 +27,8 @@ list.Refresh();
 For data that arrives in pages, see [Paging](scrolling.md#paging).
 
 ## Item sizes
+
+Full examples: [fixed-size slots](examples.md#simple-list-with-fixed-size-slots) and [slots that size themselves](examples.md#slots-that-size-themselves).
 
 Each slot decides how big it is through `DefaultExtent` (the height in a vertical list, the width in a horizontal one):
 
@@ -73,6 +77,8 @@ list.InvalidateAllSizes();  // every item
 Items on screen are measured at once, the others when they're shown. `InvalidateAllSizes()` is called for you when the list's width changes and, with Unity Localization installed, when the language changes. Both do nothing for fixed sizes.
 
 ## Filtering
+
+Full example: [Search and filter](examples.md#search-and-filter).
 
 Wrap a source in a `FilteredSource<T>`:
 

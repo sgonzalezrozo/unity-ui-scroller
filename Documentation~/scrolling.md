@@ -25,12 +25,16 @@ list.ScrollToItem(42, ScrollAlign.Start, 0.3f, 16f);  // leave 16 px before it
 
 ## Snapping
 
+Full examples: [Looping carousel](examples.md#looping-carousel) (Snap: Item) and [Pager](examples.md#pager) (Snap: Page).
+
 - **Snap: Item** settles on the nearest item once a drag ends and the list slows down, lined up with the viewport's start, centre or end (**Snap Align**).
 - **Snap: Page** moves one viewport at a time, like a pager: a flick goes to the next or previous page, a slow release to the nearest one.
 
 Snapping also runs after the mouse wheel, once it stops turning. `SnappedTo(index)` tells you where it landed.
 
 ## Looping lists (carousels)
+
+Full example: [Looping carousel](examples.md#looping-carousel).
 
 Tick **Loop** and the list goes round forever. Indexes stay real (`0` to `count - 1`) everywhere in the API, and `ScrollToItem` takes the shortest way round. For a carousel, combine it with **Snap: Item** and **Snap Align: Center**:
 
@@ -75,6 +79,8 @@ offers.Initialize(new ListSource<Offer>(todaysOffers));
 
 ## Carousel effects
 
+Full example: [the scale effect in Looping carousel](examples.md#the-slot-with-a-scale-effect).
+
 A slot that implements `IViewportPositionListener` is told where it sits in the viewport every time the list moves: 0 at the centre, -0.5 at the start edge, +0.5 at the end edge, from the slot's centre along the scroll axis. Use it to scale, fade or tilt the centred card:
 
 ```csharp
@@ -95,6 +101,8 @@ public class CardSlot : MonoBehaviour, ISlot<CardItem>, IViewportPositionListene
 
 ## Nested scrolling
 
+Full example: [Carousels inside a vertical list](examples.md#carousels-inside-a-vertical-list).
+
 Put a horizontal carousel inside a vertical list (or the other way round) and it just works: a drag mostly across the carousel's axis scrolls the list around it, a drag along it scrolls the carousel. The mouse wheel follows the same rule. The gesture is handed over once, when it starts, to the nearest parent that handles drags: a UI Scroller, a plain `ScrollRect` or your own handler. Touching the carousel also stops the outer list's fling.
 
 - The carousel can live in a pooled slot of the outer list: give it the row's source in the slot's `Data` setter (`Initialize` the first time, `SetSource` after) and call `ScrollToStart()` for a new row. The `NestedExample` in the Examples sample does exactly that.
@@ -103,6 +111,8 @@ Put a horizontal carousel inside a vertical list (or the other way round) and it
 - A vertical list inside another vertical list doesn't hand over at its edges yet.
 
 ## Paging
+
+Full example: [Infinite scroll with paging](examples.md#infinite-scroll-with-paging).
 
 Implement `IPageLoader<T>` and wrap it in a `PagedSource<T>`. Pages start at 0. Throw to report a failure:
 
@@ -137,6 +147,8 @@ list.ReachedEnd += () => Debug.Log("No more pages");
 - `source.Reset()` starts again from page 0, for example on pull to refresh.
 
 ## Pull to refresh
+
+Full example: [the list with pull to refresh](examples.md#the-list-with-pull-to-refresh).
 
 Override `OnPullToRefreshDetected()`. It runs when the user releases a drag more than 75 px past the start of the list:
 

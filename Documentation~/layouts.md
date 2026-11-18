@@ -12,9 +12,13 @@
 
 ## Lists and directions
 
+Full examples: [vertical list](examples.md#simple-list-with-fixed-size-slots) and [horizontal list](examples.md#horizontal-list).
+
 **Direction** is Top To Bottom, Bottom To Top, Left To Right or Right To Left. Bottom To Top and Right To Left start from the opposite end, as in a list whose newest item sits at the bottom. Every layout works in every direction.
 
 ## Grids
+
+Full examples: [Grid with fixed columns](examples.md#grid-with-fixed-columns) and [Auto grid](examples.md#auto-grid).
 
 Set **Layout** to:
 - **Grid** for a fixed number of columns (rows in a horizontal list);
@@ -25,6 +29,8 @@ Slots stretch to fill the line. The space between slots on a line is **Column Sp
 From code, before `Initialize`: `list.Settings.slotsPerLine = 3` for a fixed grid, or `list.Settings.autoSlotsPerLine = true` with `targetSlotSize` (and optionally `minSlotsPerLine` and `maxSlotsPerLine`).
 
 ## Bento
+
+Full example: [Bento store](examples.md#bento-store).
 
 Bento places tiles of different sizes on a grid of cells: a big featured tile, a strip of small ones, a tall one beside two stacked. Set **Layout** to **Bento** and give the list a **Layout JSON** (a TextAsset), or set it from code. Items don't choose their size: the layout does.
 
@@ -66,6 +72,8 @@ list.Initialize(source);
 - Tiles don't expand. A bento list can loop: see [Bento carousels](scrolling.md#bento-carousels).
 
 ## Sections and headers
+
+Full example: [Several sources in one list](examples.md#several-sources-in-one-list-sections), with a [bento variant](examples.md#bento-sections).
 
 For a list split into sections, each with a header, use `SectionedScroller<TItem, THeader>` with a `SectionedSource<TItem, THeader>`. Each section is a header plus its own source of items:
 
@@ -123,6 +131,8 @@ list.SetSource(source); // starts the list the first time, replaces the sections
 - A sectioned list doesn't page.
 
 ## Expandable slots
+
+Full example: [Expandable rows](examples.md#expandable-rows).
 
 Implement `IExpandableSlot<T>`. The list sets `Owner` and `ItemIndex` every time it binds the slot, and `IsExpanded` after `Data`:
 

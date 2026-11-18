@@ -4,6 +4,13 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-11-18
+
+### Documentation
+
+- An Examples guide, `Documentation~/examples.md`: step-by-step setups for every kind of list, each with its scripts, prefab and scene setup and an Inspector picture with numbered settings. Getting Started now covers installation, the samples and a short first list, and the feature lists link to the matching example.
+- The FAQ gives one test count, about 520, in both answers that mention it.
+
 ## [0.5.3] - 2026-11-18
 
 ### Documentation

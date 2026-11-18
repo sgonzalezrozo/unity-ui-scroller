@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="554" height="362" viewBox="0 0 554 362" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="524" height="362" fill="#383838"/>
+<rect x="0" y="0" width="524" height="21" rx="0" fill="#3e3e3e"/>
+<path d="M5 7 l4 6 l4 -6 z" fill="#9a9a9a"/>
+<rect x="19" y="3" width="15" height="15" rx="2" fill="#e8e8e8"/>
+<text x="26.5" y="15" fill="#3b7d3b" font-size="12" font-weight="700" text-anchor="middle">#</text>
+<rect x="40" y="3" width="15" height="15" rx="2" fill="#2a2a2a" stroke="#212121"/>
+<path d="M43 10.5 l3 3 l6 -7" stroke="#d2d2d2" stroke-width="1.8" fill="none"/>
+<text x="61" y="15" fill="#d2d2d2" font-size="12" font-weight="600" text-anchor="start">Onboarding Pager (Script)</text>
+<line x1="0" y1="21" x2="524" y2="21" stroke="#232323"/>
+<text x="17" y="45" fill="#d2d2d2" font-size="12" font-weight="700" text-anchor="start">Slots</text>
+<text x="17" y="65" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Slot Prefab</text>
+<rect x="216" y="53" width="304" height="16" rx="3" fill="#2a2a2a" stroke="#212121"/>
+<path d="M226 55 l6 3 v7 l-6 3 l-6 -3 v-7 z" fill="#5fa8e8"/><path d="M220 58 l6 3 l6 -3 M226 61 v7" stroke="#2f6aa0" fill="none" stroke-width="1"/>
+<text x="236" y="65" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">OnboardingPageSlot</text>
+<circle cx="511" cy="61" r="4.5" stroke="#d2d2d2" fill="none"/><circle cx="511" cy="61" r="1.6" fill="#d2d2d2"/>
+<text x="17" y="93" fill="#d2d2d2" font-size="12" font-weight="700" text-anchor="start">Layout</text>
+<text x="17" y="113" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Direction</text>
+<rect x="216" y="101" width="304" height="16" rx="3" fill="#515151" stroke="#212121"/>
+<text x="221" y="113" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Left To Right</text>
+<path d="M506 107 h8 l-4 5 z" fill="#d2d2d2"/>
+<text x="17" y="133" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Layout</text>
+<rect x="216" y="121" width="304" height="16" rx="3" fill="#515151" stroke="#212121"/>
+<text x="221" y="133" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">List</text>
+<path d="M506 127 h8 l-4 5 z" fill="#d2d2d2"/>
+<text x="17" y="161" fill="#d2d2d2" font-size="12" font-weight="700" text-anchor="start">Spacing &amp; Padding</text>
+<text x="17" y="181" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Column Spacing</text>
+<rect x="216" y="169" width="304" height="16" rx="3" fill="#2a2a2a" stroke="#212121"/>
+<text x="221" y="181" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">0</text>
+<text x="17" y="201" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Padding Left</text>
+<rect x="216" y="189" width="304" height="16" rx="3" fill="#2a2a2a" stroke="#212121"/>
+<text x="221" y="201" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">0</text>
+<text x="17" y="221" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Padding Right</text>
+<rect x="216" y="209" width="304" height="16" rx="3" fill="#2a2a2a" stroke="#212121"/>
+<text x="221" y="221" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">0</text>
+<text x="17" y="249" fill="#d2d2d2" font-size="12" font-weight="700" text-anchor="start">Behaviour</text>
+<text x="17" y="269" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Loop</text>
+<rect x="216" y="258" width="14" height="14" rx="2" fill="#2a2a2a" stroke="#212121"/>
+<text x="17" y="289" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Snap</text>
+<rect x="216" y="277" width="304" height="16" rx="3" fill="#515151" stroke="#212121"/>
+<text x="221" y="289" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Page</text>
+<path d="M506 283 h8 l-4 5 z" fill="#d2d2d2"/>
+<text x="17" y="309" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Allow Multiple Expanded</text>
+<rect x="216" y="298" width="14" height="14" rx="2" fill="#2a2a2a" stroke="#212121"/>
+<text x="17" y="329" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Reset Scroll On Enable</text>
+<rect x="216" y="318" width="14" height="14" rx="2" fill="#2a2a2a" stroke="#212121"/>
+<text x="17" y="349" fill="#d2d2d2" font-size="12" font-weight="400" text-anchor="start">Override Pool Buffer</text>
+<rect x="216" y="338" width="14" height="14" rx="2" fill="#2a2a2a" stroke="#212121"/>
+<rect x="2" y="100" width="522" height="20" rx="4" fill="none" stroke="#f2a33a" stroke-width="1.5"/>
+<circle cx="539.0" cy="110.0" r="9" fill="#f2a33a"/>
+<text x="539.0" y="114.0" fill="#1f1f1f" font-size="11" font-weight="700" text-anchor="middle">1</text>
+<rect x="2" y="276" width="522" height="20" rx="4" fill="none" stroke="#f2a33a" stroke-width="1.5"/>
+<circle cx="539.0" cy="286.0" r="9" fill="#f2a33a"/>
+<text x="539.0" y="290.0" fill="#1f1f1f" font-size="11" font-weight="700" text-anchor="middle">2</text>
+</svg>
