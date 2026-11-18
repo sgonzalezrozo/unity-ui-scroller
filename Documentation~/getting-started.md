@@ -61,6 +61,9 @@ Import them from the package's page in the Package Manager (**Samples** tab):
 
 Right-click a folder in the Project window and select **UI Scroller > New Scroll List**. The wizard asks only what needs different scripts; everything else (direction, spacing, grid, loop, snap) is a setting in the list's Inspector.
 
+<img src="images/assets-menu.png" alt="The Project window's context menu: UI Scroller > New Scroll List" width="420"><br>
+<img src="images/new-scroll-list.png" alt="The New Scroll List wizard: feature name, folder, source, paginated, size behaviour, bento JSON and TextMeshPro options, with the files it will create" width="420">
+
 | Option | Choices |
 |---|---|
 | **Feature Name** | Prefixes every script and prefab, for example `Store` |

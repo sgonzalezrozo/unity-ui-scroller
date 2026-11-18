@@ -4,6 +4,12 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-18
+
+### Documentation
+
+- Screenshots of the Assets menu and the New Scroll List wizard in the README's Quickstart and in Getting Started, which now starts with the wizard.
+
 ## [0.7.0] - 2026-11-18
 
 ### Added

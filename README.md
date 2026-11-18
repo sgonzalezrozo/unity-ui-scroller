@@ -8,7 +8,7 @@
 A recycling (virtualized) scroll view for uGUI: lists, grids and bento layouts of any length, costing only what's on screen. Zero allocations scrolling 100,000 items on phones and WebGL.
 
 [![Unity](https://img.shields.io/badge/Unity-2022.3%20%7C%206000.3%20tested-black?style=for-the-badge&logo=unity)](Documentation~/getting-started.md#requirements)
-[![Version](https://img.shields.io/badge/version-0.7.0-blue?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.7.1-blue?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [**Installation**](#installation) • [**Key Features**](#key-features) • [**Quickstart**](#quickstart) • [**Examples**](Documentation~/examples.md) • [**Layouts**](Documentation~/layouts.md) • [**Scrolling**](Documentation~/scrolling.md) • [**API Reference**](Documentation~/api-reference.md)
@@ -52,6 +52,13 @@ There's nothing to set up after installing. Requirements, tested platforms and s
 ---
 
 ## Quickstart
+
+The fastest start: right-click a folder in the Project window and select **UI Scroller > New Scroll List**. Name the feature, pick its source and size behaviour, and click **Create**: you get the scripts and the `StoreItem` and `StoreList` prefabs, wired and ready for your data. See [Create a list from the Assets menu](Documentation~/getting-started.md#create-a-list-from-the-assets-menu).
+
+<img src="Documentation~/images/assets-menu.png" alt="The Project window's context menu: UI Scroller > New Scroll List" width="420"><br>
+<img src="Documentation~/images/new-scroll-list.png" alt="The New Scroll List wizard: feature name, folder, source, paginated, size behaviour, bento JSON and TextMeshPro options, with the files it will create" width="420">
+
+By hand, in three steps:
 
 1. Add a slot (`ISlot<T>`) and a list class (`Scroller<T>`).
 2. Add the list to a sized UI object under your Canvas; it builds its Viewport and Content. Assign the slot prefab.

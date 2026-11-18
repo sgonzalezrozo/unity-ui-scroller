@@ -19,3 +19,5 @@ Keep GIFs to 10–15 seconds, about 800 px wide and under 5 MB. Use lowercase na
 | `scroller-inspector.png` | Inspector |
 | `sectioned-inspector.png` | Sections and headers |
 | `measured-slot-layout-group.png` | Building a slot that sizes itself |
+| `assets-menu.png` | Quickstart; Getting Started › Create a list from the Assets menu |
+| `new-scroll-list.png` | Quickstart; Getting Started › Create a list from the Assets menu |
