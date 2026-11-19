@@ -8,7 +8,7 @@
 A recycling (virtualized) scroll view for uGUI: lists, grids and bento layouts of any length, costing only what's on screen. Zero allocations scrolling 100,000 items on phones and WebGL.
 
 [![Unity](https://img.shields.io/badge/Unity-2022.3%20%7C%206000.3%20tested-black?style=for-the-badge&logo=unity)](Documentation~/getting-started.md#requirements)
-[![Version](https://img.shields.io/badge/version-0.7.2-blue?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.7.3-blue?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [**Installation**](#installation) • [**Key Features**](#key-features) • [**Quickstart**](#quickstart) • [**Examples**](Documentation~/examples.md) • [**Layouts**](Documentation~/layouts.md) • [**Scrolling**](Documentation~/scrolling.md) • [**API Reference**](Documentation~/api-reference.md)
@@ -30,6 +30,8 @@ UI Scroller depends on [Tools Core](https://github.com/sgonzalezrozo/unity-tools
 ```text
 https://github.com/sgonzalezrozo/unity-tools-core.git
 ```
+
+<sub>* Tools Core is needed only by Screen System, Fast IoC and UI Scroller. Add it once, even if you use several of them.</sub>
 
 ```text
 https://github.com/sgonzalezrozo/unity-ui-scroller.git
