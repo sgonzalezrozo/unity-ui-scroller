@@ -261,6 +261,9 @@ namespace UIScroller.Editor
                 .Replace("#TMP_USING#", o.textMeshPro ? "using TMPro;\n" : string.Empty)
                 .Replace("#TEXT_TYPE#", o.textMeshPro ? "TMP_Text" : "Text")
                 .Replace("#DESCRIPTION_FIELD#", hasDescription ? "\n    public string Description;" : string.Empty)
+                .Replace("#PLACEHOLDER_FIELDS#", hasDescription
+                    ? "Title = $\"Item {i + 1}\", Description = i % 2 == 0 ? \"A short description.\" : \"A longer description that wraps to more lines, so the items show different sizes.\""
+                    : "Title = $\"Item {i + 1}\"")
                 .Replace(NAME_TOKEN, name);
         }
 

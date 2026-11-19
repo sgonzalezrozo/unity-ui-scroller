@@ -46,6 +46,9 @@ namespace UIScroller
                 return;
             }
 
+            if ((typedEngine == null || !typedEngine.IsInitialized) && DeferUntilEnabled(() => SetSource(newSource)))
+                return;
+
             newSource.Recount();
             source = newSource;
             SectionedEntries entries = new(newSource);

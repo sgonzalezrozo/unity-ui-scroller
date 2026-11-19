@@ -63,6 +63,7 @@ namespace UIScroller
             base.OnEnable();
             engine?.OnEnabled();
             ListenToLocale();
+            RunPendingStart();
         }
 
         protected override void OnDisable()

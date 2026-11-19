@@ -19,6 +19,10 @@ namespace UIScroller
         /// <summary>Starts the scroller with a data source.</summary>
         public void Initialize(IItemSource<T> source)
         {
+            // Inactive: start when enabled instead of dropping the call.
+            if (source != null && !IsInitialized && DeferUntilEnabled(() => Initialize(source)))
+                return;
+
             if (!SourceGuard<T>.ValidateForInitialize(gameObject, source))
                 return;
 

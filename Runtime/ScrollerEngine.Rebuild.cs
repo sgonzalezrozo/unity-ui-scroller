@@ -7,6 +7,8 @@ namespace UIScroller
     {
         private const float DYNAMIC_GRID_MIN_DELTA = 5f;
         private const float RESIZE_MIN_DELTA = 0.5f;
+        // Below this, the viewport has no real size yet (a parent not laid out, a Canvas not sized).
+        private const float MIN_USABLE_VIEWPORT = 1f;
 
         private bool isRebuildingLayout;
         private float lastCrossAxisSize;
@@ -15,6 +17,8 @@ namespace UIScroller
         private int gridUpdateFrame;
         private bool poolWarmupPending;
         private int poolWarmupFrame;
+        // Initialized while the viewport had no size: nothing is shown until it has one (see BuildFirstScreen).
+        private bool awaitingViewport;
 
         // ---------- Rebuilds ----------
 
@@ -171,7 +175,7 @@ namespace UIScroller
 
         public void RebuildVisibleItems()
         {
-            if (!isInitialized)
+            if (!isInitialized || awaitingViewport)
                 return;
 
             KeepInsideLoop();
@@ -241,7 +245,7 @@ namespace UIScroller
         /// </summary>
         public void OnViewportResized()
         {
-            if (!isInitialized)
+            if (!isInitialized || awaitingViewport)
                 return;
 
             float crossAxisSize = viewportMetrics.GetCrossAxisViewportSize();
@@ -260,10 +264,19 @@ namespace UIScroller
         /// <summary>
         /// Binds and places the first screen inside Initialize, so it shows in the first rendered frame (P10). The
         /// canvases are laid out first, so the viewport has its real size even right after a screen was instantiated.
+        /// When it still has no size (a parent not laid out yet), no slot is created: slots placed then would be sized
+        /// from a zero or negative width, and measured ones would show their text one character wide until the next
+        /// layout. The first screen is built instead in the first LateUpdate where the viewport has a size, which is
+        /// still before that frame renders.
         /// </summary>
         private void BuildFirstScreen()
         {
             Canvas.ForceUpdateCanvases();
+            awaitingViewport = !HasUsableViewport();
+            if (awaitingViewport)
+                return;
+
+            lastCrossAxisSize = viewportMetrics.GetCrossAxisViewportSize();
             viewportSize = viewportMetrics.GetViewportSize();
 
             RecalculateContentSize();
@@ -279,6 +292,13 @@ namespace UIScroller
         /// </summary>
         public void RunDeferredWork()
         {
+            if (awaitingViewport)
+            {
+                if (isInitialized && HasUsableViewport())
+                    BuildFirstScreen();
+                return;
+            }
+
             int frame = Time.frameCount;
             if (gridUpdatePending && frame > gridUpdateFrame)
             {
@@ -317,6 +337,9 @@ namespace UIScroller
                 RebuildVisibleItems();
             }
         }
+
+        private bool HasUsableViewport()
+            => viewportMetrics.GetViewportSize() >= MIN_USABLE_VIEWPORT && viewportMetrics.GetCrossAxisViewportSize() >= MIN_USABLE_VIEWPORT;
 
         private void ScheduleDeferredPoolWarmup()
         {

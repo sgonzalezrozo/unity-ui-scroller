@@ -4,6 +4,17 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-19
+
+### Fixed
+
+- A list started while its viewport had no size yet (a parent not laid out, as when a screen is opened) showed its first slots at that size for a frame or two: slots measured with layout drew their text one character wide, with no background. The list now shows nothing until the viewport has a size, then builds its first screen before that frame renders.
+- `Initialize` or `SetSource` on a list whose GameObject is inactive logged `Cannot initialize inactive GameObject` and did nothing. The list now starts the next time it's enabled; a later source replaces one still waiting.
+
+### Changed
+
+- **New Scroll List**: the instantiator shows **Placeholder Count** made-up items (10 by default) until your code calls `Show`, so the list has something to show when you press Play. Set it to 0 once real data comes in. The paginated page loader makes up three pages until you replace `LoadAsync`.
+
 ## [0.7.1] - 2026-11-18
 
 ### Documentation

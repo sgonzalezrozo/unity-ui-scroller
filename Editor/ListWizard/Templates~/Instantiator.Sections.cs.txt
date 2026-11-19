@@ -4,15 +4,37 @@ using UnityEngine;
 
 /// <summary>
 /// Gives the #NAME#ScrollList its sections. Call AddSection once per group (a header model and its items), or Show
-/// to replace them all. An empty section is skipped, header included.
+/// to replace them all. An empty section is skipped, header included. Until then it shows Placeholder Count made-up
+/// items in three sections, so the list isn't empty when you press Play.
 /// </summary>
 public class #NAME#Instantiator : MonoBehaviour
 {
     [SerializeField] private #NAME#ScrollList scrollList;
+    [Tooltip("Made-up items shown on Start until your code calls Show, so the list has something to show when you press Play. Set it to 0 once real data comes in.")]
+    [SerializeField, Min(0)] private int placeholderCount = 10;
 
     private readonly SectionedSource<#NAME#ItemModel, #NAME#HeaderModel> source = new();
+    private bool hasShown;
 
     public int SectionCount => source.SectionCount;
+
+    private void Start()
+    {
+        if (hasShown || placeholderCount <= 0)
+            return;
+
+        const int SECTIONS = 3;
+        source.ClearSections();
+        for (int section = 0; section < SECTIONS; section++)
+        {
+            List<#NAME#ItemModel> items = new();
+            for (int i = section; i < placeholderCount; i += SECTIONS)
+                items.Add(new #NAME#ItemModel { #PLACEHOLDER_FIELDS# });
+            source.AddSection(new #NAME#HeaderModel { Title = $"Section {section + 1}" }, new ListSource<#NAME#ItemModel>(items));
+        }
+
+        Apply();
+    }
 
     /// <summary>Shows these sections, replacing the ones shown.</summary>
     public void Show(IEnumerable<(#NAME#HeaderModel header, IEnumerable<#NAME#ItemModel> items)> sections)
@@ -46,5 +68,8 @@ public class #NAME#Instantiator : MonoBehaviour
         => scrollList.ScrollToSection(sectionIndex, duration);
 
     private void Apply()
-        => scrollList.SetSource(source);
+    {
+        hasShown = true;
+        scrollList.SetSource(source);
+    }
 }

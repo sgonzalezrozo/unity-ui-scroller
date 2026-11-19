@@ -58,6 +58,33 @@ namespace UIScroller
 
         internal IPrefabInstantiator injectedInstantiator;
 
+        // A source given while the list's GameObject was inactive: it starts the list the next time it's enabled.
+        private Action pendingStart;
+
+        /// <summary>
+        /// Starts the list with <paramref name="start"/> now when it's active, or the next time it's enabled. A screen
+        /// that fills its list from Start or Awake while its objects are still being activated would otherwise lose
+        /// the call. A later source replaces one still waiting.
+        /// </summary>
+        private protected bool DeferUntilEnabled(Action start)
+        {
+            if (gameObject.activeInHierarchy)
+                return false;
+
+            pendingStart = start;
+            return true;
+        }
+
+        private void RunPendingStart()
+        {
+            if (pendingStart == null)
+                return;
+
+            Action start = pendingStart;
+            pendingStart = null;
+            start();
+        }
+
         /// <summary>Seconds per frame for scroll animations. Tests replace it; null uses unscaled time, like ScrollRect.</summary>
         internal Func<float> frameDeltaTime;
 

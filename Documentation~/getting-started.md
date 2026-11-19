@@ -95,6 +95,8 @@ private void Start()
     => store.Show(items); // a list of StoreItemModel
 ```
 
+Until your code calls `Show`, the instantiator shows **Placeholder Count** made-up items (10), so the list isn't empty the first time you press Play. Set it to 0 once real data comes in. A paginated list's `StorePageLoader` makes up three pages until you replace its `LoadAsync`.
+
 ## Your first list
 
 A list takes four pieces:

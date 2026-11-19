@@ -16,7 +16,6 @@
 | `Refresh aborted - not initialized` | Call `Initialize` (or `SetSource`) first |
 | A recycled slot shows old content | Reset every visual when `Data` is set. Don't rely on `OnEnable`: a reused slot was never disabled |
 | New items don't appear | Call `Refresh()` after changing the source |
-| `Cannot initialize inactive GameObject` | Activate the list before calling `Initialize` |
 | `Header Prefab is not assigned` | Assign a Header Prefab before the first `SetSource` |
 | `Expand` does nothing | Expanding works in lists only, not in grids, bento or looping lists |
 | A slot with a layout group doesn't grow with its content | `DefaultExtent` returns a positive number, which is a fixed size. Return `-1` (see [Item sizes](data-and-sizes.md#item-sizes)) |

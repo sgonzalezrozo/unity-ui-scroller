@@ -144,7 +144,6 @@ namespace UIScroller
             components.ScrollRect.onValueChanged.AddListener(OnScroll);
             CreatePool();
 
-            lastCrossAxisSize = viewportMetrics.GetCrossAxisViewportSize();
             BuildFirstScreen();
             ScheduleDeferredPoolWarmup();
         }
