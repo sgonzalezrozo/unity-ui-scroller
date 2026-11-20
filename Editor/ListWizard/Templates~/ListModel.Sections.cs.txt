@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Owns the #NAME# list's sections: a header and its items each. Change them with AddSection, RemoveSection and
+    /// ClearSections; #NAME#ListView shows them again on OnSectionsChanged. An empty section is skipped, header
+    /// included. It starts with PLACEHOLDER_COUNT made-up items in PLACEHOLDER_SECTIONS sections, so the list isn't
+    /// empty when you press Play: replace them once real data comes in.
+    /// </summary>
+    public class #NAME#ListModel : MonoBehaviour
+    {
+        private const int PLACEHOLDER_COUNT = 10;
+        private const int PLACEHOLDER_SECTIONS = 3;
+
+        public event Action OnSectionsChanged;
+
+        private readonly SectionedSource<#NAME#ItemData, #NAME#HeaderData> sections = CreatePlaceholders();
+
+        public SectionedSource<#NAME#ItemData, #NAME#HeaderData> Sections => sections;
+        public int SectionCount => sections.SectionCount;
+
+        public void AddSection(#NAME#HeaderData header, IReadOnlyList<#NAME#ItemData> items)
+        {
+            if (header == null)
+                throw new ArgumentNullException(nameof(header));
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            sections.AddSection(header, new ListSource<#NAME#ItemData>(items));
+            OnSectionsChanged?.Invoke();
+        }
+
+        public void RemoveSection(int sectionIndex)
+        {
+            sections.RemoveSection(sectionIndex);
+            OnSectionsChanged?.Invoke();
+        }
+
+        public void ClearSections()
+        {
+            if (sections.SectionCount == 0)
+                return;
+
+            sections.ClearSections();
+            OnSectionsChanged?.Invoke();
+        }
+
+        private static SectionedSource<#NAME#ItemData, #NAME#HeaderData> CreatePlaceholders()
+        {
+            SectionedSource<#NAME#ItemData, #NAME#HeaderData> placeholders = new();
+            for (int section = 0; section < PLACEHOLDER_SECTIONS; section++)
+            {
+                List<#NAME#ItemData> items = new();
+                for (int i = section; i < PLACEHOLDER_COUNT; i += PLACEHOLDER_SECTIONS)
+                    items.Add(new #NAME#ItemData { #PLACEHOLDER_FIELDS# });
+
+                #NAME#HeaderData header = new() { title = $"Section {section + 1}" };
+                placeholders.AddSection(header, new ListSource<#NAME#ItemData>(items));
+            }
+            return placeholders;
+        }
+    }
+}

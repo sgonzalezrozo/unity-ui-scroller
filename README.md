@@ -41,6 +41,8 @@ https://github.com/sgonzalezrozo/unity-ui-scroller.git
 
 There's nothing to set up after installing. Requirements, tested platforms and samples: [Getting Started](Documentation~/getting-started.md).
 
+**Assembly references.** If your code is in an assembly definition (`.asmdef`), add `UIScroller` and `ToolsCore` to its **Assembly Definition References**. Unity doesn't add them for you, and without them the build fails with `CS0246`. **New Scroll List** adds them to the folder's `.asmdef` when it writes its scripts.
+
 ---
 
 ## Key Features
@@ -57,7 +59,7 @@ There's nothing to set up after installing. Requirements, tested platforms and s
 
 ## Quickstart
 
-The fastest start: right-click a folder in the Project window and select **UI Scroller > New Scroll List**. Name the feature, pick its source and size behaviour, and click **Create**: you get the scripts and the `StoreItem` and `StoreList` prefabs, wired and ready for your data. See [Create a list from the Assets menu](Documentation~/getting-started.md#create-a-list-from-the-assets-menu).
+The fastest start: right-click a folder in the Project window and select **UI Scroller > New Scroll List**. Name the feature, pick its source and size behaviour, and click **Create**: you get the scripts, split into Model, View and Controller, and the `StoreItem` and `StoreList` prefabs, wired and ready for your data through `StoreListModel`. See [Create a list from the Assets menu](Documentation~/getting-started.md#create-a-list-from-the-assets-menu).
 
 <img src="Documentation~/images/assets-menu.png" alt="The Project window's context menu: UI Scroller > New Scroll List" width="420"><br>
 <img src="Documentation~/images/new-scroll-list.png" alt="The New Scroll List wizard: feature name, folder, source, paginated, size behaviour, bento JSON and TextMeshPro options, with the files it will create" width="420">

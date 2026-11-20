@@ -1,0 +1,11 @@
+using System;
+
+namespace #NAMESPACE#
+{
+    /// <summary>One section header of the #NAME# list, as data. Add the fields your headers need, and render them in #NAME#HeaderSlotView.</summary>
+    [Serializable]
+    public class #NAME#HeaderData
+    {
+        public string title;
+    }
+}

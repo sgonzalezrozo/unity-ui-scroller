@@ -1,5 +1,0 @@
-/// <summary>What one #NAME#HeaderController shows. Add the fields your section headers need.</summary>
-public class #NAME#HeaderModel
-{
-    public string Title;
-}

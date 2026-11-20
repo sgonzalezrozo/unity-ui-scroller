@@ -1,0 +1,37 @@
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Gives the #NAME#Scroller #NAME#ListModel's sections, and shows them again when they change. It runs after the
+    /// scroller (DefaultExecutionOrder), which starts at order 1.
+    /// </summary>
+    [DefaultExecutionOrder(2)]
+    public class #NAME#ListView : MonoBehaviour
+    {
+        [SerializeField] private #NAME#Scroller scroller;
+
+        private #NAME#ListModel listModel;
+
+        private void Awake()
+        {
+            listModel = GetComponentInParent<#NAME#ListModel>();
+        }
+
+        private void OnEnable()
+        {
+            listModel.OnSectionsChanged += RenderSections;
+            RenderSections();
+        }
+
+        private void OnDisable()
+        {
+            listModel.OnSectionsChanged -= RenderSections;
+        }
+
+        private void RenderSections()
+        {
+            scroller.SetSource(listModel.Sections);
+        }
+    }
+}

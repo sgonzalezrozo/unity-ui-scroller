@@ -4,6 +4,19 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **New Scroll List** generates a list split into Model, View and Controller, in a namespace: `{Name}ItemData`, `{Name}ItemSlotModel` (the `ISlot`, whose `Data` setter fires an event), `{Name}ItemSlotView`, `{Name}Scroller`, `{Name}ListModel` (owns the items and is the `IItemSource`, with `SetItems`, `AddItem`, `InsertItem`, `RemoveItemAt`) and `{Name}ListView`. Expandable items open through `Toggle{Name}ItemController` on an invisible `Action` child of the summary, instead of a `Button`; Multisource adds `{Name}HeaderData`, `{Name}HeaderSlotModel` and `{Name}HeaderSlotView`. It replaces `{Name}ItemModel`, `{Name}ItemController`, `{Name}ScrollList` and `{Name}Instantiator`. The window has a **Namespace** field, by default the folder's assembly root namespace (or name) plus its first folder. The generated code follows the Unity Architecture rules and passes their analyzers; slot roots no longer catch raycasts.
+
+### Fixed
+
+- **New Scroll List** adds `UIScroller`, `ToolsCore`, `UnityEngine.UI` (and `Unity.TextMeshPro` with TextMeshPro labels) to the assembly definition that compiles the folder it writes to, keeping its name or GUID style. Under an `.asmdef` without them, the scripts failed with `CS0246` and the prefabs, built after the compile, were never created.
+
+### Documentation
+
+- The README and `agent-rules.md` list the assemblies an assembly definition needs to use UI Scroller: `UIScroller`, `ToolsCore` (`ISlot<T>` derives from a Tools Core interface) and `UnityEngine.UI`.
+- The README and troubleshooting say to add Tools Core first and wait for each package to compile: adding one mid-import can log `ScriptableSingleton already exists` and "assets located in immutable packages were unexpectedly altered", which block nothing.
+
 ## [0.7.4] - 2026-11-19
 
 ### Changed

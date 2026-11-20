@@ -109,17 +109,6 @@ namespace UIScroller.Editor
         }
 
         /// <summary>A Button on <paramref name="go"/>, using its Image as the target graphic (an invisible one if it has none).</summary>
-        public static Button AddButton(GameObject go)
-        {
-            if (!go.TryGetComponent(out Image target))
-                target = AddImage(go, Color.clear);
-
-            target.raycastTarget = true;
-            Button button = go.AddComponent<Button>();
-            button.targetGraphic = target;
-            return button;
-        }
-
         public static VerticalLayoutGroup Vertical(GameObject go, int padding, float spacing)
         {
             VerticalLayoutGroup group = go.AddComponent<VerticalLayoutGroup>();

@@ -7,6 +7,18 @@ Copy this file into your project's agent rules (for example `AGENTS.md`, `CLAUDE
 - Long uGUI lists and grids use **UI Scroller** (`com.sgonzalezrozo.ui-scroller`, namespace `UIScroller`). Don't instantiate one slot per item, and don't use `LayoutGroup` or `ContentSizeFitter` on the scroller's **Content**.
 - Items MUST be classes.
 
+## Assembly references
+
+Unity doesn't add a package's assemblies to your assembly definitions. Every `.asmdef` whose code uses this package MUST list these in its **Assembly Definition References** (`references` in the JSON), in the same change that adds the first `using`. Without them the build fails with `CS0246: The type or namespace name 'UIScroller' could not be found`. Code in `Assembly-CSharp` (no `.asmdef`) needs nothing.
+
+| Assembly | Needed for |
+|---|---|
+| `UIScroller` | `Scroller<T>`, `ISlot<T>`, `ListSource<T>` and the rest of the namespace `UIScroller` |
+| `ToolsCore` | Required too: UI Scroller's public types use Tools Core, and the compiler needs it to implement `ISlot<T>` |
+| `UnityEngine.UI` | uGUI components on slots and lists |
+
+**Assets > UI Scroller > New Scroll List** adds them to the `.asmdef` that compiles the folder it writes to, before Unity compiles the new scripts. Code you write by hand still needs them.
+
 ## Build a list
 
 ```csharp

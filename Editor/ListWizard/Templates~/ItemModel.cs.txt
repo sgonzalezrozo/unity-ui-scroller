@@ -1,5 +1,0 @@
-/// <summary>What one #NAME#ItemController shows. Add the fields your items need, and show them in #NAME#ItemController's Data setter.</summary>
-public class #NAME#ItemModel
-{
-    public string Title;#DESCRIPTION_FIELD#
-}

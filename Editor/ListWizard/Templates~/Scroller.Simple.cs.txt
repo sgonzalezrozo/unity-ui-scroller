@@ -1,0 +1,12 @@
+using UIScroller;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// The #NAME# list: recycles #NAME#Item slots to show #NAME#ItemData. Direction, spacing, grid, bento, loop and snap
+    /// are in its Inspector. #NAME#ListView gives it #NAME#ListModel as its source.
+    /// </summary>
+    public class #NAME#Scroller : Scroller<#NAME#ItemData>
+    {
+    }
+}

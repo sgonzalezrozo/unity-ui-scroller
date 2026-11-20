@@ -1,0 +1,37 @@
+#TMP_USING#using UnityEngine;
+#UI_USING#
+namespace #NAMESPACE#
+{
+    /// <summary>Renders one #NAME# list slot from its #NAME#ItemSlotModel, and again each time the list gives it another item.</summary>
+    public class #NAME#ItemSlotView : MonoBehaviour
+    {
+        [SerializeField] private #TEXT_TYPE# titleText;
+
+        private #NAME#ItemSlotModel slotModel;
+
+        private void Awake()
+        {
+            slotModel = GetComponentInParent<#NAME#ItemSlotModel>();
+        }
+
+        private void OnEnable()
+        {
+            slotModel.OnItemDataChanged += RenderItem;
+            RenderItem();
+        }
+
+        private void OnDisable()
+        {
+            slotModel.OnItemDataChanged -= RenderItem;
+        }
+
+        private void RenderItem()
+        {
+            #NAME#ItemData itemData = slotModel.Data;
+            if (itemData == null)
+                return;
+
+            titleText.text = itemData.title;
+        }
+    }
+}

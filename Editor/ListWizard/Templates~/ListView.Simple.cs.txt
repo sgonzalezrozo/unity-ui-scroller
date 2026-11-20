@@ -1,0 +1,41 @@
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Gives the #NAME#Scroller its source once, and refreshes it when #NAME#ListModel's items change. It runs after the
+    /// scroller (DefaultExecutionOrder), which starts at order 1.
+    /// </summary>
+    [DefaultExecutionOrder(2)]
+    public class #NAME#ListView : MonoBehaviour
+    {
+        [SerializeField] private #NAME#Scroller scroller;
+
+        private #NAME#ListModel listModel;
+
+        private void Awake()
+        {
+            listModel = GetComponentInParent<#NAME#ListModel>();
+        }
+
+        private void OnEnable()
+        {
+            listModel.OnItemsChanged += RenderItems;
+
+            if (!scroller.IsInitialized)
+                scroller.SetSource(listModel);
+
+            RenderItems();
+        }
+
+        private void OnDisable()
+        {
+            listModel.OnItemsChanged -= RenderItems;
+        }
+
+        private void RenderItems()
+        {
+            scroller.Refresh();
+        }
+    }
+}

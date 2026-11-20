@@ -1,0 +1,11 @@
+using System;
+
+namespace #NAMESPACE#
+{
+    /// <summary>One item of the #NAME# list, as data. Add the fields your items need, and render them in #NAME#ItemSlotView.</summary>
+    [Serializable]
+    public class #NAME#ItemData
+    {
+        public string title;#DESCRIPTION_FIELD#
+    }
+}

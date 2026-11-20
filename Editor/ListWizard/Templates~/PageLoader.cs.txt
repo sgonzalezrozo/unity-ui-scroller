@@ -3,30 +3,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using UIScroller;
 
-/// <summary>
-/// Loads the #NAME#ScrollList's pages. The list asks for page 0 when it starts and for the next page as you get near the
-/// end. Return the page's items and whether more pages follow; throw to report a failure (PageFailed).
-/// Until you replace LoadAsync it makes up PLACEHOLDER_PAGES pages, so the list has something to show when you press Play.
-/// </summary>
-public class #NAME#PageLoader : IPageLoader<#NAME#ItemModel>
+namespace #NAMESPACE#
 {
-    private const int PLACEHOLDER_PAGES = 3;
-    private const int PLACEHOLDER_PAGE_SIZE = 20;
-    private const int PLACEHOLDER_DELAY_MILLISECONDS = 300;
-
-    public async Task<PageResult<#NAME#ItemModel>> LoadAsync(int page, CancellationToken cancellation)
+    /// <summary>
+    /// Loads the #NAME# list's pages. The list asks for page 0 when it starts and for the next page as you get near the
+    /// end. Return the page's items and whether more pages follow; throw to report a failure. Until you replace LoadAsync
+    /// with your request (a web call, a database, a save file), it makes up PLACEHOLDER_PAGES pages.
+    /// </summary>
+    public class #NAME#PageLoader : IPageLoader<#NAME#ItemData>
     {
-        // Replace from here with your request (a web call, a database, a save file), passing the cancellation token along.
-        await Task.Delay(PLACEHOLDER_DELAY_MILLISECONDS, cancellation);
+        private const int PLACEHOLDER_PAGES = 3;
+        private const int PLACEHOLDER_PAGE_SIZE = 20;
+        private const int PLACEHOLDER_DELAY_MILLISECONDS = 300;
 
-        List<#NAME#ItemModel> items = new(PLACEHOLDER_PAGE_SIZE);
-        for (int n = 0; n < PLACEHOLDER_PAGE_SIZE; n++)
+        public async Task<PageResult<#NAME#ItemData>> LoadAsync(int page, CancellationToken cancellation)
         {
-            int i = page * PLACEHOLDER_PAGE_SIZE + n;
-            items.Add(new #NAME#ItemModel { #PLACEHOLDER_FIELDS# });
-        }
+            await Task.Delay(PLACEHOLDER_DELAY_MILLISECONDS, cancellation);
 
-        bool hasMorePages = page < PLACEHOLDER_PAGES - 1;
-        return new PageResult<#NAME#ItemModel>(items, hasMorePages);
+            List<#NAME#ItemData> items = new(PLACEHOLDER_PAGE_SIZE);
+            for (int n = 0; n < PLACEHOLDER_PAGE_SIZE; n++)
+            {
+                int i = page * PLACEHOLDER_PAGE_SIZE + n;
+                items.Add(new #NAME#ItemData { #PLACEHOLDER_FIELDS# });
+            }
+
+            bool hasMorePages = page < PLACEHOLDER_PAGES - 1;
+            return new PageResult<#NAME#ItemData>(items, hasMorePages);
+        }
     }
 }

@@ -1,0 +1,12 @@
+using UIScroller;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// The #NAME# list: several groups of #NAME#ItemData, each under a #NAME#Header slot. Direction and spacing are in
+    /// its Inspector, along with the item and header prefabs. #NAME#ListView gives it #NAME#ListModel's sections.
+    /// </summary>
+    public class #NAME#Scroller : SectionedScroller<#NAME#ItemData, #NAME#HeaderData>
+    {
+    }
+}

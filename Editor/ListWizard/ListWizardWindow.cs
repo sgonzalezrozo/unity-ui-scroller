@@ -12,19 +12,23 @@ using static UIScroller.Editor.ListUIKit;
 namespace UIScroller.Editor
 {
     /// <summary>
-    /// Assets > UI Scroller > New Scroll List: creates a list for a feature, ready for real data. Only the choices that need
-    /// different scripts are asked here (where the items come from and how big they are); everything else is a setting
-    /// in the list's Inspector. For a feature "Store", in the selected folder:
+    /// Assets > UI Scroller > New Scroll List: creates a list for a feature, ready for real data, split into Model, View and
+    /// Controller. Only the choices that need different scripts are asked here (where the items come from and how big they
+    /// are); everything else is a setting in the list's Inspector. For a feature "Store", in the selected folder:
     /// <code>
-    /// StoreItemModel.cs        the data of one item
-    /// StoreItemController.cs   shows one item; reused as you scroll
-    /// StoreScrollList.cs       the list component
-    /// StoreInstantiator.cs     gives the list its items: Show(models)
-    /// StoreItem.prefab         the item template
-    /// StoreList.prefab         the list, with the instantiator; place it under a Canvas
+    /// StoreItemData.cs         the data of one item
+    /// StoreItemSlotModel.cs    the Model of one slot (ISlot): the list sets Data on it as you scroll
+    /// StoreItemSlotView.cs     renders one slot from its Slot Model
+    /// StoreScroller.cs         the list component
+    /// StoreListModel.cs        owns the items and is the list's source (IItemSource)
+    /// StoreListView.cs         gives the list its source and refreshes it when the items change
+    /// StoreItem.prefab         the slot template
+    /// StoreList.prefab         the list, with its Model and View; place it under a Canvas
     /// </code>
-    /// Multisource adds StoreHeaderModel, StoreHeaderController and StoreHeader.prefab; Paginated adds StorePageLoader; the bento
-    /// option adds StoreLayout.json. Scripts are written first and the prefabs are built once Unity has compiled them.
+    /// Expandable adds ToggleStoreItemController, on an Action child of the summary. Multisource adds StoreHeaderData,
+    /// StoreHeaderSlotModel, StoreHeaderSlotView and StoreHeader.prefab; Paginated adds StorePageLoader; the bento option
+    /// adds StoreLayout.json. Everything goes in the namespace shown in the window. Scripts are written first, the
+    /// folder's assembly definition gets the references they need, and the prefabs are built once Unity has compiled them.
     /// </summary>
     [InitializeOnLoad]
     public class ListWizardWindow : EditorWindow
@@ -50,14 +54,14 @@ namespace UIScroller.Editor
         private static readonly GUIContent[] SourceLabels =
         {
             new("Simple", "One list of items, given all at once (a ListSource)."),
-            new("Multisource (sections)", "Several lists, each under a header (a SectionedSource). Adds a header model, controller and prefab.")
+            new("Multisource (sections)", "Several lists, each under a header (a SectionedSource). Adds header data, a header slot Model and View, and a header prefab.")
         };
 
         private static readonly GUIContent[] SizeLabels =
         {
-            new("Static", "Every item has the same size, set on the item controller."),
+            new("Static", "Every item has the same size, a constant in the slot Model."),
             new("Dynamic", "Each item is as big as its content, measured with layout."),
-            new("Expandable", "Items open to a bigger size when their hitbox is tapped.")
+            new("Expandable", "Items open to a bigger size when their summary is tapped. Adds a click Controller.")
         };
 
         [Serializable]
@@ -65,6 +69,8 @@ namespace UIScroller.Editor
         {
             public string name = "Store";
             public string folder = "Assets";
+            public string namespaceName = string.Empty;
+            public bool namespaceEdited;
             public SourceKind source;
             public SizeKind size;
             public bool paginated;
@@ -88,6 +94,7 @@ namespace UIScroller.Editor
         {
             ListWizardWindow window = GetWindow<ListWizardWindow>(true, "New Scroll List", true);
             window.options = new Options { folder = SelectedFolder(), textMeshPro = TextMeshProType != null };
+            window.options.namespaceName = AutoNamespace(window.options);
             window.minSize = new Vector2(440f, 330f);
             window.maxSize = new Vector2(700f, 600f);
             window.ShowUtility();
@@ -96,13 +103,20 @@ namespace UIScroller.Editor
         private void OnGUI()
         {
             EditorGUILayout.Space(8);
-            options.name = EditorGUILayout.TextField(new GUIContent("Feature Name", "Prefixes every script and prefab: Store makes StoreItemModel, StoreScrollList..."), options.name);
+            options.name = EditorGUILayout.TextField(new GUIContent("Feature Name", "Prefixes every script and prefab: Store makes StoreItemData, StoreScroller..."), options.name);
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Folder", options.folder);
             if (GUILayout.Button("Select", GUILayout.Width(70)))
                 PickFolder();
             EditorGUILayout.EndHorizontal();
+
+            if (!options.namespaceEdited)
+                options.namespaceName = AutoNamespace(options);
+            EditorGUI.BeginChangeCheck();
+            options.namespaceName = EditorGUILayout.TextField(new GUIContent("Namespace", "The namespace of every script. By default the folder's assembly root namespace (or name) and its first folder: Assets/Client/Shop makes Client.Shop."), options.namespaceName);
+            if (EditorGUI.EndChangeCheck())
+                options.namespaceEdited = true;
 
             EditorGUILayout.Space(6);
             options.source = (SourceKind)EditorGUILayout.Popup(new GUIContent("Source"), (int)options.source, SourceLabels);
@@ -153,6 +167,8 @@ namespace UIScroller.Editor
             }
 
             options.folder = "Assets" + path.Substring(Application.dataPath.Length);
+            if (!options.namespaceEdited)
+                options.namespaceName = AutoNamespace(options);
         }
 
         // ---------- Files ----------
@@ -162,16 +178,22 @@ namespace UIScroller.Editor
         {
             List<(string, string)> files = new()
             {
-                ("ItemModel.cs.txt", $"{name}ItemModel.cs"),
-                ($"ItemController.{o.size}.cs.txt", $"{name}ItemController.cs"),
-                ($"ScrollList.{SourceTemplate(o)}.cs.txt", $"{name}ScrollList.cs"),
-                ($"Instantiator.{SourceTemplate(o)}.cs.txt", $"{name}Instantiator.cs")
+                ("ItemData.cs.txt", $"{name}ItemData.cs"),
+                ($"ItemSlotModel.{o.size}.cs.txt", $"{name}ItemSlotModel.cs"),
+                ($"ItemSlotView.{o.size}.cs.txt", $"{name}ItemSlotView.cs"),
+                ($"Scroller.{ScrollerTemplate(o)}.cs.txt", $"{name}Scroller.cs"),
+                ($"ListModel.{SourceTemplate(o)}.cs.txt", $"{name}ListModel.cs"),
+                ($"ListView.{SourceTemplate(o)}.cs.txt", $"{name}ListView.cs")
             };
+
+            if (o.size == SizeKind.Expandable)
+                files.Add(("ToggleItemController.cs.txt", $"Toggle{name}ItemController.cs"));
 
             if (o.source == SourceKind.Sections)
             {
-                files.Add(("HeaderModel.cs.txt", $"{name}HeaderModel.cs"));
-                files.Add(("HeaderController.cs.txt", $"{name}HeaderController.cs"));
+                files.Add(("HeaderData.cs.txt", $"{name}HeaderData.cs"));
+                files.Add(("HeaderSlotModel.cs.txt", $"{name}HeaderSlotModel.cs"));
+                files.Add(("HeaderSlotView.cs.txt", $"{name}HeaderSlotView.cs"));
             }
 
             if (IsPaged(o))
@@ -183,10 +205,14 @@ namespace UIScroller.Editor
             return files;
         }
 
+        /// <summary>The Scroller template: a sectioned list or a plain one (paged lists are plain).</summary>
+        private static string ScrollerTemplate(Options o)
+            => o.source == SourceKind.Sections ? "Sections" : "Simple";
+
         private static bool IsPaged(Options o)
             => o.paginated && o.source == SourceKind.Simple;
 
-        /// <summary>The ScrollList and Instantiator templates: Simple, Sections or Paged.</summary>
+        /// <summary>The ListModel and ListView templates: Simple, Sections or Paged.</summary>
         private static string SourceTemplate(Options o)
             => IsPaged(o) ? "Paged" : o.source.ToString();
 
@@ -208,6 +234,7 @@ namespace UIScroller.Editor
         {
             string name = ToIdentifier(o.name);
             o.name = name;
+            o.namespaceName = ToNamespace(string.IsNullOrWhiteSpace(o.namespaceName) ? AutoNamespace(o) : o.namespaceName);
             o.textMeshPro &= TextMeshProType != null;
 
             if (!AssetDatabase.IsValidFolder(o.folder))
@@ -221,7 +248,7 @@ namespace UIScroller.Editor
             {
                 string path = $"{o.folder}/{file}";
                 string className = Path.GetFileNameWithoutExtension(file);
-                if (File.Exists(path) || (file.EndsWith(".cs", StringComparison.Ordinal) && TypeExists(className)))
+                if (File.Exists(path) || (file.EndsWith(".cs", StringComparison.Ordinal) && TypeExists(Qualified(o, className))))
                 {
                     EditorUtility.DisplayDialog("UI Scroller", $"{(File.Exists(path) ? path : $"A class named {className}")} already exists. Pick another feature name.", "OK");
                     return false;
@@ -243,15 +270,27 @@ namespace UIScroller.Editor
             foreach ((string path, string content) in output)
                 File.WriteAllText(path, content.Replace("\r\n", "\n"));
 
+            // Before the compile: the scripts under an .asmdef fail with CS0246 without these, and the prefabs are only
+            // built after a successful compile.
+            AssemblyReferences.Ensure(o.folder, RequiredAssemblies(o));
+
             PendingList pending = LoadPending();
             pending.builds.Add(o);
             SavePending(pending);
 
             AssetDatabase.Refresh();
-            Debug.Log($"[UI Scroller] {name} scripts written to {o.folder}. The prefabs are built after Unity compiles them.");
+            Debug.Log($"[UI Scroller] {name} scripts written to {o.folder}, in the namespace {o.namespaceName}. The prefabs are built after Unity compiles them.");
             if (!EditorApplication.isCompiling)
                 EditorApplication.delayCall += BuildPending;
             return true;
+        }
+
+        /// <summary>The assemblies the generated scripts use, for the .asmdef that compiles their folder.</summary>
+        private static string[] RequiredAssemblies(Options o)
+        {
+            return o.textMeshPro
+                ? new[] { "UIScroller", "ToolsCore", "UnityEngine.UI", "Unity.TextMeshPro" }
+                : new[] { "UIScroller", "ToolsCore", "UnityEngine.UI" };
         }
 
         private static string Fill(string template, Options o, string name)
@@ -259,11 +298,13 @@ namespace UIScroller.Editor
             bool hasDescription = o.size != SizeKind.Static;
             return template
                 .Replace("#TMP_USING#", o.textMeshPro ? "using TMPro;\n" : string.Empty)
+                .Replace("#UI_USING#", o.textMeshPro ? string.Empty : "using UnityEngine.UI;\n")
                 .Replace("#TEXT_TYPE#", o.textMeshPro ? "TMP_Text" : "Text")
-                .Replace("#DESCRIPTION_FIELD#", hasDescription ? "\n    public string Description;" : string.Empty)
+                .Replace("#DESCRIPTION_FIELD#", hasDescription ? "\n        public string description;" : string.Empty)
                 .Replace("#PLACEHOLDER_FIELDS#", hasDescription
-                    ? "Title = $\"Item {i + 1}\", Description = i % 2 == 0 ? \"A short description.\" : \"A longer description that wraps to more lines, so the items show different sizes.\""
-                    : "Title = $\"Item {i + 1}\"")
+                    ? "title = $\"Item {i + 1}\", description = i % 2 == 0 ? \"A short description.\" : \"A longer description that wraps to more lines, so the items show different sizes.\""
+                    : "title = $\"Item {i + 1}\"")
+                .Replace("#NAMESPACE#", o.namespaceName)
                 .Replace(NAME_TOKEN, name);
         }
 
@@ -284,7 +325,7 @@ namespace UIScroller.Editor
             List<Options> waiting = new();
             foreach (Options build in pending.builds)
             {
-                if (FindScript(build.name + "ScrollList") == null || FindScript(build.name + "ItemController") == null)
+                if (FindScript(build, build.name + "Scroller") == null || FindScript(build, build.name + "ItemSlotModel") == null)
                 {
                     if (EditorUtility.scriptCompilationFailed)
                         Debug.LogWarning($"[UI Scroller] {build.name}'s prefabs will be built once the project compiles. Fix the compile errors in the Console.");
@@ -313,7 +354,7 @@ namespace UIScroller.Editor
 
                 Selection.activeObject = list;
                 EditorGUIUtility.PingObject(list);
-                Debug.Log($"[UI Scroller] {o.name}List.prefab is ready: place it under a Canvas and call {o.name}Instantiator from your code.");
+                Debug.Log($"[UI Scroller] {o.name}List.prefab is ready: place it under a Canvas, and change its items through {o.name}ListModel.");
             }
             catch (Exception exception)
             {
@@ -329,9 +370,12 @@ namespace UIScroller.Editor
 
         private static GameObject BuildItem(Options o)
         {
+            // Raycast off: drags reach the list's own raycast target behind the slots, and visual-only graphics
+            // shouldn't catch touches (only an Action does).
             GameObject root = NewRoot($"{o.name}Item");
-            AddImage(root, ItemColor, true);
-            Component controller = root.AddComponent(FindScript($"{o.name}ItemController"));
+            AddImage(root, ItemColor);
+            root.AddComponent(FindScript(o, $"{o.name}ItemSlotModel"));
+            Component view = root.AddComponent(FindScript(o, $"{o.name}ItemSlotView"));
 
             switch (o.size)
             {
@@ -339,7 +383,7 @@ namespace UIScroller.Editor
                 {
                     Graphic title = NewLabel("Title", root.transform, "Title", 32, TextColor);
                     Stretch(title.rectTransform, 24f, 0f, 24f, 0f);
-                    Set(controller, "title", title);
+                    Set(view, "titleText", title);
                     break;
                 }
                 case SizeKind.Dynamic:
@@ -347,47 +391,63 @@ namespace UIScroller.Editor
                     Vertical(root, 24, 8f);
                     Graphic title = NewLabel("Title", root.transform, "Title", 32, TextColor, bold: true, top: true, grows: true);
                     Graphic description = NewLabel("Description", root.transform, "Description", 26, MutedText, top: true, grows: true);
-                    Set(controller, "title", title);
-                    Set(controller, "description", description);
+                    Set(view, "titleText", title);
+                    Set(view, "descriptionText", description);
                     break;
                 }
                 case SizeKind.Expandable:
-                {
-                    RectTransform summary = Place(NewRect("Summary", root.transform), new Vector2(0f, 1f), Vector2.one, new Vector2(0f, -STATIC_SIZE), Vector2.zero);
-                    Graphic title = NewLabel("Title", summary, "Title", 32, TextColor, bold: true);
-                    Stretch(title.rectTransform, 24f, 0f, 24f, 0f);
-                    // The hitbox covers the summary only, so buttons added to the details keep their own taps.
-                    Button hitbox = AddButton(summary.gameObject);
-
-                    RectTransform details = Place(NewRect("Details", root.transform), Vector2.zero, Vector2.one, new Vector2(24f, 24f), new Vector2(-24f, -STATIC_SIZE));
-                    Graphic description = NewLabel("Description", details, "Description", 26, MutedText, top: true);
-                    details.gameObject.SetActive(false);
-
-                    Set(controller, "title", title);
-                    Set(controller, "description", description);
-                    Set(controller, "details", details.gameObject);
-                    Set(controller, "hitbox", hitbox);
+                    BuildExpandableItem(o, root, view);
                     break;
-                }
             }
 
             return root;
         }
 
+        /// <summary>
+        /// The summary holds a UI Content with the title and, as its last child, an invisible Action with the click
+        /// Controller: the Action covers the summary only, so controls added to the details keep their own taps.
+        /// </summary>
+        private static void BuildExpandableItem(Options o, GameObject root, Component view)
+        {
+            RectTransform summary = Place(NewRect("Summary", root.transform), new Vector2(0f, 1f), Vector2.one, new Vector2(0f, -STATIC_SIZE), Vector2.zero);
+            RectTransform content = Stretch(NewRect("UI Content", summary));
+            Graphic title = NewLabel("Title", content, "Title", 32, TextColor, bold: true);
+            Stretch(title.rectTransform, 24f, 0f, 24f, 0f);
+            AddAction(summary, FindScript(o, $"Toggle{o.name}ItemController"));
+
+            RectTransform details = Place(NewRect("Details", root.transform), Vector2.zero, Vector2.one, new Vector2(24f, 24f), new Vector2(-24f, -STATIC_SIZE));
+            Graphic description = NewLabel("Description", details, "Description", 26, MutedText, top: true);
+            details.gameObject.SetActive(false);
+
+            Set(view, "titleText", title);
+            Set(view, "descriptionText", description);
+            Set(view, "detailsRoot", details.gameObject);
+        }
+
+        /// <summary>An invisible, stretched raycast target named Action, with <paramref name="controller"/> on it.</summary>
+        private static void AddAction(Transform parent, Type controller)
+        {
+            RectTransform action = Stretch(NewRect("Action", parent));
+            Image target = AddImage(action.gameObject, Color.clear, true);
+            target.canvasRenderer.cullTransparentMesh = true;
+            action.gameObject.AddComponent(controller);
+        }
+
         private static GameObject BuildHeader(Options o)
         {
             GameObject root = NewRoot($"{o.name}Header");
-            AddImage(root, HeaderColor, true);
-            Component controller = root.AddComponent(FindScript($"{o.name}HeaderController"));
+            AddImage(root, HeaderColor);
+            root.AddComponent(FindScript(o, $"{o.name}HeaderSlotModel"));
+            Component view = root.AddComponent(FindScript(o, $"{o.name}HeaderSlotView"));
             Graphic title = NewLabel("Title", root.transform, "Header", 30, TextColor, bold: true);
             Stretch(title.rectTransform, 24f, 0f, 24f, 0f);
-            Set(controller, "title", title);
+            Set(view, "titleText", title);
             return root;
         }
 
         private static GameObject BuildList(Options o, GameObject item, GameObject header)
         {
-            ScrollerBase list = NewList($"{o.name}List", FindScript($"{o.name}ScrollList"));
+            ScrollerBase list = NewList($"{o.name}List", FindScript(o, $"{o.name}Scroller"));
             list.SlotPrefab = item;
             ScrollerSettings settings = list.Settings;
             settings.lineSpacing = 8f;
@@ -409,8 +469,9 @@ namespace UIScroller.Editor
 
             list.ApplySettingsToScrollRect();
 
-            Component instantiator = list.gameObject.AddComponent(FindScript($"{o.name}Instantiator"));
-            Set(instantiator, "scrollList", list);
+            list.gameObject.AddComponent(FindScript(o, $"{o.name}ListModel"));
+            Component view = list.gameObject.AddComponent(FindScript(o, $"{o.name}ListView"));
+            Set(view, "scroller", list);
             return list.gameObject;
         }
 
@@ -439,15 +500,53 @@ namespace UIScroller.Editor
 
         // ---------- Helpers ----------
 
-        private static Type FindScript(string className)
+        private static Type FindScript(Options o, string className)
         {
+            string fullName = Qualified(o, className);
             foreach (Type type in TypeCache.GetTypesDerivedFrom<MonoBehaviour>())
             {
-                if (type.Name == className && string.IsNullOrEmpty(type.Namespace))
+                if (type.FullName == fullName)
                     return type;
             }
 
             return null;
+        }
+
+        private static string Qualified(Options o, string className)
+            => string.IsNullOrEmpty(o.namespaceName) ? className : $"{o.namespaceName}.{className}";
+
+        /// <summary>
+        /// The folder's assembly root namespace (or the assembly name) plus the first folder under the assembly's folder,
+        /// so a feature keeps one flat namespace: Assets/Client/Shop/StorePage under Client.asmdef makes Client.Shop.
+        /// Without an assembly definition, the feature name.
+        /// </summary>
+        private static string AutoNamespace(Options o)
+        {
+            string asmdef = AssemblyReferences.FindOwningAsmdef(o.folder);
+            if (asmdef == null || !asmdef.StartsWith("Assets/"))
+                return ToIdentifier(o.name);
+
+            string json = File.ReadAllText(asmdef);
+            string root = AssemblyReferences.ReadRootNamespace(json);
+            if (string.IsNullOrEmpty(root))
+                root = AssemblyReferences.ReadAssemblyName(json);
+
+            string asmdefFolder = Path.GetDirectoryName(asmdef)?.Replace('\\', '/') ?? "Assets";
+            string folder = o.folder.TrimEnd('/');
+            if (folder.Length <= asmdefFolder.Length || !folder.StartsWith(asmdefFolder + "/", StringComparison.Ordinal))
+                return ToNamespace(root);
+
+            string feature = folder.Substring(asmdefFolder.Length + 1).Split('/')[0];
+            return ToNamespace($"{root}.{feature}");
+        }
+
+        /// <summary>Each dot-separated part as a valid identifier.</summary>
+        internal static string ToNamespace(string value)
+        {
+            string[] parts = (value ?? string.Empty).Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < parts.Length; i++)
+                parts[i] = ToIdentifier(parts[i]);
+            return parts.Length == 0 ? "Feature" : string.Join(".", parts);
         }
 
         /// <summary>The Templates~ folder next to this script, in the installed package or a local copy of it.</summary>

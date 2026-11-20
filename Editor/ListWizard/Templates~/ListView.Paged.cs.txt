@@ -1,0 +1,49 @@
+using System;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Gives the #NAME#Scroller #NAME#ListModel's paged source the first time it's enabled, and again after Reload. A
+    /// page that fails to load is logged; show an error state here instead if the screen needs one. It runs after the
+    /// scroller (DefaultExecutionOrder), which starts at order 1.
+    /// </summary>
+    [DefaultExecutionOrder(2)]
+    public class #NAME#ListView : MonoBehaviour
+    {
+        [SerializeField] private #NAME#Scroller scroller;
+
+        private #NAME#ListModel listModel;
+
+        private void Awake()
+        {
+            listModel = GetComponentInParent<#NAME#ListModel>();
+        }
+
+        private void OnEnable()
+        {
+            listModel.OnSourceChanged += RenderSource;
+            scroller.PageFailed += RenderPageFailed;
+
+            // Setting the same paged source again would load it from page 0, so only the first time.
+            if (!scroller.IsInitialized)
+                RenderSource();
+        }
+
+        private void OnDisable()
+        {
+            listModel.OnSourceChanged -= RenderSource;
+            scroller.PageFailed -= RenderPageFailed;
+        }
+
+        private void RenderSource()
+        {
+            scroller.SetSource(listModel.Source);
+        }
+
+        private void RenderPageFailed(Exception exception)
+        {
+            Debug.LogError($"[#NAME#] A page failed to load: {exception.Message}\n{exception.StackTrace}");
+        }
+    }
+}

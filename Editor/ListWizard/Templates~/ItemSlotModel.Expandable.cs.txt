@@ -1,0 +1,66 @@
+using System;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// The Model of one #NAME# list slot that opens when its summary is tapped. ToggleExpanded asks the list to expand or
+    /// collapse it; the list resizes the slot to EXPANDED_SIZE, moves the slots after it and sets IsExpanded, which fires
+    /// OnItemDataChanged so #NAME#ItemSlotView shows the details. The list remembers which items are open, so an item
+    /// scrolled away and back comes back open. Expanding works in lists, not in grids, bento or looping lists.
+    /// </summary>
+    public class #NAME#ItemSlotModel : MonoBehaviour, IExpandableSlot<#NAME#ItemData>
+    {
+        private const float ITEM_SIZE = 120f;
+        private const float EXPANDED_SIZE = 320f;
+
+        public event Action OnItemDataChanged;
+
+        private #NAME#ItemData itemData;
+        private bool isExpanded;
+
+        public float DefaultExtent => ITEM_SIZE;
+        public IScroller Owner { get; set; }
+        public int ItemIndex { get; set; }
+
+        public #NAME#ItemData Data
+        {
+            get => itemData;
+            set
+            {
+                itemData = value;
+                OnItemDataChanged?.Invoke();
+            }
+        }
+
+        public bool IsExpanded
+        {
+            get => isExpanded;
+            set
+            {
+                if (isExpanded == value)
+                    return;
+
+                isExpanded = value;
+                OnItemDataChanged?.Invoke();
+            }
+        }
+
+        public void OnCollapsed()
+        {
+            IsExpanded = false;
+        }
+
+        public void ToggleExpanded()
+        {
+            if (Owner == null)
+                return;
+
+            if (Owner.IsExpanded(ItemIndex))
+                Owner.Collapse(ItemIndex);
+            else
+                Owner.Expand(ItemIndex, EXPANDED_SIZE);
+        }
+    }
+}

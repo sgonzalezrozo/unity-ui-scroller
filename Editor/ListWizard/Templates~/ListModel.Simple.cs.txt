@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Owns the #NAME# list's items and is the list's source. Change them with SetItems, AddItem, InsertItem and
+    /// RemoveItemAt; #NAME#ListView refreshes the list on OnItemsChanged. It starts with PLACEHOLDER_COUNT made-up
+    /// items, so the list isn't empty when you press Play: replace them with SetItems once real data comes in.
+    /// </summary>
+    public class #NAME#ListModel : MonoBehaviour, IItemSource<#NAME#ItemData>
+    {
+        private const int PLACEHOLDER_COUNT = 10;
+
+        public event Action OnItemsChanged;
+
+        private readonly List<#NAME#ItemData> items = CreatePlaceholders();
+
+        public int ItemCount => items.Count;
+
+        public #NAME#ItemData GetItem(int index)
+        {
+            return items[index];
+        }
+
+        public IReadOnlyList<#NAME#ItemData> GetAllItems()
+        {
+            return items;
+        }
+
+        public void SetItems(IReadOnlyList<#NAME#ItemData> newItems)
+        {
+            if (newItems == null)
+                throw new ArgumentNullException(nameof(newItems));
+
+            items.Clear();
+            for (int i = 0; i < newItems.Count; i++)
+                items.Add(newItems[i]);
+            OnItemsChanged?.Invoke();
+        }
+
+        public void AddItem(#NAME#ItemData item)
+        {
+            InsertItem(items.Count, item);
+        }
+
+        public void InsertItem(int index, #NAME#ItemData item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            items.Insert(index, item);
+            OnItemsChanged?.Invoke();
+        }
+
+        public void RemoveItemAt(int index)
+        {
+            items.RemoveAt(index);
+            OnItemsChanged?.Invoke();
+        }
+
+        private static List<#NAME#ItemData> CreatePlaceholders()
+        {
+            List<#NAME#ItemData> placeholders = new(PLACEHOLDER_COUNT);
+            for (int i = 0; i < PLACEHOLDER_COUNT; i++)
+                placeholders.Add(new #NAME#ItemData { #PLACEHOLDER_FIELDS# });
+            return placeholders;
+        }
+    }
+}

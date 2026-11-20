@@ -1,0 +1,37 @@
+#TMP_USING#using UnityEngine;
+#UI_USING#
+namespace #NAMESPACE#
+{
+    /// <summary>Renders one #NAME# section header from its #NAME#HeaderSlotModel.</summary>
+    public class #NAME#HeaderSlotView : MonoBehaviour
+    {
+        [SerializeField] private #TEXT_TYPE# titleText;
+
+        private #NAME#HeaderSlotModel slotModel;
+
+        private void Awake()
+        {
+            slotModel = GetComponentInParent<#NAME#HeaderSlotModel>();
+        }
+
+        private void OnEnable()
+        {
+            slotModel.OnHeaderDataChanged += RenderHeader;
+            RenderHeader();
+        }
+
+        private void OnDisable()
+        {
+            slotModel.OnHeaderDataChanged -= RenderHeader;
+        }
+
+        private void RenderHeader()
+        {
+            #NAME#HeaderData headerData = slotModel.Data;
+            if (headerData == null)
+                return;
+
+            titleText.text = headerData.title;
+        }
+    }
+}

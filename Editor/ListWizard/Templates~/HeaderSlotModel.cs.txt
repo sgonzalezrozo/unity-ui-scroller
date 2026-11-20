@@ -1,0 +1,28 @@
+using System;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>The Model of one #NAME# section header slot. Every header is HEADER_SIZE pixels along the scroll axis.</summary>
+    public class #NAME#HeaderSlotModel : MonoBehaviour, ISlot<#NAME#HeaderData>
+    {
+        private const float HEADER_SIZE = 72f;
+
+        public event Action OnHeaderDataChanged;
+
+        private #NAME#HeaderData headerData;
+
+        public float DefaultExtent => HEADER_SIZE;
+
+        public #NAME#HeaderData Data
+        {
+            get => headerData;
+            set
+            {
+                headerData = value;
+                OnHeaderDataChanged?.Invoke();
+            }
+        }
+    }
+}

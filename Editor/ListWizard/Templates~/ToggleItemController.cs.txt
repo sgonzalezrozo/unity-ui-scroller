@@ -1,0 +1,21 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+namespace #NAMESPACE#
+{
+    /// <summary>Opens or closes one #NAME# list slot when its summary is tapped. The list resizes the slot and moves the ones after it.</summary>
+    public class Toggle#NAME#ItemController : MonoBehaviour, IPointerClickHandler
+    {
+        private #NAME#ItemSlotModel slotModel;
+
+        private void Awake()
+        {
+            slotModel = GetComponentInParent<#NAME#ItemSlotModel>();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            slotModel.ToggleExpanded();
+        }
+    }
+}

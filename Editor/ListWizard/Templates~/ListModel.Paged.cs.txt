@@ -1,0 +1,26 @@
+using System;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// Owns the #NAME# list's paged source: #NAME#PageLoader loads page 0 when the list starts and the next pages as you
+    /// scroll near the end. Reload starts again from page 0, and #NAME#ListView gives the list the new source on
+    /// OnSourceChanged.
+    /// </summary>
+    public class #NAME#ListModel : MonoBehaviour
+    {
+        public event Action OnSourceChanged;
+
+        private PagedSource<#NAME#ItemData> source = new(new #NAME#PageLoader());
+
+        public PagedSource<#NAME#ItemData> Source => source;
+
+        public void Reload()
+        {
+            source = new PagedSource<#NAME#ItemData>(new #NAME#PageLoader());
+            OnSourceChanged?.Invoke();
+        }
+    }
+}

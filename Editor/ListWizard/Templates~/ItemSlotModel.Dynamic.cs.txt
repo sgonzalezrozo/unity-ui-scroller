@@ -1,0 +1,32 @@
+using System;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// The Model of one #NAME# list slot, as big as its content. DefaultExtent is negative, so the list measures the slot
+    /// with its VerticalLayoutGroup every time it shows an item. The Data setter fires OnItemDataChanged, and
+    /// #NAME#ItemSlotView redraws from it: reused slots stay enabled, so OnEnable alone would show stale content.
+    /// </summary>
+    public class #NAME#ItemSlotModel : MonoBehaviour, ISlot<#NAME#ItemData>
+    {
+        private const float MEASURED_SIZE = -1f;
+
+        public event Action OnItemDataChanged;
+
+        private #NAME#ItemData itemData;
+
+        public float DefaultExtent => MEASURED_SIZE;
+
+        public #NAME#ItemData Data
+        {
+            get => itemData;
+            set
+            {
+                itemData = value;
+                OnItemDataChanged?.Invoke();
+            }
+        }
+    }
+}

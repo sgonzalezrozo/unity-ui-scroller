@@ -67,35 +67,37 @@ Right-click a folder in the Project window and select **UI Scroller > New Scroll
 | Option | Choices |
 |---|---|
 | **Feature Name** | Prefixes every script and prefab, for example `Store` |
+| **Namespace** | The scripts' namespace. By default the folder's assembly root namespace (or name) plus its first folder: `Assets/Client/Shop` under `Client.asmdef` makes `Client.Shop` |
 | **Source** | **Simple**: one list of items. **Multisource**: several lists, each under a header |
 | **Paginated** | Items arrive a page at a time as you scroll near the end. Simple source only |
-| **Size Behaviour** | **Static**: every item the same size. **Dynamic**: each item as big as its content, measured with layout. **Expandable**: items open to a bigger size when their hitbox is tapped |
+| **Size Behaviour** | **Static**: every item the same size. **Dynamic**: each item as big as its content, measured with layout. **Expandable**: items open to a bigger size when their summary is tapped |
 | **Create Bento JSON** | Turns bento on and creates a layout JSON for the list. Static size only |
 | **Use TextMeshPro** | Labels use TextMeshPro when it's installed, Unity's `Text` otherwise |
 
-For `Store` it creates, in that folder:
+For `Store` it creates, in that folder, a list split into Model, View and Controller:
 
 ```
-StoreItemModel.cs        the data of one item
-StoreItemController.cs   shows one item; reused as you scroll
-StoreScrollList.cs       the list component
-StoreInstantiator.cs     gives the list its items
-StoreItem.prefab         the item template
-StoreList.prefab         the list and the instantiator
+StoreItemData.cs         the data of one item
+StoreItemSlotModel.cs    the Model of one slot (ISlot): the list sets Data on it as you scroll
+StoreItemSlotView.cs     renders one slot from its Slot Model
+StoreScroller.cs         the list component
+StoreListModel.cs        owns the items and is the list's source (IItemSource)
+StoreListView.cs         gives the list its source and refreshes it when the items change
+StoreItem.prefab         the slot template
+StoreList.prefab         the list, with its Model and View
 ```
 
-Multisource adds `StoreHeaderModel`, `StoreHeaderController` and `StoreHeader.prefab`; Paginated adds `StorePageLoader`, where your request goes; the bento option adds `StoreLayout.json`. The scripts are written first and the prefabs are built once Unity has compiled them.
+Expandable adds `ToggleStoreItemController`, on an invisible `Action` child of the summary, which asks the list to open or close the item. Multisource adds `StoreHeaderData`, `StoreHeaderSlotModel`, `StoreHeaderSlotView` and `StoreHeader.prefab`; Paginated adds `StorePageLoader`, where your request goes; the bento option adds `StoreLayout.json`. The scripts are written first, the folder's assembly definition gets the references they need, and the prefabs are built once Unity has compiled them.
 
-Place `StoreList.prefab` under a Canvas and give it your data:
+The generated code follows the [Unity Architecture rules](https://github.com/sgonzalezrozo/unity-architecture-agents): events carry no data and Views read the Model, slots are Models with a View, input goes through a Controller, and there are no lambdas, LINQ or `///` comments on members. It passes their analyzers, and its prefabs follow their prefab rules (an invisible `Action` next to a `UI Content`, raycasts only where input goes).
+
+Place `StoreList.prefab` under a Canvas and give it your data through its Model:
 
 ```csharp
-[SerializeField] private StoreInstantiator store;
-
-private void Start()
-    => store.Show(items); // a list of StoreItemModel
+storeListModel.SetItems(items); // an IReadOnlyList<StoreItemData>
 ```
 
-Until your code calls `Show`, the instantiator shows **Placeholder Count** made-up items (10), so the list isn't empty the first time you press Play. Set it to 0 once real data comes in. A paginated list's `StorePageLoader` makes up three pages until you replace its `LoadAsync`.
+Until your code calls `SetItems`, the Model holds 10 made-up items, so the list isn't empty the first time you press Play. A paginated list's `StorePageLoader` makes up three pages until you replace its `LoadAsync`, and `StoreListModel.Reload()` starts again from page 0.
 
 ## Your first list
 

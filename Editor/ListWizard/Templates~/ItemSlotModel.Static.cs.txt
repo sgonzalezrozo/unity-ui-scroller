@@ -1,0 +1,32 @@
+using System;
+using UIScroller;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    /// <summary>
+    /// The Model of one #NAME# list slot. The list reuses slots as you scroll and sets Data on each one, so the Data setter
+    /// fires OnItemDataChanged and #NAME#ItemSlotView redraws from it. Every slot is ITEM_SIZE pixels along the scroll
+    /// axis; in a grid or bento the other side comes from the layout.
+    /// </summary>
+    public class #NAME#ItemSlotModel : MonoBehaviour, ISlot<#NAME#ItemData>
+    {
+        private const float ITEM_SIZE = 120f;
+
+        public event Action OnItemDataChanged;
+
+        private #NAME#ItemData itemData;
+
+        public float DefaultExtent => ITEM_SIZE;
+
+        public #NAME#ItemData Data
+        {
+            get => itemData;
+            set
+            {
+                itemData = value;
+                OnItemDataChanged?.Invoke();
+            }
+        }
+    }
+}
