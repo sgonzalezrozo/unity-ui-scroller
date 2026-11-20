@@ -37,6 +37,8 @@ https://github.com/sgonzalezrozo/unity-tools-core.git
 https://github.com/sgonzalezrozo/unity-ui-scroller.git
 ```
 
+> **Wait for each package to compile.** Add the first URL, wait until Unity finishes importing and compiling, then add the next. Adding a package while Unity is still importing the previous one can log `ScriptableSingleton already exists` and `assets located in immutable packages were unexpectedly altered`. They don't block anything: clear the Console and continue. If they come back when you open the project without adding a package, report it.
+
 There's nothing to set up after installing. Requirements, tested platforms and samples: [Getting Started](Documentation~/getting-started.md).
 
 ---

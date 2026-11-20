@@ -11,6 +11,7 @@
 
 | Problem | Try this |
 |---|---|
+| `ScriptableSingleton already exists` or `assets located in immutable packages were unexpectedly altered` after adding packages | A package was added while Unity was still importing another. Nothing is broken: clear the Console. Next time, add Tools Core first and wait for the compile before adding the next package. If they come back when you open the project without adding a package, report it |
 | `Content can't have layout components` | Remove the components it names from Content (and any `LayoutGroup` from the Viewport), or press **Remove Layout Components** in the inspector |
 | `Slot does not implement ISlot` | Implement `ISlot<T>` (or `IExpandableSlot<T>`) on a component of the prefab's root |
 | `Refresh aborted - not initialized` | Call `Initialize` (or `SetSource`) first |
