@@ -4,6 +4,8 @@ All notable changes to this package are documented in this file.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-19
+
 ### Changed
 
 - **New Scroll List** generates a list split into Model, View and Controller, in a namespace: `{Name}ItemData`, `{Name}ItemSlotModel` (the `ISlot`, whose `Data` setter fires an event), `{Name}ItemSlotView`, `{Name}Scroller`, `{Name}ListModel` (owns the items and is the `IItemSource`, with `SetItems`, `AddItem`, `InsertItem`, `RemoveItemAt`) and `{Name}ListView`. Expandable items open through `Toggle{Name}ItemController` on an invisible `Action` child of the summary, instead of a `Button`; Multisource adds `{Name}HeaderData`, `{Name}HeaderSlotModel` and `{Name}HeaderSlotView`. It replaces `{Name}ItemModel`, `{Name}ItemController`, `{Name}ScrollList` and `{Name}Instantiator`. The window has a **Namespace** field, by default the folder's assembly root namespace (or name) plus its first folder. The generated code follows the Unity Architecture rules and passes their analyzers; slot roots no longer catch raycasts.
