@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "UIScroller",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "ToolsCore"
     ],
     "includePlatforms": [
         "Editor"
