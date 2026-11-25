@@ -60,6 +60,82 @@ Labels follow the direction: "Padding Top" in a top-to-bottom list, "Padding Lef
 
 `SectionedScroller<TItem, THeader>` has the same API, plus `SetSource(SectionedSource)`, `SetSource(ISectionedSourceProvider)`, `ScrollToSection(section, duration = 0)`, `Source` and `HeaderPrefab`. It has no `Initialize`: `SetSource` starts it.
 
+## Sources and slots
+
+The exact signatures, all in the namespace `UIScroller`. `TItem`, `THeader` and `T` are classes.
+
+```csharp
+// The lists. Declare one concrete, empty subclass per data type: public class ShopScroller : Scroller<ShopItem> { }
+public abstract class Scroller<T> : ScrollerBase where T : class;
+public abstract class SectionedScroller<TItem, THeader> : ScrollerBase where TItem : class where THeader : class;
+public abstract partial class ScrollerBase : ScrollRect, IScroller   // Refresh(), SetBentoLayout()... (Methods and properties)
+
+public interface IItemSource<T>
+{
+    int ItemCount { get; }
+    T GetItem(int index);
+    IReadOnlyList<T> GetAllItems();
+}
+
+public interface IItemSourceProvider<T>
+{
+    IItemSource<T> GetSource();
+}
+
+public class ListSource<T> : IItemSource<T>
+{
+    public ListSource(IEnumerable<T> initialItems = null);
+    public void AddItem(T item);
+    public void AddItems(IEnumerable<T> newItems);
+    public void InsertItem(int index, T item);
+    public void RemoveItem(T item);
+    public void RemoveItemAt(int index);
+    public void Clear();
+    public void SetItems(IEnumerable<T> newItems);      // null items are filtered out, with a warning
+    public void ReplaceItems(IEnumerable<T> newItems);  // same as SetItems
+}
+
+public sealed class SectionedSource<TItem, THeader>
+{
+    public event Action Changed;                 // a section added, inserted or removed, a clear, or Recount finding a change
+    public bool SkipEmptySections { get; set; }  // true by default: an empty section shows nothing, not even its header
+    public int SectionCount { get; }             // including skipped empty sections
+    public int Count { get; }                    // entries shown: headers plus items
+    public void AddSection(THeader header, IItemSource<TItem> items);
+    public void InsertSection(int sectionIndex, THeader header, IItemSource<TItem> items);
+    public void RemoveSection(int sectionIndex);
+    public void ClearSections();
+    public void Recount();                       // picks up item count changes in the inner sources
+    public EntryKind KindAt(int flatIndex);      // EntryKind.Header or EntryKind.Item
+    public THeader HeaderAt(int flatIndex);
+    public TItem ItemAt(int flatIndex);
+    public (int section, int indexInSection) Locate(int flatIndex);
+    public int FlatIndexOf(int sectionIndex, int indexInSection);
+}
+
+public interface ISectionedSourceProvider<TItem, THeader>
+{
+    SectionedSource<TItem, THeader> GetSource();
+}
+
+public interface ISlot
+{
+    float DefaultExtent { get; }   // > 0 fixed size, <= 0 measured
+}
+
+public interface ISlot<T> : ISlot, ToolsCore.IInstantiable
+{
+    T Data { get; set; }
+}
+
+// In Tools Core (assembly ToolsCore): a marker with no members. Implementing ISlot<T> needs the ToolsCore reference.
+namespace ToolsCore { public interface IInstantiable { } }
+```
+
+`SectionedScroller.SetSource(provider)` is `SetSource(provider.GetSource())`: it reads the source once. `SetSource` calls `Recount()` and needs the **Header Prefab** assigned, implementing `ISlot<THeader>`; items use the **Slot Prefab** (`ISlot<TItem>` or `IExpandableSlot<TItem>`). A header takes a whole row in a grid. Indexes in the list's API (`ScrollToItem`, `Expand`...) count headers: use the source's `FlatIndexOf` to find an item's entry.
+
+The list doesn't subscribe to `SectionedSource.Changed`, and inner sources don't announce their changes: after changing a section or a `ListSource` inside it, call the list's `Refresh()`.
+
 ## Overridable on your list class
 
 | Member | Purpose |
